@@ -1,0 +1,44 @@
+# Unity Generated Files
+Library/
+Temp/
+Obj/
+Build/
+Builds/
+/Assets/AssetStoreTools/
+/Assets/StreamingAssets/
+/Assets/AddressableAssetsData/
+/Assets/Editor/Data/UnityExtensions/
+/Assets/Editor/Data/Resources/
+/Assets/Editor/Data/Documentation/
+/Assets/Editor/Data/PlaybackEngines/
+
+# Visual Studio / Rider / IDE Generated Files
+.vs/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.opendb
+
+# MacOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
+
+# Memory Snapshots
+*.mem
