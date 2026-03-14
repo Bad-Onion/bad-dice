@@ -419,7 +419,7 @@ MonoBehaviour:
   targetStateName: PlayingState
   eventChannel: {fileID: 11400000, guid: 70c9a98b3557b2f489bfda165c25d14f, type: 2}
   uiDocument: {fileID: 1872986486}
-  panelName: playing-container
+  containerId: playing-container
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -634,7 +634,7 @@ MonoBehaviour:
   targetStateName: PausedState
   eventChannel: {fileID: 11400000, guid: 70c9a98b3557b2f489bfda165c25d14f, type: 2}
   uiDocument: {fileID: 1872986486}
-  panelName: pause-menu-container
+  containerId: pause-menu-container
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1147,7 +1147,7 @@ MonoBehaviour:
   targetStateName: MainMenuState
   eventChannel: {fileID: 11400000, guid: 70c9a98b3557b2f489bfda165c25d14f, type: 2}
   uiDocument: {fileID: 1872986486}
-  panelName: main-menu-container
+  containerId: main-menu-container
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

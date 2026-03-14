@@ -9,13 +9,8 @@ namespace _Project.Presentation.Scripts.Views
         private Button _startButton;
         private Button _quitButton;
 
-        private readonly GameController _gameController;
-
         [Inject]
-        public MainMenuView(GameController gameController)
-        {
-            _gameController = gameController;
-        }
+        private GameController _gameController;
 
         protected override void BindUIElements()
         {

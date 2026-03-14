@@ -31,9 +31,6 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.BindFactory<Domain.ScriptableObjects.LevelData, System.Action, LoadLevelCommand, LoadLevelCommand.Factory>().AsSingle();
             Container.BindFactory<Domain.ScriptableObjects.LevelData, System.Action, UnloadLevelCommand, UnloadLevelCommand.Factory>().AsSingle();
 
-            // Controllers
-            Container.Bind<GameController>().FromComponentInHierarchy().AsSingle();
-
             // Game State Machine
             Container.Bind<IGameState>().To<BootstrapState>().AsSingle();
             Container.Bind<IGameState>().To<MainMenuState>().AsSingle();

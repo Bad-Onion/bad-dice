@@ -9,13 +9,8 @@ namespace _Project.Presentation.Scripts.Views
         private Button _resumeButton;
         private Button _mainMenuButton;
 
-        private readonly GameController _gameController;
-
         [Inject]
-        public PauseMenuView(GameController gameController)
-        {
-            _gameController = gameController;
-        }
+        private GameController _gameController;
 
         protected override void BindUIElements()
         {
