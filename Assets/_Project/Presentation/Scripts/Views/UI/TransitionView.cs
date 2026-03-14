@@ -3,29 +3,29 @@ using System;
 using System.Collections;
 using _Project.Application.Events;
 using _Project.Application.Events.Payload;
+using UnityEngine.UIElements;
 
 namespace _Project.Presentation.Scripts.Views.UI
 {
-    [RequireComponent(typeof(CanvasGroup))]
     public class TransitionView : MonoBehaviour
     {
         [SerializeField] private TransitionEventChannel transitionEventChannel;
-        private CanvasGroup _canvasGroup;
+        [SerializeField] private UIDocument uiDocument;
+        [SerializeField] private string transitionOverlayId = "transition-overlay";
 
-        private void Awake()
-        {
-            _canvasGroup = GetComponent<CanvasGroup>();
-            _canvasGroup.alpha = 1f; // Start blacked out
-        }
+        private VisualElement _overlay;
 
         private void OnEnable()
         {
-            if (transitionEventChannel != null) transitionEventChannel.OnEventRaised += HandleTransition;
+            BindVisualElement();
+            SetOverlayInitialState();
+
+            transitionEventChannel.OnEventRaised += HandleTransition;
         }
 
         private void OnDisable()
         {
-            if (transitionEventChannel != null) transitionEventChannel.OnEventRaised -= HandleTransition;
+            transitionEventChannel.OnEventRaised -= HandleTransition;
         }
 
         private void HandleTransition(TransitionPayload payload)
@@ -36,7 +36,9 @@ namespace _Project.Presentation.Scripts.Views.UI
 
         private IEnumerator FadeRoutine(bool fadeToBlack, float duration, Action onComplete)
         {
-            float startAlpha = _canvasGroup.alpha;
+            if (_overlay == null) yield break;
+
+            float startAlpha = _overlay.style.opacity.value;
             float targetAlpha = fadeToBlack ? 1f : 0f;
             float elapsed = 0f;
 
@@ -47,18 +49,38 @@ namespace _Project.Presentation.Scripts.Views.UI
                 while (elapsed < duration)
                 {
                     elapsed += Time.unscaledDeltaTime;
-                    _canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
+                    _overlay.style.opacity = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
 
                     yield return null;
                 }
             }
 
-            _canvasGroup.alpha = targetAlpha;
+            _overlay.style.opacity = targetAlpha;
             BlockClicks(fadeToBlack);
 
             onComplete?.Invoke();
         }
 
-        private void BlockClicks(bool block) => _canvasGroup.blocksRaycasts = block;
+        private void BlockClicks(bool block)
+        {
+            if (block) _overlay.pickingMode = PickingMode.Position;
+            else _overlay.pickingMode = PickingMode.Ignore;
+        }
+
+        private void BindVisualElement()
+        {
+            if (uiDocument == null) return;
+            if (uiDocument.rootVisualElement == null) return;
+
+            _overlay = uiDocument.rootVisualElement.Q<VisualElement>(transitionOverlayId);
+        }
+
+        private void SetOverlayInitialState()
+        {
+            if (_overlay == null) return;
+
+            _overlay.style.opacity = 1f;
+            BlockClicks(true);
+        }
     }
 }
