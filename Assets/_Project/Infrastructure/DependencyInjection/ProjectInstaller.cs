@@ -6,6 +6,7 @@ using _Project.Application.Events;
 using _Project.Application.Interfaces;
 using _Project.Application.States.GameState;
 using _Project.Infrastructure.Adapters;
+using _Project.Presentation.Scripts.Controllers;
 
 namespace _Project.Infrastructure.DependencyInjection
 {

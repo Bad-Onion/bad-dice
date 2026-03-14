@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using _Project.Application.Events;
+using UnityEngine.UIElements;
 
 namespace _Project.Presentation.Scripts.Views
 {
@@ -10,21 +11,46 @@ namespace _Project.Presentation.Scripts.Views
         [SerializeField] private string targetStateName;
 
         [SerializeField] private GameStateEventChannel eventChannel;
-        [SerializeField] private GameObject visualPanel;
+        [SerializeField] protected UIDocument uiDocument;
+        [SerializeField] protected string containerId;
+
+        protected VisualElement UiContainer { get; private set; }
+
 
         protected virtual void OnEnable()
         {
+            AwakeUiDocument();
+
             eventChannel.OnEventRaised += HandleStateChanged;
         }
 
         protected virtual void OnDisable()
         {
             eventChannel.OnEventRaised -= HandleStateChanged;
+
+            UnbindUIElements();
         }
+
+        protected virtual void BindUIElements() { }
+
+        protected virtual void UnbindUIElements() { }
 
         private void HandleStateChanged(Type stateType)
         {
-            visualPanel.SetActive(stateType.Name == targetStateName);
+            if (UiContainer == null) return;
+
+            bool isActive = stateType.Name == targetStateName;
+            UiContainer.style.display = isActive ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void AwakeUiDocument()
+        {
+            if (uiDocument == null) return;
+            if (uiDocument.rootVisualElement == null) return;
+
+            UiContainer = uiDocument.rootVisualElement.Q<VisualElement>(containerId);
+
+            BindUIElements();
         }
     }
 }

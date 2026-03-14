@@ -22,14 +22,12 @@ namespace _Project.Presentation.Scripts.Views.UI
 
         private void OnEnable()
         {
-            if (gameStateEventChannel != null)
-                gameStateEventChannel.OnEventRaised += HandleStateChanged;
+            gameStateEventChannel.OnEventRaised += HandleStateChanged;
         }
 
         private void OnDisable()
         {
-            if (gameStateEventChannel != null)
-                gameStateEventChannel.OnEventRaised -= HandleStateChanged;
+            gameStateEventChannel.OnEventRaised -= HandleStateChanged;
         }
 
         private void OnVideoPrepared(VideoPlayer source)

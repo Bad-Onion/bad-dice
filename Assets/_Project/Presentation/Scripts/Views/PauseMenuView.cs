@@ -1,29 +1,32 @@
 ﻿using _Project.Presentation.Scripts.Controllers;
-using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Zenject;
 
 namespace _Project.Presentation.Scripts.Views
 {
     public class PauseMenuView : BaseStateView
     {
-        [SerializeField] private Button resumeButton;
-        [SerializeField] private Button mainMenuButton;
-        [SerializeField] private GameController gameController;
+        private Button _resumeButton;
+        private Button _mainMenuButton;
 
-        protected override void OnEnable()
+        [Inject]
+        private GameController _gameController;
+
+        protected override void BindUIElements()
         {
-            base.OnEnable();
+            if (UiContainer == null) return;
 
-            resumeButton.onClick.AddListener(gameController.ResumeGame);
-            mainMenuButton.onClick.AddListener(gameController.ReturnToMenu);
+            _resumeButton = UiContainer.Q<Button>("resume-button");
+            _mainMenuButton = UiContainer.Q<Button>("main-menu-button");
+
+            if (_resumeButton != null) _resumeButton.clicked += _gameController.ResumeGame;
+            if (_mainMenuButton != null) _mainMenuButton.clicked += _gameController.ReturnToMenu;
         }
 
-        protected override void OnDisable()
+        protected override void UnbindUIElements()
         {
-            base.OnDisable();
-
-            resumeButton.onClick.RemoveListener(gameController.ResumeGame);
-            mainMenuButton.onClick.RemoveListener(gameController.ReturnToMenu);
+            if (_resumeButton != null) _resumeButton.clicked -= _gameController.ResumeGame;
+            if (_mainMenuButton != null) _mainMenuButton.clicked -= _gameController.ReturnToMenu;
         }
     }
 }

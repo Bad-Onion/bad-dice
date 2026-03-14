@@ -1,29 +1,32 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine.UIElements;
+using Zenject;
 using _Project.Presentation.Scripts.Controllers;
 
 namespace _Project.Presentation.Scripts.Views
 {
     public class MainMenuView : BaseStateView
     {
-        [SerializeField] private Button startButton;
-        [SerializeField] private Button quitButton;
-        [SerializeField] private GameController gameController;
+        private Button _startButton;
+        private Button _quitButton;
 
-        protected override void OnEnable()
+        [Inject]
+        private GameController _gameController;
+
+        protected override void BindUIElements()
         {
-            base.OnEnable();
+            if (UiContainer == null) return;
 
-            startButton.onClick.AddListener(gameController.StartGameFromMenu);
-            quitButton.onClick.AddListener(gameController.QuitGame);
+            _startButton = UiContainer.Q<Button>("start-button");
+            _quitButton = UiContainer.Q<Button>("quit-button");
+
+            if (_startButton != null) _startButton.clicked += _gameController.StartGameFromMenu;
+            if (_quitButton != null) _quitButton.clicked += _gameController.QuitGame;
         }
 
-        protected override void OnDisable()
+        protected override void UnbindUIElements()
         {
-            base.OnDisable();
-
-            startButton.onClick.RemoveListener(gameController.StartGameFromMenu);
-            quitButton.onClick.RemoveListener(gameController.QuitGame);
+            if (_startButton != null) _startButton.clicked -= _gameController.StartGameFromMenu;
+            if (_quitButton != null) _quitButton.clicked -= _gameController.QuitGame;
         }
     }
 }
