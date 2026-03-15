@@ -1,37 +1,35 @@
-﻿using UnityEngine;
-using Zenject;
-using System;
+﻿using System;
 using _Project.Application.Commands;
 using _Project.Application.Events;
 using _Project.Application.Events.Payload;
 using _Project.Application.Interfaces;
 using _Project.Application.States.GameState;
+using _Project.Application.UseCases;
+using _Project.Domain.Entities;
 using _Project.Domain.ScriptableObjects;
+using Zenject;
 
-namespace _Project.Presentation.Scripts.Controllers
+namespace _Project.Infrastructure.Services
 {
-    public class GameController : MonoBehaviour, IDisposable
+    public class GameFlowService : IGameFlowUseCase, IInitializable, IDisposable
     {
-        private IGameStateMachine _gameStateMachine;
-        private IInputProvider _inputProvider;
-        private TransitionEventChannel _transitionEventChannel;
-        private CommandProcessor _commandProcessor;
-        private LoadLevelCommand.Factory _loadLevelCommandFactory;
-        private UnloadLevelCommand.Factory _unloadLevelCommandFactory;
+        private readonly IGameStateMachine _gameStateMachine;
+        private readonly IInputProvider _inputProvider;
+        private readonly TransitionEventChannel _transitionEventChannel;
+        private readonly CommandProcessor _commandProcessor;
+        private readonly LoadLevelCommand.Factory _loadLevelCommandFactory;
+        private readonly UnloadLevelCommand.Factory _unloadLevelCommandFactory;
+        private readonly GameSession _gameSession;
 
-        [Header("Level Configuration")]
-        [SerializeField] private LevelData currentLevelData;
-
-        private bool _isLevelLoaded = false;
-
-        [Inject]
-        public void Construct(
+        public GameFlowService(
             IGameStateMachine stateMachine,
             IInputProvider inputProvider,
             TransitionEventChannel transitionEventChannel,
             CommandProcessor commandProcessor,
             LoadLevelCommand.Factory loadLevelCommandFactory,
-            UnloadLevelCommand.Factory unloadLevelCommandFactory)
+            UnloadLevelCommand.Factory unloadLevelCommandFactory,
+            GameSession gameSession,
+            GameConfiguration gameConfiguration)
         {
             _gameStateMachine = stateMachine;
             _inputProvider = inputProvider;
@@ -39,24 +37,24 @@ namespace _Project.Presentation.Scripts.Controllers
             _commandProcessor = commandProcessor;
             _loadLevelCommandFactory = loadLevelCommandFactory;
             _unloadLevelCommandFactory = unloadLevelCommandFactory;
+            _gameSession = gameSession;
 
-            _inputProvider.OnPauseAction += TogglePause;
+            _gameSession.CurrentLevelData = gameConfiguration.DefaultLevelData;
         }
 
-        private void OnEnable()
+        public void Initialize()
         {
             Bus<BootstrapReadyEvent>.OnEvent += HandleBootstrapReady;
-        }
+            _inputProvider.OnPauseAction += TogglePause;
 
-        private void OnDisable()
-        {
-            Bus<BootstrapReadyEvent>.OnEvent -= HandleBootstrapReady;
-        }
-
-        private void Start()
-        {
             _transitionEventChannel.RaiseEvent(new TransitionPayload(true, 0f));
             _gameStateMachine.ChangeState<BootstrapState>();
+        }
+
+        public void Dispose()
+        {
+            Bus<BootstrapReadyEvent>.OnEvent -= HandleBootstrapReady;
+            _inputProvider.OnPauseAction -= TogglePause;
         }
 
         private void HandleBootstrapReady(BootstrapReadyEvent evt)
@@ -64,7 +62,7 @@ namespace _Project.Presentation.Scripts.Controllers
             RequestStateChange<MainMenuState>();
         }
 
-        public void RequestStateChange<TState>(bool useTransition = true) where TState : class, IGameState
+        private void RequestStateChange<TState>(bool useTransition = true) where TState : class, IGameState
         {
             if (useTransition)
             {
@@ -84,9 +82,9 @@ namespace _Project.Presentation.Scripts.Controllers
         {
             ExecuteWithTransition(onComplete =>
             {
-                var loadCommand = _loadLevelCommandFactory.Create(currentLevelData, () =>
+                var loadCommand = _loadLevelCommandFactory.Create(_gameSession.CurrentLevelData, () =>
                 {
-                    _isLevelLoaded = true;
+                    _gameSession.IsLevelLoaded = true;
                     _gameStateMachine.ChangeState<PlayingState>();
                     onComplete?.Invoke();
                 });
@@ -109,11 +107,11 @@ namespace _Project.Presentation.Scripts.Controllers
                     onComplete?.Invoke();
                 };
 
-                if (_isLevelLoaded)
+                if (_gameSession.IsLevelLoaded)
                 {
-                    var unloadCommand = _unloadLevelCommandFactory.Create(currentLevelData, () =>
+                    var unloadCommand = _unloadLevelCommandFactory.Create(_gameSession.CurrentLevelData, () =>
                     {
-                        _isLevelLoaded = false;
+                        _gameSession.IsLevelLoaded = false;
                         completeTransition();
                     });
 
@@ -135,18 +133,10 @@ namespace _Project.Presentation.Scripts.Controllers
             #endif
         }
 
-        private void TogglePause()
+        public void TogglePause()
         {
             if (_gameStateMachine.CurrentStateType == typeof(PlayingState)) PauseGame();
-
             else if (_gameStateMachine.CurrentStateType == typeof(PausedState)) ResumeGame();
-        }
-
-        public void Dispose()
-        {
-            if (_inputProvider == null) return;
-
-            _inputProvider.OnPauseAction -= TogglePause;
         }
 
         private void ExecuteWithTransition(Action<Action> midTransitionAction)

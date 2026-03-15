@@ -1,15 +1,26 @@
-﻿using Zenject;
-using _Project.Presentation.Scripts.Controllers;
+﻿using _Project.Domain.Entities;
+using _Project.Domain.ScriptableObjects;
+using _Project.Infrastructure.Services;
+using Zenject;
+using UnityEngine;
 
 namespace _Project.Infrastructure.DependencyInjection
 {
     public class GameInstaller : MonoInstaller
     {
+        [Header("Game Configuration")]
+        [SerializeField] private GameConfiguration gameConfiguration;
+
         public override void InstallBindings()
         {
-            // MainScene specific dependencies like MainSceneAudioOrchestrator for exemple or specific UIManager
-            // Controllers
-            Container.Bind<GameController>().FromComponentInHierarchy().AsSingle();
+            // Configuration Data
+            Container.BindInstance(gameConfiguration).AsSingle();
+
+            // Entities
+            Container.Bind<GameSession>().AsSingle();
+
+            // Services
+            Container.BindInterfacesTo<GameFlowService>().AsSingle();
         }
     }
 }

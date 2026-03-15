@@ -1,4 +1,4 @@
-﻿using _Project.Presentation.Scripts.Controllers;
+﻿using _Project.Application.UseCases;
 using UnityEngine.UIElements;
 using Zenject;
 
@@ -9,8 +9,13 @@ namespace _Project.Presentation.Scripts.Views
         private Button _resumeButton;
         private Button _mainMenuButton;
 
+        private IGameFlowUseCase _gameFlowUseCase;
+
         [Inject]
-        private GameController _gameController;
+        public void Construct(IGameFlowUseCase gameFlowUseCase)
+        {
+            _gameFlowUseCase = gameFlowUseCase;
+        }
 
         protected override void BindUIElements()
         {
@@ -19,14 +24,14 @@ namespace _Project.Presentation.Scripts.Views
             _resumeButton = UiContainer.Q<Button>("resume-button");
             _mainMenuButton = UiContainer.Q<Button>("main-menu-button");
 
-            if (_resumeButton != null) _resumeButton.clicked += _gameController.ResumeGame;
-            if (_mainMenuButton != null) _mainMenuButton.clicked += _gameController.ReturnToMenu;
+            if (_resumeButton != null) _resumeButton.clicked += _gameFlowUseCase.ResumeGame;
+            if (_mainMenuButton != null) _mainMenuButton.clicked += _gameFlowUseCase.ReturnToMenu;
         }
 
         protected override void UnbindUIElements()
         {
-            if (_resumeButton != null) _resumeButton.clicked -= _gameController.ResumeGame;
-            if (_mainMenuButton != null) _mainMenuButton.clicked -= _gameController.ReturnToMenu;
+            if (_resumeButton != null) _resumeButton.clicked -= _gameFlowUseCase.ResumeGame;
+            if (_mainMenuButton != null) _mainMenuButton.clicked -= _gameFlowUseCase.ReturnToMenu;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using UnityEngine.UIElements;
+﻿using _Project.Application.UseCases;
+using UnityEngine.UIElements;
 using Zenject;
-using _Project.Presentation.Scripts.Controllers;
 
 namespace _Project.Presentation.Scripts.Views
 {
@@ -9,8 +9,13 @@ namespace _Project.Presentation.Scripts.Views
         private Button _startButton;
         private Button _quitButton;
 
+        private IGameFlowUseCase _gameFlowUseCase;
+
         [Inject]
-        private GameController _gameController;
+        public void Construct(IGameFlowUseCase gameFlowUseCase)
+        {
+            _gameFlowUseCase = gameFlowUseCase;
+        }
 
         protected override void BindUIElements()
         {
@@ -19,14 +24,14 @@ namespace _Project.Presentation.Scripts.Views
             _startButton = UiContainer.Q<Button>("start-button");
             _quitButton = UiContainer.Q<Button>("quit-button");
 
-            if (_startButton != null) _startButton.clicked += _gameController.StartGameFromMenu;
-            if (_quitButton != null) _quitButton.clicked += _gameController.QuitGame;
+            if (_startButton != null) _startButton.clicked += _gameFlowUseCase.StartGameFromMenu;
+            if (_quitButton != null) _quitButton.clicked += _gameFlowUseCase.QuitGame;
         }
 
         protected override void UnbindUIElements()
         {
-            if (_startButton != null) _startButton.clicked -= _gameController.StartGameFromMenu;
-            if (_quitButton != null) _quitButton.clicked -= _gameController.QuitGame;
+            if (_startButton != null) _startButton.clicked -= _gameFlowUseCase.StartGameFromMenu;
+            if (_quitButton != null) _quitButton.clicked -= _gameFlowUseCase.QuitGame;
         }
     }
 }
