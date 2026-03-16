@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d9d1fccd8064d608507313d75f4cb9c, type: 3}
   m_Name: DiceConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Domain.ScriptableObjects.DiceConfiguration
-  visualPrefabs:
-  - {fileID: 7710947953943999187, guid: f90bbb3782cfffd41a437b2e41a6024b, type: 3}
-  - {fileID: 7710947953943999187, guid: f90bbb3782cfffd41a437b2e41a6024b, type: 3}
-  - {fileID: 7710947953943999187, guid: f90bbb3782cfffd41a437b2e41a6024b, type: 3}
-  - {fileID: 7710947953943999187, guid: f90bbb3782cfffd41a437b2e41a6024b, type: 3}
-  - {fileID: 7710947953943999187, guid: f90bbb3782cfffd41a437b2e41a6024b, type: 3}
+  diceDefinitions:
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
   spawnSpacing: 1.2
   minForce: 3
   maxForce: 8

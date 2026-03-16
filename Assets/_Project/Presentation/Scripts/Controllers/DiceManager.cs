@@ -12,7 +12,6 @@ namespace _Project.Presentation.Scripts.Controllers
         private DiceConfiguration _config;
         private DiContainer _container;
 
-        // Track which prefab spawned which controller so we can pool them accurately
         private readonly List<(DiceController controller, GameObject prefab)> _activeDice = new();
         private readonly Dictionary<GameObject, Queue<DiceController>> _pools = new();
         private Transform _poolRoot;
@@ -48,10 +47,12 @@ namespace _Project.Presentation.Scripts.Controllers
 
             for (int i = 0; i < evt.SimulationResult.DicePaths.Count; i++)
             {
-                if (i >= _config.visualPrefabs.Length) break;
+                if (i >= _config.diceDefinitions.Length) break;
 
-                GameObject prefab = _config.visualPrefabs[i];
-                if (prefab == null) continue;
+                DiceDefinition definition = _config.diceDefinitions[i];
+                if (definition == null || definition.visualPrefab == null) continue;
+
+                GameObject prefab = definition.visualPrefab;
 
                 DiceController dice = SpawnDice(prefab);
                 _activeDice.Add((dice, prefab));
@@ -85,7 +86,6 @@ namespace _Project.Presentation.Scripts.Controllers
                 return dice;
             }
 
-            // DiContainer ensures any dependencies inside the specific Prefab are properly injected
             DiceController newDice = _container.InstantiatePrefabForComponent<DiceController>(prefab, _poolRoot);
             return newDice;
         }

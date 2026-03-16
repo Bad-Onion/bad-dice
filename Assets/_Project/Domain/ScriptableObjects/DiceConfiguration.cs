@@ -5,9 +5,9 @@ namespace _Project.Domain.ScriptableObjects
     [CreateAssetMenu(fileName = "DiceConfiguration", menuName = "Domain/DiceConfiguration")]
     public class DiceConfiguration : ScriptableObject
     {
-        [Header("Visual Pool Settings")]
-        [Tooltip("Array of dice prefabs to roll. The amount of dice rolled equals the length of this array. Order matters!")]
-        public GameObject[] visualPrefabs;
+        [Header("Dice Pool Settings")]
+        [Tooltip("Array of dice definitions to roll. The amount of dice rolled equals the length of this array.")]
+        public DiceDefinition[] diceDefinitions;
 
         [Tooltip("Distance between each dice spawn point to avoid immediate clipping.")]
         [Range(0.1f, 3f)] public float spawnSpacing = 1.2f;
@@ -21,7 +21,7 @@ namespace _Project.Domain.ScriptableObjects
         public Vector3 spawnCenter = new Vector3(0, 5, 0);
         public GameObject physicsPrefab;
 
-        public int DiceCount => visualPrefabs != null ? visualPrefabs.Length : 0;
+        public int DiceCount => diceDefinitions != null ? diceDefinitions.Length : 0;
 
         public Vector3 GetLocalUpForFace(int faceNumber)
         {

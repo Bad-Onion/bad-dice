@@ -50,10 +50,12 @@ namespace _Project.Infrastructure.Services
         private GameObject[] CreateAndInitializeDiceArray(int count, Vector3[] positions, Quaternion[] rotations, Vector3[] forces, Vector3[] torques)
         {
             GameObject[] dummies = new GameObject[count];
-
             for (int i = 0; i < count; i++)
             {
-                dummies[i] = Object.Instantiate(_config.physicsPrefab, positions[i], rotations[i]);
+                // Fetch the specific physics prefab for this dice
+                GameObject physicsPrefab = _config.diceDefinitions[i].physicsPrefab;
+
+                dummies[i] = Object.Instantiate(physicsPrefab, positions[i], rotations[i]);
                 Rigidbody rb = dummies[i].GetComponent<Rigidbody>();
 
                 rb.isKinematic = false;
@@ -65,12 +67,10 @@ namespace _Project.Infrastructure.Services
         private Rigidbody[] GetRigidbodies(GameObject[] dummies)
         {
             Rigidbody[] rbs = new Rigidbody[dummies.Length];
-
             for (int i = 0; i < dummies.Length; i++)
             {
                 rbs[i] = dummies[i].GetComponent<Rigidbody>();
             }
-
             return rbs;
         }
 
