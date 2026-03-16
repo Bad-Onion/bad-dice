@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
+    // Dice Prefab Controller
     public class DiceController : MonoBehaviour
     {
         [Header("References")]
@@ -15,16 +16,16 @@ namespace _Project.Presentation.Scripts.Controllers
         public void PlayTrajectory(DicePath path)
         {
             if (_playbackCoroutine != null) StopCoroutine(_playbackCoroutine);
+
             _playbackCoroutine = StartCoroutine(PlaybackRoutine(path));
         }
 
         public void StopPlayback()
         {
-            if (_playbackCoroutine != null)
-            {
-                StopCoroutine(_playbackCoroutine);
-                _playbackCoroutine = null;
-            }
+            if (_playbackCoroutine == null) return;
+
+            StopCoroutine(_playbackCoroutine);
+            _playbackCoroutine = null;
         }
 
         private IEnumerator PlaybackRoutine(DicePath path)
@@ -35,6 +36,7 @@ namespace _Project.Presentation.Scripts.Controllers
             {
                 transform.position = path.Frames[i].Position;
                 transform.rotation = path.Frames[i].Rotation;
+
                 yield return new WaitForFixedUpdate();
             }
         }

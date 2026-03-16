@@ -50,11 +50,12 @@ namespace _Project.Presentation.Scripts.Controllers
                 if (i >= _config.diceDefinitions.Length) break;
 
                 DiceDefinition definition = _config.diceDefinitions[i];
+
                 if (definition == null || definition.visualPrefab == null) continue;
 
                 GameObject prefab = definition.visualPrefab;
-
                 DiceController dice = SpawnDice(prefab);
+
                 _activeDice.Add((dice, prefab));
 
                 dice.PlayTrajectory(evt.SimulationResult.DicePaths[i]);
@@ -68,6 +69,7 @@ namespace _Project.Presentation.Scripts.Controllers
                 active.controller.StopPlayback();
                 DespawnDice(active.controller, active.prefab);
             }
+
             _activeDice.Clear();
         }
 

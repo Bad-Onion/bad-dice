@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using _Project.Application.Interfaces;
 using _Project.Domain.Entities;
 using _Project.Domain.ScriptableObjects;
@@ -49,28 +50,31 @@ namespace _Project.Infrastructure.Services
 
         private GameObject[] CreateAndInitializeDiceArray(int count, Vector3[] positions, Quaternion[] rotations, Vector3[] forces, Vector3[] torques)
         {
-            GameObject[] dummies = new GameObject[count];
+            GameObject[] dummyDice = new GameObject[count];
+
             for (int i = 0; i < count; i++)
             {
-                // Fetch the specific physics prefab for this dice
                 GameObject physicsPrefab = _config.diceDefinitions[i].physicsPrefab;
 
-                dummies[i] = Object.Instantiate(physicsPrefab, positions[i], rotations[i]);
-                Rigidbody rb = dummies[i].GetComponent<Rigidbody>();
+                dummyDice[i] = Object.Instantiate(physicsPrefab, positions[i], rotations[i]);
+                Rigidbody rb = dummyDice[i].GetComponent<Rigidbody>();
 
                 rb.isKinematic = false;
                 ApplyForces(rb, forces[i], torques[i]);
             }
-            return dummies;
+
+            return dummyDice;
         }
 
         private Rigidbody[] GetRigidbodies(GameObject[] dummies)
         {
             Rigidbody[] rbs = new Rigidbody[dummies.Length];
+
             for (int i = 0; i < dummies.Length; i++)
             {
                 rbs[i] = dummies[i].GetComponent<Rigidbody>();
             }
+
             return rbs;
         }
 
@@ -83,12 +87,7 @@ namespace _Project.Infrastructure.Services
         private List<DicePath> SimulateUntilAllSettled(Rigidbody[] rbs)
         {
             int count = rbs.Length;
-            List<DicePath> paths = new List<DicePath>(count);
-
-            for (int i = 0; i < count; i++)
-            {
-                paths.Add(new DicePath { Frames = new List<DiceFrame>(MaxRecordCapacity) });
-            }
+            List<DicePath> paths = Enumerable.Range(0, count).Select(_ => new DicePath { Frames = new List<DiceFrame>(MaxRecordCapacity) }).ToList();
 
             for (int frame = 0; frame < MaxRecordCapacity; frame++)
             {

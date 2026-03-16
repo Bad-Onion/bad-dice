@@ -23,24 +23,13 @@ namespace _Project.Infrastructure.Services
 
         public void RequestRoll()
         {
-            if (_diceSession.IsRolling) return;
-
-            int count = _diceConfiguration.DiceCount;
-            if (count == 0) return; // Prevent errors if the designer empties the array
+            if (!CanStartRoll(out int count)) return;
 
             StartDiceSession(count);
+            PublishResultDecided();
 
-            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { Results = _diceSession.TargetResults });
-
-            DiceSimulationResult result = _simulationService.SimulateTrajectory(
-                _diceSession.TargetResults,
-                GetStartPositions(count),
-                GetRandomRotations(count),
-                GetRandomForces(count),
-                GetRandomTorques(count)
-            );
-
-            Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent { SimulationResult = result });
+            DiceSimulationResult simulationResult = SimulateRoll(count);
+            PublishPlaybackRequested(simulationResult);
         }
 
         public void ResetDice()
@@ -49,58 +38,79 @@ namespace _Project.Infrastructure.Services
             Bus<DiceResetEvent>.Raise(new DiceResetEvent());
         }
 
+        private bool CanStartRoll(out int count)
+        {
+            count = _diceConfiguration.DiceCount;
+            return !_diceSession.IsRolling && count != 0;
+        }
+
         private void StartDiceSession(int count)
         {
             _diceSession.IsRolling = true;
-            _diceSession.TargetResults = new int[count];
+            _diceSession.TargetResults = BuildArray(count, _ => Random.Range(1, 7));
+        }
 
-            for (int i = 0; i < count; i++)
-            {
-                _diceSession.TargetResults[i] = Random.Range(1, 7);
-            }
+        private void PublishResultDecided()
+        {
+            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { Results = _diceSession.TargetResults });
+        }
+
+        private DiceSimulationResult SimulateRoll(int count)
+        {
+            return _simulationService.SimulateTrajectory(
+                _diceSession.TargetResults,
+                GetStartPositions(count),
+                GetRandomRotations(count),
+                GetRandomForces(count),
+                GetRandomTorques(count)
+            );
+        }
+
+        private void PublishPlaybackRequested(DiceSimulationResult simulationResult)
+        {
+            Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent { SimulationResult = simulationResult });
         }
 
         private Vector3[] GetStartPositions(int count)
         {
-            Vector3[] positions = new Vector3[count];
-            for (int i = 0; i < count; i++)
+            return BuildArray(count, i =>
             {
                 Vector3 offset = new Vector3((i - (count / 2f)) * _diceConfiguration.spawnSpacing, 0, 0);
-                positions[i] = _diceConfiguration.spawnCenter + offset;
-            }
-            return positions;
+
+                return _diceConfiguration.spawnCenter + offset;
+            });
         }
 
         private Vector3[] GetRandomForces(int count)
         {
-            Vector3[] forces = new Vector3[count];
-            for (int i = 0; i < count; i++)
+            return BuildArray(count, _ =>
             {
                 Vector3 randomForce = Random.onUnitSphere * Random.Range(_diceConfiguration.minForce, _diceConfiguration.maxForce);
                 randomForce.y = Mathf.Abs(randomForce.y);
-                forces[i] = randomForce;
-            }
-            return forces;
+
+                return randomForce;
+            });
         }
 
         private Vector3[] GetRandomTorques(int count)
         {
-            Vector3[] torques = new Vector3[count];
-            for (int i = 0; i < count; i++)
-            {
-                torques[i] = Random.onUnitSphere * _diceConfiguration.torqueMultiplier;
-            }
-            return torques;
+            return BuildArray(count, _ => Random.onUnitSphere * _diceConfiguration.torqueMultiplier);
         }
 
         private Quaternion[] GetRandomRotations(int count)
         {
-            Quaternion[] rotations = new Quaternion[count];
+            return BuildArray(count, _ => Random.rotation);
+        }
+
+        private static T[] BuildArray<T>(int count, System.Func<int, T> elementFactory)
+        {
+            T[] elements = new T[count];
             for (int i = 0; i < count; i++)
             {
-                rotations[i] = Random.rotation;
+                elements[i] = elementFactory(i);
             }
-            return rotations;
+
+            return elements;
         }
     }
 }
