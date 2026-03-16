@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4781371140819742724}
   - component: {fileID: 4258719471702860711}
   m_Layer: 0
-  m_Name: PhysicsPrefab
+  m_Name: DummyPhysicsPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

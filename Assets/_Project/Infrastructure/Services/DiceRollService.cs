@@ -25,22 +25,16 @@ namespace _Project.Infrastructure.Services
         {
             if (_diceSession.IsRolling) return;
 
-            _diceSession.IsRolling = true;
-            _diceSession.TargetResult = Random.Range(1, 7);
+            StartDiceSession();
 
             Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { Result = _diceSession.TargetResult });
-
-            Vector3 randomForce = Random.onUnitSphere * Random.Range(_diceConfiguration.minForce, _diceConfiguration.maxForce);
-            randomForce.y = Mathf.Abs(randomForce.y);
-            Vector3 randomTorque = Random.onUnitSphere * _diceConfiguration.torqueMultiplier;
-            Quaternion randomRotation = Random.rotation;
 
             DiceSimulationResult result = _simulationService.SimulateTrajectory(
                 _diceSession.TargetResult,
                 _diceConfiguration.spawnPosition,
-                randomRotation,
-                randomForce,
-                randomTorque
+                GetRandomRotation(),
+                GetRandomForce(),
+                GetRandomTorque()
             );
 
             Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent { SimulationResult = result });
@@ -50,6 +44,30 @@ namespace _Project.Infrastructure.Services
         {
             _diceSession.IsRolling = false;
             Bus<DiceResetEvent>.Raise(new DiceResetEvent());
+        }
+
+        private void StartDiceSession()
+        {
+            _diceSession.IsRolling = true;
+            _diceSession.TargetResult = Random.Range(1, 7);
+        }
+
+        private Vector3 GetRandomForce()
+        {
+            Vector3 randomForce = Random.onUnitSphere * Random.Range(_diceConfiguration.minForce, _diceConfiguration.maxForce);
+            randomForce.y = Mathf.Abs(randomForce.y);
+
+            return randomForce;
+        }
+
+        private Vector3 GetRandomTorque()
+        {
+            return Random.onUnitSphere * _diceConfiguration.torqueMultiplier;
+        }
+
+        private Quaternion GetRandomRotation()
+        {
+            return Random.rotation;
         }
     }
 }
