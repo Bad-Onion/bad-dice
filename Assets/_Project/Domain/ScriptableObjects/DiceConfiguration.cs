@@ -5,22 +5,24 @@ namespace _Project.Domain.ScriptableObjects
     [CreateAssetMenu(fileName = "DiceConfiguration", menuName = "Domain/DiceConfiguration")]
     public class DiceConfiguration : ScriptableObject
     {
+        [Header("Pool & Count Settings")]
+        [Tooltip("Prefab used for the visual dice representation (no colliders).")]
+        public GameObject VisualPrefab;
+
+        [Tooltip("Number of dice to roll simultaneously.")]
+        [Range(1, 10)] public int DiceCount = 5;
+
+        [Tooltip("Distance between each dice spawn point to avoid immediate clipping.")]
+        [Range(0.1f, 3f)] public float SpawnSpacing = 1.2f;
+
         [Header("Physics Settings")]
-        [Tooltip("Minimum force applied to the dice.")]
-        [Range(1f, 10f)] public float minForce = 3f;
+        [Range(1f, 10f)] public float MinForce = 3f;
+        [Range(5f, 20f)] public float MaxForce = 8f;
+        [Range(10f, 100f)] public float TorqueMultiplier = 50f;
 
-        [Tooltip("Maximum force applied to the dice.")]
-        [Range(5f, 20f)] public float maxForce = 8f;
-
-        [Tooltip("Amount of random torque applied.")]
-        [Range(10f, 100f)] public float torqueMultiplier = 50f;
-
-        [Header("Initial Spawn")]
-        [Tooltip("Where the dice spawns/resets above the table.")]
-        public Vector3 spawnPosition = new Vector3(0, 5, 0);
-
-        [Tooltip("Prefab used purely for the hidden physics simulation. Must contain a Rigidbody and Collider matching the visual dice.")]
-        public GameObject physicsPrefab;
+        [Header("Simulation")]
+        public Vector3 SpawnCenter = new Vector3(0, 5, 0);
+        public GameObject PhysicsPrefab;
 
         public Vector3 GetLocalUpForFace(int faceNumber)
         {

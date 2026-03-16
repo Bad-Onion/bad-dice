@@ -14,52 +14,43 @@ namespace _Project.Presentation.Scripts.Controllers
         [Tooltip("Assign the child GameObject that holds all the visual numbers and meshes.")]
         [SerializeField] private Transform visualsRoot;
 
-        private DiceConfiguration _config;
         private Coroutine _playbackCoroutine;
 
-        [Inject]
-        public void Construct(DiceConfiguration config)
-        {
-            _config = config;
-        }
-
-        private void OnEnable()
-        {
-            Bus<DicePlaybackRequestedEvent>.OnEvent += HandlePlaybackRequested;
-            Bus<DiceResetEvent>.OnEvent += HandleReset;
-        }
-
-        private void OnDisable()
-        {
-            Bus<DicePlaybackRequestedEvent>.OnEvent -= HandlePlaybackRequested;
-            Bus<DiceResetEvent>.OnEvent -= HandleReset;
-        }
-
-        private void HandlePlaybackRequested(DicePlaybackRequestedEvent evt)
+        public void PlayTrajectory(DicePath path)
         {
             if (_playbackCoroutine != null) StopCoroutine(_playbackCoroutine);
-            _playbackCoroutine = StartCoroutine(PlaybackRoutine(evt.SimulationResult));
+            _playbackCoroutine = StartCoroutine(PlaybackRoutine(path));
         }
 
-        private IEnumerator PlaybackRoutine(DiceSimulationResult result)
+        public void StopPlayback()
         {
-            visualsRoot.localRotation = result.VisualCorrection;
-
-            for (int i = 0; i < result.Frames.Count; i++)
+            if (_playbackCoroutine != null)
             {
-                transform.position = result.Frames[i].Position;
-                transform.rotation = result.Frames[i].Rotation;
+                StopCoroutine(_playbackCoroutine);
+                _playbackCoroutine = null;
+            }
+        }
+
+        private IEnumerator PlaybackRoutine(DicePath path)
+        {
+            visualsRoot.localRotation = path.VisualCorrection;
+
+            for (int i = 0; i < path.Frames.Count; i++)
+            {
+                transform.position = path.Frames[i].Position;
+                transform.rotation = path.Frames[i].Rotation;
                 yield return new WaitForFixedUpdate();
             }
         }
 
-        private void HandleReset(DiceResetEvent evt)
+        // Zenject memory pool declaration
+        public class Pool : MonoMemoryPool<DiceController>
         {
-            if (_playbackCoroutine != null) StopCoroutine(_playbackCoroutine);
-
-            transform.position = _config.spawnPosition;
-            transform.rotation = Quaternion.identity;
-            visualsRoot.localRotation = Quaternion.identity;
+            protected override void OnDespawned(DiceController item)
+            {
+                item.StopPlayback();
+                base.OnDespawned(item);
+            }
         }
     }
 }

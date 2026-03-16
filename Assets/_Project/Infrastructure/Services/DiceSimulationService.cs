@@ -19,26 +19,26 @@ namespace _Project.Infrastructure.Services
             _config = config;
         }
 
-        public DiceSimulationResult SimulateTrajectory(int targetResult, Vector3 startPos, Quaternion startRot, Vector3 force, Vector3 torque)
+        public DiceSimulationResult SimulateTrajectory(int[] targetResults, Vector3[] startPos, Quaternion[] startRot, Vector3[] forces, Vector3[] torques)
         {
             SimulationMode originalMode = Physics.simulationMode;
-            
+
             try
             {
                 Physics.simulationMode = SimulationMode.Script;
-                
-                GameObject dummyPhysicsObject = CreateAndInitializeDice(startPos, startRot, force, torque);
-                Rigidbody rb = dummyPhysicsObject.GetComponent<Rigidbody>();
 
-                List<DiceFrame> recordedFrames = SimulateUntilSettled(rb);
-                Quaternion visualCorrection = CalculateVisualCorrection(targetResult, dummyPhysicsObject);
+                int diceCount = targetResults.Length;
+                GameObject[] dummyPhysicsObjects = CreateAndInitializeDiceArray(diceCount, startPos, startRot, forces, torques);
+                Rigidbody[] rbs = GetRigidbodies(dummyPhysicsObjects);
 
-                Object.Destroy(dummyPhysicsObject);
+                List<DicePath> dicePaths = SimulateUntilAllSettled(rbs);
+                ApplyVisualCorrections(dicePaths, targetResults, dummyPhysicsObjects);
+
+                CleanupDummies(dummyPhysicsObjects);
 
                 return new DiceSimulationResult
                 {
-                    Frames = recordedFrames,
-                    VisualCorrection = visualCorrection
+                    DicePaths = dicePaths
                 };
             }
             finally
@@ -47,15 +47,31 @@ namespace _Project.Infrastructure.Services
             }
         }
 
-        private GameObject CreateAndInitializeDice(Vector3 position, Quaternion rotation, Vector3 force, Vector3 torque)
+        private GameObject[] CreateAndInitializeDiceArray(int count, Vector3[] positions, Quaternion[] rotations, Vector3[] forces, Vector3[] torques)
         {
-            GameObject dummyPhysicsObject = Object.Instantiate(_config.physicsPrefab, position, rotation);
-            Rigidbody rb = dummyPhysicsObject.GetComponent<Rigidbody>();
+            GameObject[] dummies = new GameObject[count];
 
-            rb.isKinematic = false;
-            ApplyForces(rb, force, torque);
+            for (int i = 0; i < count; i++)
+            {
+                dummies[i] = Object.Instantiate(_config.PhysicsPrefab, positions[i], rotations[i]);
+                Rigidbody rb = dummies[i].GetComponent<Rigidbody>();
 
-            return dummyPhysicsObject;
+                rb.isKinematic = false;
+                ApplyForces(rb, forces[i], torques[i]);
+            }
+            return dummies;
+        }
+
+        private Rigidbody[] GetRigidbodies(GameObject[] dummies)
+        {
+            Rigidbody[] rbs = new Rigidbody[dummies.Length];
+
+            for (int i = 0; i < dummies.Length; i++)
+            {
+                rbs[i] = dummies[i].GetComponent<Rigidbody>();
+            }
+
+            return rbs;
         }
 
         private void ApplyForces(Rigidbody rb, Vector3 force, Vector3 torque)
@@ -64,20 +80,35 @@ namespace _Project.Infrastructure.Services
             rb.AddTorque(torque, ForceMode.Impulse);
         }
 
-        private List<DiceFrame> SimulateUntilSettled(Rigidbody rb)
+        private List<DicePath> SimulateUntilAllSettled(Rigidbody[] rbs)
         {
-            List<DiceFrame> recordedFrames = new List<DiceFrame>(MaxRecordCapacity);
+            int count = rbs.Length;
+            List<DicePath> paths = new List<DicePath>(count);
 
-            for (int i = 0; i < MaxRecordCapacity; i++)
+            for (int i = 0; i < count; i++)
             {
-                Physics.Simulate(Time.fixedDeltaTime);
-                recordedFrames.Add(new DiceFrame(rb.position, rb.rotation));
-
-                if (HasDiceSettled(rb))
-                    break;
+                paths.Add(new DicePath { Frames = new List<DiceFrame>(MaxRecordCapacity) });
             }
 
-            return recordedFrames;
+            for (int frame = 0; frame < MaxRecordCapacity; frame++)
+            {
+                Physics.Simulate(Time.fixedDeltaTime);
+                bool allSettled = true;
+
+                for (int i = 0; i < count; i++)
+                {
+                    paths[i].Frames.Add(new DiceFrame(rbs[i].position, rbs[i].rotation));
+
+                    if (!HasDiceSettled(rbs[i]))
+                    {
+                        allSettled = false;
+                    }
+                }
+
+                if (allSettled) break;
+            }
+
+            return paths;
         }
 
         private bool HasDiceSettled(Rigidbody rb)
@@ -87,15 +118,25 @@ namespace _Project.Infrastructure.Services
 
         private bool IsMotionBelowThreshold(Rigidbody rb)
         {
-            return rb.linearVelocity.sqrMagnitude < MaxMotionThreshold && 
+            return rb.linearVelocity.sqrMagnitude < MaxMotionThreshold &&
                    rb.angularVelocity.sqrMagnitude < MaxMotionThreshold;
+        }
+
+        private void ApplyVisualCorrections(List<DicePath> paths, int[] targetResults, GameObject[] diceObjects)
+        {
+            for (int i = 0; i < paths.Count; i++)
+            {
+                DicePath path = paths[i];
+                path.VisualCorrection = CalculateVisualCorrection(targetResults[i], diceObjects[i]);
+                paths[i] = path;
+            }
         }
 
         private Quaternion CalculateVisualCorrection(int targetResult, GameObject diceObject)
         {
             Vector3 exactLandedFace = GetExactLandedFace(diceObject.transform);
             Vector3 targetLocalUp = _config.GetLocalUpForFace(targetResult);
-            
+
             return Quaternion.FromToRotation(targetLocalUp, exactLandedFace);
         }
 
@@ -122,6 +163,14 @@ namespace _Project.Infrastructure.Services
             }
 
             return bestFace;
+        }
+
+        private void CleanupDummies(GameObject[] dummies)
+        {
+            foreach (var dummy in dummies)
+            {
+                Object.Destroy(dummy);
+            }
         }
     }
 }

@@ -25,16 +25,33 @@ namespace _Project.Infrastructure.Services
         {
             if (_diceSession.IsRolling) return;
 
-            StartDiceSession();
+            int count = _diceConfiguration.DiceCount;
+            _diceSession.IsRolling = true;
+            _diceSession.TargetResults = new int[count];
 
-            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { Result = _diceSession.TargetResult });
+            Vector3[] startPos = new Vector3[count];
+            Quaternion[] startRot = new Quaternion[count];
+            Vector3[] forces = new Vector3[count];
+            Vector3[] torques = new Vector3[count];
+
+            for (int i = 0; i < count; i++)
+            {
+                _diceSession.TargetResults[i] = Random.Range(1, 7);
+
+                Vector3 offset = new Vector3((i - (count / 2f)) * _diceConfiguration.SpawnSpacing, 0, 0);
+                startPos[i] = _diceConfiguration.SpawnCenter + offset;
+                startRot[i] = Random.rotation;
+
+                Vector3 randomForce = Random.onUnitSphere * Random.Range(_diceConfiguration.MinForce, _diceConfiguration.MaxForce);
+                randomForce.y = Mathf.Abs(randomForce.y);
+                forces[i] = randomForce;
+                torques[i] = Random.onUnitSphere * _diceConfiguration.TorqueMultiplier;
+            }
+
+            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { Results = _diceSession.TargetResults });
 
             DiceSimulationResult result = _simulationService.SimulateTrajectory(
-                _diceSession.TargetResult,
-                _diceConfiguration.spawnPosition,
-                GetRandomRotation(),
-                GetRandomForce(),
-                GetRandomTorque()
+                _diceSession.TargetResults, startPos, startRot, forces, torques
             );
 
             Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent { SimulationResult = result });
@@ -44,30 +61,6 @@ namespace _Project.Infrastructure.Services
         {
             _diceSession.IsRolling = false;
             Bus<DiceResetEvent>.Raise(new DiceResetEvent());
-        }
-
-        private void StartDiceSession()
-        {
-            _diceSession.IsRolling = true;
-            _diceSession.TargetResult = Random.Range(1, 7);
-        }
-
-        private Vector3 GetRandomForce()
-        {
-            Vector3 randomForce = Random.onUnitSphere * Random.Range(_diceConfiguration.minForce, _diceConfiguration.maxForce);
-            randomForce.y = Mathf.Abs(randomForce.y);
-
-            return randomForce;
-        }
-
-        private Vector3 GetRandomTorque()
-        {
-            return Random.onUnitSphere * _diceConfiguration.torqueMultiplier;
-        }
-
-        private Quaternion GetRandomRotation()
-        {
-            return Random.rotation;
         }
     }
 }

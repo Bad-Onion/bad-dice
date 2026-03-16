@@ -46,7 +46,7 @@ namespace _Project.Presentation.Scripts.Views
 
         private void OnResultDecided(DiceResultDecidedEvent evt)
         {
-            if (_resultLabel != null) _resultLabel.text = $"Next Result: {evt.Result}";
+            if (_resultLabel != null) _resultLabel.text = $"Results: {string.Join(", ", evt.Results)}";
         }
 
         private void OnDiceReset(DiceResetEvent evt)
