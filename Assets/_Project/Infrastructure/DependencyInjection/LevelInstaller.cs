@@ -1,0 +1,20 @@
+﻿using _Project.Domain.Entities;
+using _Project.Domain.ScriptableObjects;
+using _Project.Infrastructure.Services;
+using UnityEngine;
+using Zenject;
+
+namespace _Project.Infrastructure.DependencyInjection
+{
+    public class LevelInstaller : MonoInstaller
+    {
+        [SerializeField] private DiceConfiguration diceConfiguration;
+
+        public override void InstallBindings()
+        {
+            Container.BindInstance(diceConfiguration).AsSingle();
+            Container.Bind<DiceSession>().AsSingle();
+            Container.BindInterfacesTo<DiceRollService>().AsSingle();
+        }
+    }
+}

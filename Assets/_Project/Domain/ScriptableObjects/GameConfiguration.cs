@@ -7,6 +7,6 @@ namespace _Project.Domain.ScriptableObjects
     {
         [Header("Level Settings")]
         [Tooltip("The main level data to be loaded upon starting the game.")]
-        public LevelData DefaultLevelData;
+        public LevelData defaultLevelData;
     }
 }

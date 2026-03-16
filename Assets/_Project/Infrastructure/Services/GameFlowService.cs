@@ -25,8 +25,8 @@ namespace _Project.Infrastructure.Services
             IGameStateMachine stateMachine,
             IInputProvider inputProvider,
             TransitionEventChannel transitionEventChannel,
-            CommandProcessor commandProcessor,
             LoadLevelCommand.Factory loadLevelCommandFactory,
+            CommandProcessor commandProcessor,
             UnloadLevelCommand.Factory unloadLevelCommandFactory,
             GameSession gameSession,
             GameConfiguration gameConfiguration)
@@ -39,7 +39,7 @@ namespace _Project.Infrastructure.Services
             _unloadLevelCommandFactory = unloadLevelCommandFactory;
             _gameSession = gameSession;
 
-            _gameSession.CurrentLevelData = gameConfiguration.DefaultLevelData;
+            _gameSession.CurrentLevelData = gameConfiguration.defaultLevelData;
         }
 
         public void Initialize()

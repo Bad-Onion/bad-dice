@@ -10,9 +10,11 @@ namespace _Project.Presentation.Scripts.Views
         [Tooltip("The exact class name of the target state, e.g., MainMenuState")]
         [SerializeField] private string targetStateName;
 
+        [Tooltip("Leave empty to bind to the root element")]
+        [SerializeField] protected string containerId;
+
         [SerializeField] private GameStateEventChannel eventChannel;
         [SerializeField] protected UIDocument uiDocument;
-        [SerializeField] protected string containerId;
 
         protected VisualElement UiContainer { get; private set; }
 
@@ -48,7 +50,9 @@ namespace _Project.Presentation.Scripts.Views
             if (uiDocument == null) return;
             if (uiDocument.rootVisualElement == null) return;
 
-            UiContainer = uiDocument.rootVisualElement.Q<VisualElement>(containerId);
+            UiContainer = string.IsNullOrEmpty(containerId)
+                ? uiDocument.rootVisualElement
+                : uiDocument.rootVisualElement.Q<VisualElement>(containerId);
 
             BindUIElements();
         }

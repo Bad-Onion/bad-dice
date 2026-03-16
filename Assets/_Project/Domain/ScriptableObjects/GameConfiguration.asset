@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d41ccb4028854af3aad69cea03b8dec8, type: 3}
   m_Name: GameConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Domain.ScriptableObjects.GameConfiguration
-  DefaultLevelData: {fileID: 11400000, guid: 76b07db113453414a80c616fbf22744b, type: 2}
+  defaultLevelData: {fileID: 11400000, guid: 76b07db113453414a80c616fbf22744b, type: 2}
