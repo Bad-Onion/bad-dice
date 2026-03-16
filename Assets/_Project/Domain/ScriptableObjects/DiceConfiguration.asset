@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d9d1fccd8064d608507313d75f4cb9c, type: 3}
   m_Name: DiceConfiguration
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Domain.ScriptableObjects.DiceConfiguration
-  MinForce: 3
-  MaxForce: 8
-  TorqueMultiplier: 50
-  SpawnPosition: {x: 0, y: 5, z: 0}
+  minForce: 3
+  maxForce: 8
+  torqueMultiplier: 50
+  spawnPosition: {x: 0, y: 5, z: 0}
+  physicsPrefab: {fileID: 6105901489569188174, guid: 14b66540260ea334bb42af5580a31799, type: 3}

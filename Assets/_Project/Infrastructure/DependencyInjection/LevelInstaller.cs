@@ -1,4 +1,6 @@
-﻿using _Project.Domain.Entities;
+﻿using _Project.Application.Interfaces;
+using _Project.Application.UseCases;
+using _Project.Domain.Entities;
 using _Project.Domain.ScriptableObjects;
 using _Project.Infrastructure.Services;
 using UnityEngine;
@@ -14,7 +16,9 @@ namespace _Project.Infrastructure.DependencyInjection
         {
             Container.BindInstance(diceConfiguration).AsSingle();
             Container.Bind<DiceSession>().AsSingle();
-            Container.BindInterfacesTo<DiceRollService>().AsSingle();
+
+            Container.Bind<IDiceSimulationService>().To<DiceSimulationService>().AsSingle();
+            Container.Bind<IDiceRollUseCase>().To<DiceRollService>().AsSingle();
         }
     }
 }
