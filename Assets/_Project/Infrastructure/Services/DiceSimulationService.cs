@@ -53,7 +53,7 @@ namespace _Project.Infrastructure.Services
 
             for (int i = 0; i < count; i++)
             {
-                dummies[i] = Object.Instantiate(_config.PhysicsPrefab, positions[i], rotations[i]);
+                dummies[i] = Object.Instantiate(_config.physicsPrefab, positions[i], rotations[i]);
                 Rigidbody rb = dummies[i].GetComponent<Rigidbody>();
 
                 rb.isKinematic = false;

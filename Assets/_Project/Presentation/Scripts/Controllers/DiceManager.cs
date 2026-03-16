@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using _Project.Application.Events;
 using _Project.Application.Events.DiceEvents;
+using _Project.Domain.ScriptableObjects;
 using UnityEngine;
 using Zenject;
 
@@ -8,13 +9,25 @@ namespace _Project.Presentation.Scripts.Controllers
 {
     public class DiceManager : MonoBehaviour
     {
-        private DiceController.Pool _dicePool;
-        private readonly List<DiceController> _activeDice = new List<DiceController>();
+        private DiceConfiguration _config;
+        private DiContainer _container;
+
+        // Track which prefab spawned which controller so we can pool them accurately
+        private readonly List<(DiceController controller, GameObject prefab)> _activeDice = new();
+        private readonly Dictionary<GameObject, Queue<DiceController>> _pools = new();
+        private Transform _poolRoot;
 
         [Inject]
-        public void Construct(DiceController.Pool dicePool)
+        public void Construct(DiceConfiguration config, DiContainer container)
         {
-            _dicePool = dicePool;
+            _config = config;
+            _container = container;
+        }
+
+        private void Awake()
+        {
+            _poolRoot = new GameObject("DicePool").transform;
+            _poolRoot.SetParent(transform);
         }
 
         private void OnEnable()
@@ -33,21 +46,54 @@ namespace _Project.Presentation.Scripts.Controllers
         {
             HandleReset(new DiceResetEvent());
 
-            foreach (var path in evt.SimulationResult.DicePaths)
+            for (int i = 0; i < evt.SimulationResult.DicePaths.Count; i++)
             {
-                DiceController dice = _dicePool.Spawn();
-                _activeDice.Add(dice);
-                dice.PlayTrajectory(path);
+                if (i >= _config.visualPrefabs.Length) break;
+
+                GameObject prefab = _config.visualPrefabs[i];
+                if (prefab == null) continue;
+
+                DiceController dice = SpawnDice(prefab);
+                _activeDice.Add((dice, prefab));
+
+                dice.PlayTrajectory(evt.SimulationResult.DicePaths[i]);
             }
         }
 
         private void HandleReset(DiceResetEvent evt)
         {
-            foreach (var dice in _activeDice)
+            foreach (var active in _activeDice)
             {
-                _dicePool.Despawn(dice);
+                active.controller.StopPlayback();
+                DespawnDice(active.controller, active.prefab);
             }
             _activeDice.Clear();
+        }
+
+        private DiceController SpawnDice(GameObject prefab)
+        {
+            if (!_pools.TryGetValue(prefab, out Queue<DiceController> pool))
+            {
+                pool = new Queue<DiceController>();
+                _pools[prefab] = pool;
+            }
+
+            if (pool.Count > 0)
+            {
+                DiceController dice = pool.Dequeue();
+                dice.gameObject.SetActive(true);
+                return dice;
+            }
+
+            // DiContainer ensures any dependencies inside the specific Prefab are properly injected
+            DiceController newDice = _container.InstantiatePrefabForComponent<DiceController>(prefab, _poolRoot);
+            return newDice;
+        }
+
+        private void DespawnDice(DiceController dice, GameObject prefab)
+        {
+            dice.gameObject.SetActive(false);
+            _pools[prefab].Enqueue(dice);
         }
     }
 }

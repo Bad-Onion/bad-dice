@@ -3,7 +3,6 @@ using _Project.Application.UseCases;
 using _Project.Domain.Entities;
 using _Project.Domain.ScriptableObjects;
 using _Project.Infrastructure.Services;
-using _Project.Presentation.Scripts.Controllers;
 using UnityEngine;
 using Zenject;
 
@@ -22,11 +21,6 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<DiceSession>().AsSingle();
             Container.Bind<IDiceSimulationService>().To<DiceSimulationService>().AsSingle();
             Container.Bind<IDiceRollUseCase>().To<DiceRollService>().AsSingle();
-
-            Container.BindMemoryPool<DiceController, DiceController.Pool>()
-                .WithInitialSize(diceConfiguration.DiceCount)
-                .FromComponentInNewPrefab(diceConfiguration.VisualPrefab)
-                .UnderTransformGroup("DicePool");
         }
     }
 }

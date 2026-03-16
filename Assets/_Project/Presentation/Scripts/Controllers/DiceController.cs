@@ -1,10 +1,6 @@
 ﻿using System.Collections;
-using _Project.Application.Events;
-using _Project.Application.Events.DiceEvents;
 using _Project.Domain.Entities;
-using _Project.Domain.ScriptableObjects;
 using UnityEngine;
-using Zenject;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
@@ -40,16 +36,6 @@ namespace _Project.Presentation.Scripts.Controllers
                 transform.position = path.Frames[i].Position;
                 transform.rotation = path.Frames[i].Rotation;
                 yield return new WaitForFixedUpdate();
-            }
-        }
-
-        // Zenject memory pool declaration
-        public class Pool : MonoMemoryPool<DiceController>
-        {
-            protected override void OnDespawned(DiceController item)
-            {
-                item.StopPlayback();
-                base.OnDespawned(item);
             }
         }
     }

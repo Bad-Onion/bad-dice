@@ -5,24 +5,23 @@ namespace _Project.Domain.ScriptableObjects
     [CreateAssetMenu(fileName = "DiceConfiguration", menuName = "Domain/DiceConfiguration")]
     public class DiceConfiguration : ScriptableObject
     {
-        [Header("Pool & Count Settings")]
-        [Tooltip("Prefab used for the visual dice representation (no colliders).")]
-        public GameObject VisualPrefab;
-
-        [Tooltip("Number of dice to roll simultaneously.")]
-        [Range(1, 10)] public int DiceCount = 5;
+        [Header("Visual Pool Settings")]
+        [Tooltip("Array of dice prefabs to roll. The amount of dice rolled equals the length of this array. Order matters!")]
+        public GameObject[] visualPrefabs;
 
         [Tooltip("Distance between each dice spawn point to avoid immediate clipping.")]
-        [Range(0.1f, 3f)] public float SpawnSpacing = 1.2f;
+        [Range(0.1f, 3f)] public float spawnSpacing = 1.2f;
 
         [Header("Physics Settings")]
-        [Range(1f, 10f)] public float MinForce = 3f;
-        [Range(5f, 20f)] public float MaxForce = 8f;
-        [Range(10f, 100f)] public float TorqueMultiplier = 50f;
+        [Range(1f, 10f)] public float minForce = 3f;
+        [Range(5f, 20f)] public float maxForce = 8f;
+        [Range(10f, 100f)] public float torqueMultiplier = 50f;
 
         [Header("Simulation")]
-        public Vector3 SpawnCenter = new Vector3(0, 5, 0);
-        public GameObject PhysicsPrefab;
+        public Vector3 spawnCenter = new Vector3(0, 5, 0);
+        public GameObject physicsPrefab;
+
+        public int DiceCount => visualPrefabs != null ? visualPrefabs.Length : 0;
 
         public Vector3 GetLocalUpForFace(int faceNumber)
         {
