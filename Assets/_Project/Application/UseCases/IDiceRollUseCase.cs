@@ -4,5 +4,6 @@
     {
         void RequestRoll();
         void ResetDice();
+        void ToggleDiceRerollSelection(string diceId);
     }
 }

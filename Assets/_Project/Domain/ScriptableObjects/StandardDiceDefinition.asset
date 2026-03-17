@@ -14,3 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Domain.ScriptableObjects.DiceDefinition
   visualPrefab: {fileID: 7710947953943999187, guid: f90bbb3782cfffd41a437b2e41a6024b, type: 3}
   physicsPrefab: {fileID: 6105901489569188174, guid: 14b66540260ea334bb42af5580a31799, type: 3}
+  faces:
+  - value: 1
+    localDirection: 0
+  - value: 2
+    localDirection: 4
+  - value: 3
+    localDirection: 3
+  - value: 4
+    localDirection: 2
+  - value: 5
+    localDirection: 5
+  - value: 6
+    localDirection: 1

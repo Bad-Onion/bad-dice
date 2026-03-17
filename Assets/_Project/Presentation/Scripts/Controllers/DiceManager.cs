@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using _Project.Application.Events;
 using _Project.Application.Events.DiceEvents;
-using _Project.Domain.ScriptableObjects;
+using _Project.Domain.Entities;
 using UnityEngine;
 using Zenject;
 
@@ -9,18 +9,18 @@ namespace _Project.Presentation.Scripts.Controllers
 {
     public class DiceManager : MonoBehaviour
     {
-        private DiceConfiguration _config;
         private DiContainer _container;
+        private DiceSession _diceSession;
 
-        private readonly List<(DiceController controller, GameObject prefab)> _activeDice = new();
+        private readonly Dictionary<string, (DiceController controller, GameObject prefab)> _activeDice = new();
         private readonly Dictionary<GameObject, Queue<DiceController>> _pools = new();
         private Transform _poolRoot;
 
         [Inject]
-        public void Construct(DiceConfiguration config, DiContainer container)
+        public void Construct(DiContainer container, DiceSession diceSession)
         {
-            _config = config;
             _container = container;
+            _diceSession = diceSession;
         }
 
         private void Awake()
@@ -43,31 +43,32 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void HandlePlaybackRequested(DicePlaybackRequestedEvent evt)
         {
-            HandleReset(new DiceResetEvent());
-
-            for (int i = 0; i < evt.SimulationResult.DicePaths.Count; i++)
+            for (int i = 0; i < evt.RolledDiceIds.Count; i++)
             {
-                if (i >= _config.diceDefinitions.Length) break;
+                string diceId = evt.RolledDiceIds[i];
+                DiceState diceState = _diceSession.ActiveDice.Find(d => d.Id == diceId);
 
-                DiceDefinition definition = _config.diceDefinitions[i];
+                if (diceState == null || diceState.Definition.visualPrefab == null) continue;
 
-                if (definition == null || definition.visualPrefab == null) continue;
+                GameObject prefab = diceState.Definition.visualPrefab;
 
-                GameObject prefab = definition.visualPrefab;
-                DiceController dice = SpawnDice(prefab);
+                if (!_activeDice.TryGetValue(diceId, out var activePair))
+                {
+                    DiceController newController = SpawnDice(prefab);
+                    activePair = (newController, prefab);
+                    _activeDice[diceId] = activePair;
+                }
 
-                _activeDice.Add((dice, prefab));
-
-                dice.PlayTrajectory(evt.SimulationResult.DicePaths[i]);
+                activePair.controller.PlayTrajectory(evt.SimulationResult.DicePaths[i]);
             }
         }
 
         private void HandleReset(DiceResetEvent evt)
         {
-            foreach (var active in _activeDice)
+            foreach (var kvp in _activeDice)
             {
-                active.controller.StopPlayback();
-                DespawnDice(active.controller, active.prefab);
+                kvp.Value.controller.StopPlayback();
+                DespawnDice(kvp.Value.controller, kvp.Value.prefab);
             }
 
             _activeDice.Clear();
@@ -88,8 +89,7 @@ namespace _Project.Presentation.Scripts.Controllers
                 return dice;
             }
 
-            DiceController newDice = _container.InstantiatePrefabForComponent<DiceController>(prefab, _poolRoot);
-            return newDice;
+            return _container.InstantiatePrefabForComponent<DiceController>(prefab, _poolRoot);
         }
 
         private void DespawnDice(DiceController dice, GameObject prefab)

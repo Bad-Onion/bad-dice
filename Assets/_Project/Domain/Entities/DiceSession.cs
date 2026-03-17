@@ -1,8 +1,11 @@
-﻿namespace _Project.Domain.Entities
+﻿using System.Collections.Generic;
+
+namespace _Project.Domain.Entities
 {
     public class DiceSession
     {
-        public int[] TargetResults { get; set; }
+        public List<DiceState> ActiveDice { get; set; } = new List<DiceState>();
         public bool IsRolling { get; set; }
+        public int RerollsLeft { get; set; } = 3;
     }
 }

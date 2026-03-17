@@ -1,6 +1,8 @@
-﻿using _Project.Application.Events;
+﻿using System.Text;
+using _Project.Application.Events;
 using _Project.Application.Events.DiceEvents;
 using _Project.Application.UseCases;
+using _Project.Domain.Entities;
 using UnityEngine.UIElements;
 using Zenject;
 
@@ -13,11 +15,13 @@ namespace _Project.Presentation.Scripts.Views
         private Label _resultLabel;
 
         private IDiceRollUseCase _diceRollUseCase;
+        private DiceSession _diceSession;
 
         [Inject]
-        public void Construct(IDiceRollUseCase diceRollUseCase)
+        public void Construct(IDiceRollUseCase diceRollUseCase, DiceSession diceSession)
         {
             _diceRollUseCase = diceRollUseCase;
+            _diceSession = diceSession;
         }
 
         protected override void BindUIElements()
@@ -46,7 +50,22 @@ namespace _Project.Presentation.Scripts.Views
 
         private void OnResultDecided(DiceResultDecidedEvent evt)
         {
-            if (_resultLabel != null) _resultLabel.text = $"Results: {string.Join(", ", evt.Results)}";
+            if (_resultLabel == null) return;
+
+            StringBuilder sb = new StringBuilder("Results: ");
+            int totalEncounterDamage = 0;
+
+            foreach (DiceState die in _diceSession.ActiveDice)
+            {
+                if (die.CurrentFaceIndex >= 0)
+                {
+                    sb.Append($"[{die.CurrentValue} (Lv{die.Level})] ");
+                    totalEncounterDamage += die.TotalDamage;
+                }
+            }
+
+            sb.Append($"\nTotal Damage: {totalEncounterDamage}");
+            _resultLabel.text = sb.ToString();
         }
 
         private void OnDiceReset(DiceResetEvent evt)

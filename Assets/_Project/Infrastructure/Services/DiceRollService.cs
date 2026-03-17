@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using _Project.Application.Events;
 using _Project.Application.Events.DiceEvents;
 using _Project.Application.Interfaces;
@@ -14,7 +16,8 @@ namespace _Project.Infrastructure.Services
         private readonly DiceConfiguration _diceConfiguration;
         private readonly IDiceSimulationService _simulationService;
 
-        public DiceRollService(DiceSession diceSession, DiceConfiguration diceConfiguration, IDiceSimulationService simulationService)
+        public DiceRollService(DiceSession diceSession, DiceConfiguration diceConfiguration,
+            IDiceSimulationService simulationService)
         {
             _diceSession = diceSession;
             _diceConfiguration = diceConfiguration;
@@ -23,52 +26,75 @@ namespace _Project.Infrastructure.Services
 
         public void RequestRoll()
         {
-            if (!CanStartRoll(out int count)) return;
+            if (_diceSession.IsRolling) return;
 
-            StartDiceSession(count);
-            PublishResultDecided();
+            var diceToRoll = GetDiceToRoll();
+            if (diceToRoll.Count == 0) return;
 
-            DiceSimulationResult simulationResult = SimulateRoll(count);
-            PublishPlaybackRequested(simulationResult);
+            _diceSession.IsRolling = true;
+
+            int[] targetFaceIndices = new int[diceToRoll.Count];
+
+            for (int i = 0; i < diceToRoll.Count; i++)
+            {
+                var die = diceToRoll[i];
+                int randomFaceIndex = die.Definition.GetRandomFaceIndex();
+                die.CurrentFaceIndex = randomFaceIndex;
+                die.IsSelectedForReroll = false;
+
+                targetFaceIndices[i] = randomFaceIndex;
+            }
+
+            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
+
+            DiceSimulationResult simulationResult = SimulateRoll(diceToRoll, diceToRoll.Count, targetFaceIndices);
+            Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent
+                { SimulationResult = simulationResult, RolledDiceIds = diceToRoll.Select(d => d.Id).ToList() });
         }
 
         public void ResetDice()
         {
             _diceSession.IsRolling = false;
+
+            foreach (var die in _diceSession.ActiveDice)
+            {
+                die.CurrentFaceIndex = -1;
+                die.IsSelectedForReroll = false;
+            }
+
             Bus<DiceResetEvent>.Raise(new DiceResetEvent());
         }
 
-        private bool CanStartRoll(out int count)
+        public void ToggleDiceRerollSelection(string diceId)
         {
-            count = _diceConfiguration.DiceCount;
-            return !_diceSession.IsRolling && count != 0;
+            if (_diceSession.IsRolling) return;
+
+            var die = _diceSession.ActiveDice.FirstOrDefault(d => d.Id == diceId);
+            if (die != null)
+            {
+                die.IsSelectedForReroll = !die.IsSelectedForReroll;
+                // TODO: Raise an event to update the UI to reflect the selection change
+            }
         }
 
-        private void StartDiceSession(int count)
+        private List<DiceState> GetDiceToRoll()
         {
-            _diceSession.IsRolling = true;
-            _diceSession.TargetResults = BuildArray(count, _ => Random.Range(1, 7));
+            bool isFirstRoll = _diceSession.ActiveDice.All(d => d.CurrentFaceIndex == -1);
+            if (isFirstRoll) return _diceSession.ActiveDice.ToList();
+
+            return _diceSession.ActiveDice.Where(d => d.IsSelectedForReroll).ToList();
         }
 
-        private void PublishResultDecided()
-        {
-            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { Results = _diceSession.TargetResults });
-        }
-
-        private DiceSimulationResult SimulateRoll(int count)
+        private DiceSimulationResult SimulateRoll(List<DiceState> diceToRoll, int rollCount, int[] targetFaceIndices)
         {
             return _simulationService.SimulateTrajectory(
-                _diceSession.TargetResults,
-                GetStartPositions(count),
-                GetRandomRotations(count),
-                GetRandomForces(count),
-                GetRandomTorques(count)
+                diceToRoll.Select(d => d.Definition).ToArray(),
+                targetFaceIndices,
+                GetStartPositions(rollCount),
+                GetRandomRotations(rollCount),
+                GetRandomForces(rollCount),
+                GetRandomTorques(rollCount)
             );
-        }
-
-        private void PublishPlaybackRequested(DiceSimulationResult simulationResult)
-        {
-            Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent { SimulationResult = simulationResult });
         }
 
         private Vector3[] GetStartPositions(int count)
@@ -85,7 +111,8 @@ namespace _Project.Infrastructure.Services
         {
             return BuildArray(count, _ =>
             {
-                Vector3 randomForce = Random.onUnitSphere * Random.Range(_diceConfiguration.minForce, _diceConfiguration.maxForce);
+                Vector3 randomForce = Random.onUnitSphere *
+                                      Random.Range(_diceConfiguration.minForce, _diceConfiguration.maxForce);
                 randomForce.y = Mathf.Abs(randomForce.y);
 
                 return randomForce;
@@ -105,6 +132,7 @@ namespace _Project.Infrastructure.Services
         private static T[] BuildArray<T>(int count, System.Func<int, T> elementFactory)
         {
             T[] elements = new T[count];
+
             for (int i = 0; i < count; i++)
             {
                 elements[i] = elementFactory(i);

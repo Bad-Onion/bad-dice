@@ -178,7 +178,7 @@ Transform:
   m_GameObject: {fileID: 42812272}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.5767, y: -0.5, z: -4.93378}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1342,6 +1342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Infrastructure.DependencyInjection.LevelInstaller
   diceConfiguration: {fileID: 11400000, guid: 70460af2caa7e684e9d09df2b6d989be, type: 2}
+  startingDiceDefinition: {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
 --- !u!4 &2099447743
 Transform:
   m_ObjectHideFlags: 0
@@ -1351,7 +1352,7 @@ Transform:
   m_GameObject: {fileID: 2099447741}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.5767, y: -0.5, z: -4.93378}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

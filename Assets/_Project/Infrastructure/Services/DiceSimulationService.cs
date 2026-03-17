@@ -2,6 +2,7 @@
 using System.Linq;
 using _Project.Application.Interfaces;
 using _Project.Domain.Entities;
+using _Project.Domain.Enums;
 using _Project.Domain.ScriptableObjects;
 using UnityEngine;
 
@@ -20,7 +21,13 @@ namespace _Project.Infrastructure.Services
             _config = config;
         }
 
-        public DiceSimulationResult SimulateTrajectory(int[] targetResults, Vector3[] startPos, Quaternion[] startRot, Vector3[] forces, Vector3[] torques)
+        public DiceSimulationResult SimulateTrajectory(
+            DiceDefinition[] definitions,
+            int[] targetFaceIndices,
+            Vector3[] startPos,
+            Quaternion[] startRot,
+            Vector3[] forces,
+            Vector3[] torques)
         {
             SimulationMode originalMode = Physics.simulationMode;
 
@@ -28,12 +35,12 @@ namespace _Project.Infrastructure.Services
             {
                 Physics.simulationMode = SimulationMode.Script;
 
-                int diceCount = targetResults.Length;
-                GameObject[] dummyPhysicsObjects = CreateAndInitializeDiceArray(diceCount, startPos, startRot, forces, torques);
+                int diceCount = targetFaceIndices.Length;
+                GameObject[] dummyPhysicsObjects = CreateAndInitializeDiceArray(definitions, startPos, startRot, forces, torques);
                 Rigidbody[] rbs = GetRigidbodies(dummyPhysicsObjects);
 
                 List<DicePath> dicePaths = SimulateUntilAllSettled(rbs);
-                ApplyVisualCorrections(dicePaths, targetResults, dummyPhysicsObjects);
+                ApplyVisualCorrections(dicePaths, definitions, targetFaceIndices, dummyPhysicsObjects);
 
                 CleanupDummies(dummyPhysicsObjects);
 
@@ -48,13 +55,14 @@ namespace _Project.Infrastructure.Services
             }
         }
 
-        private GameObject[] CreateAndInitializeDiceArray(int count, Vector3[] positions, Quaternion[] rotations, Vector3[] forces, Vector3[] torques)
+        private GameObject[] CreateAndInitializeDiceArray(DiceDefinition[] definitions, Vector3[] positions, Quaternion[] rotations, Vector3[] forces, Vector3[] torques)
         {
+            int count = definitions.Length;
             GameObject[] dummyDice = new GameObject[count];
 
             for (int i = 0; i < count; i++)
             {
-                GameObject physicsPrefab = _config.diceDefinitions[i].physicsPrefab;
+                GameObject physicsPrefab = definitions[i].physicsPrefab;
 
                 dummyDice[i] = Object.Instantiate(physicsPrefab, positions[i], rotations[i]);
                 Rigidbody rb = dummyDice[i].GetComponent<Rigidbody>();
@@ -121,20 +129,20 @@ namespace _Project.Infrastructure.Services
                    rb.angularVelocity.sqrMagnitude < MaxMotionThreshold;
         }
 
-        private void ApplyVisualCorrections(List<DicePath> paths, int[] targetResults, GameObject[] diceObjects)
+        private void ApplyVisualCorrections(List<DicePath> paths, DiceDefinition[] definitions, int[] targetFaceIndices, GameObject[] diceObjects)
         {
             for (int i = 0; i < paths.Count; i++)
             {
                 DicePath path = paths[i];
-                path.VisualCorrection = CalculateVisualCorrection(targetResults[i], diceObjects[i]);
+                path.VisualCorrection = CalculateVisualCorrection(definitions[i], targetFaceIndices[i], diceObjects[i]);
                 paths[i] = path;
             }
         }
 
-        private Quaternion CalculateVisualCorrection(int targetResult, GameObject diceObject)
+        private Quaternion CalculateVisualCorrection(DiceDefinition definition, int targetFaceIndex, GameObject diceObject)
         {
             Vector3 exactLandedFace = GetExactLandedFace(diceObject.transform);
-            Vector3 targetLocalUp = _config.GetLocalUpForFace(targetResult);
+            Vector3 targetLocalUp = definition.GetFaceData(targetFaceIndex).localDirection.ToVector3();
 
             return Quaternion.FromToRotation(targetLocalUp, exactLandedFace);
         }
