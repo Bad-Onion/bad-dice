@@ -417,9 +417,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Views.PlayingView
   targetStateName: PlayingState
+  containerId: playing-container
   eventChannel: {fileID: 11400000, guid: 70c9a98b3557b2f489bfda165c25d14f, type: 2}
   uiDocument: {fileID: 1872986486}
-  containerId: playing-container
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,9 +632,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Views.PauseMenuView
   targetStateName: PausedState
+  containerId: pause-menu-container
   eventChannel: {fileID: 11400000, guid: 70c9a98b3557b2f489bfda165c25d14f, type: 2}
   uiDocument: {fileID: 1872986486}
-  containerId: pause-menu-container
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -761,6 +761,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Infrastructure.DependencyInjection.GameInstaller
   gameConfiguration: {fileID: 11400000, guid: f9afa1811191fa94488d6c19cc68448d, type: 2}
+  diceConfiguration: {fileID: 11400000, guid: 70460af2caa7e684e9d09df2b6d989be, type: 2}
+  startingDiceDefinition: {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  diceDatabase: {fileID: 11400000, guid: 0c3657ee4a1472c42a83dae59ba819a4, type: 2}
 --- !u!1 &1097136348
 GameObject:
   m_ObjectHideFlags: 0
@@ -1100,9 +1103,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Views.MainMenuView
   targetStateName: MainMenuState
+  containerId: main-menu-container
   eventChannel: {fileID: 11400000, guid: 70c9a98b3557b2f489bfda165c25d14f, type: 2}
   uiDocument: {fileID: 1872986486}
-  containerId: main-menu-container
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

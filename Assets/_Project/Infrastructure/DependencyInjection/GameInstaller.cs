@@ -9,6 +9,7 @@ namespace _Project.Infrastructure.DependencyInjection
     public class GameInstaller : MonoInstaller
     {
         [Header("Game Configuration")]
+        [Tooltip("Assign the main game configuration containing the default level data.")]
         [SerializeField] private GameConfiguration gameConfiguration;
 
         public override void InstallBindings()

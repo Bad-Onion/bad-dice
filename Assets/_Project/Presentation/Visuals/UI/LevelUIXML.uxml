@@ -1,7 +1,14 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Label text="Label" name="result-label"/>
-    <ui:VisualElement name="button-container" style="flex-grow: 1; align-items: center; justify-content: flex-end;">
-        <ui:Button text="ROLL" name="roll-button"/>
-        <ui:Button text="RESET" name="reset-button"/>
+    <ui:VisualElement name="pre-fight-container" style="flex-grow: 1; align-items: center; justify-content: center;">
+        <ui:Label text="PREPARE YOUR DICE" name="inventory-label" style="color: rgb(255, 255, 255); font-size: 32px; -unity-font-style: bold;"/>
+        <ui:ScrollView name="inventory-list" style="width: 90%; height: 80%; background-color: rgba(40, 40, 40, 0.78); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; margin-bottom: 10px;"/>
+        <ui:Button text="SUBMIT" name="start-fight-button" style="justify-content: center; align-self: auto; flex-direction: column;"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="level-container" style="flex-grow: 1; visibility: visible; display: none;">
+        <ui:Label text="Label" name="result-label" style="font-size: 32px;"/>
+        <ui:VisualElement name="button-container" style="flex-grow: 1; align-items: flex-end; justify-content: center; flex-direction: row;">
+            <ui:Button text="ROLL" name="roll-button"/>
+            <ui:Button text="RESET" name="reset-button"/>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
