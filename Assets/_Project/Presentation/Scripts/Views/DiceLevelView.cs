@@ -9,6 +9,7 @@ using Zenject;
 
 namespace _Project.Presentation.Scripts.Views
 {
+    // TODO: Rename to something more related to the dice session, like "DiceSessionView"
     public class DiceLevelView : BaseView
     {
         private Button _rollButton;

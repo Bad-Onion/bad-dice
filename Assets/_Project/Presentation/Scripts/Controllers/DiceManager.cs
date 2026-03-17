@@ -7,6 +7,7 @@ using Zenject;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
+    // TODO: Rename to something more descriptive and related to the DiceSession, like "DiceSessionManager"
     public class DiceManager : MonoBehaviour
     {
         private DiContainer _container;
@@ -65,6 +66,7 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void HandleReset(DiceResetEvent evt)
         {
+            // TODO: Rename kvp to something more descriptive like "diceEntry" or "activeDiceEntry"
             foreach (var kvp in _activeDice)
             {
                 kvp.Value.controller.StopPlayback();
@@ -74,6 +76,8 @@ namespace _Project.Presentation.Scripts.Controllers
             _activeDice.Clear();
         }
 
+        // TODO: Search if it is possible to create a generic spawn/despawn method for any type of object,
+        // not just dice. This would involve using a more generic type parameter and possibly a factory pattern to handle different types of objects.
         private DiceController SpawnDice(GameObject prefab)
         {
             if (!_pools.TryGetValue(prefab, out Queue<DiceController> pool))

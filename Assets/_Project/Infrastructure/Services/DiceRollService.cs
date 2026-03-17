@@ -33,12 +33,14 @@ namespace _Project.Infrastructure.Services
 
             _diceSession.IsRolling = true;
 
+            // TODO: Move this to a separate function
             int[] targetFaceIndices = new int[diceToRoll.Count];
 
             for (int i = 0; i < diceToRoll.Count; i++)
             {
                 var die = diceToRoll[i];
                 int randomFaceIndex = die.Definition.GetRandomFaceIndex();
+
                 die.CurrentFaceIndex = randomFaceIndex;
                 die.IsSelectedForReroll = false;
 

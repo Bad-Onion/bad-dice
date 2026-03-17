@@ -10,16 +10,9 @@ namespace _Project.Infrastructure.Services
 {
     public class DiceSimulationService : IDiceSimulationService
     {
-        private readonly DiceConfiguration _config;
-
         private const int MaxRecordCapacity = 300;
         private const float MaxMotionThreshold = 0.001f;
         private static readonly Vector3[] ExactFaces = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
-
-        public DiceSimulationService(DiceConfiguration config)
-        {
-            _config = config;
-        }
 
         public DiceSimulationResult SimulateTrajectory(
             DiceDefinition[] definitions,
@@ -35,7 +28,6 @@ namespace _Project.Infrastructure.Services
             {
                 Physics.simulationMode = SimulationMode.Script;
 
-                int diceCount = targetFaceIndices.Length;
                 GameObject[] dummyPhysicsObjects = CreateAndInitializeDiceArray(definitions, startPos, startRot, forces, torques);
                 Rigidbody[] rbs = GetRigidbodies(dummyPhysicsObjects);
 

@@ -6,13 +6,13 @@ using _Project.Domain.ScriptableObjects;
 
 namespace _Project.Infrastructure.Services
 {
-    public class RunInitializationService : IRunInitializationUseCase
+    public class RunGameInitializationService : IRunInitializationUseCase
     {
         private readonly IRunRepository _repository;
         private readonly DiceDefinition _startingDiceDefinition;
         private readonly PlayerRunState _runState;
 
-        public RunInitializationService(IRunRepository repository, DiceDefinition startingDiceDefinition, PlayerRunState runState)
+        public RunGameInitializationService(IRunRepository repository, DiceDefinition startingDiceDefinition, PlayerRunState runState)
         {
             _repository = repository;
             _startingDiceDefinition = startingDiceDefinition;
@@ -31,6 +31,7 @@ namespace _Project.Infrastructure.Services
 
             _runState.Inventory.Clear();
 
+            // TODO: Move to separate function
             for (int i = 0; i < 5; i++)
             {
                 _runState.Inventory.Add(new OwnedDiceData

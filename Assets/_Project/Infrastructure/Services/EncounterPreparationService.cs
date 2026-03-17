@@ -6,6 +6,7 @@ using _Project.Domain.Entities;
 
 namespace _Project.Infrastructure.Services
 {
+    // TODO: Change name to something more related to the Inventory view like DicePouchUseCase or something
     public class EncounterPreparationService : IEncounterPreparationUseCase
     {
         private readonly PlayerRunState _runState;
@@ -31,6 +32,7 @@ namespace _Project.Infrastructure.Services
 
         public bool CanStartEncounter()
         {
+            // TODO: Use Any() to test whether this is empty or not.
             return _runState.Inventory.Count(d => d.IsEquipped) > 0;
         }
 

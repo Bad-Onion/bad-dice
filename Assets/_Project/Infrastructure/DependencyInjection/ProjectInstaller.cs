@@ -48,7 +48,7 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.BindInstance(diceDatabase).AsSingle();
             Container.Bind<PlayerRunState>().AsSingle();
             Container.Bind<IRunRepository>().To<PlayerPrefsRunRepository>().AsSingle();
-            Container.Bind<IRunInitializationUseCase>().To<RunInitializationService>().AsSingle();
+            Container.Bind<IRunInitializationUseCase>().To<RunGameInitializationService>().AsSingle();
 
             // Core Services
             Container.Bind<ITimeService>().To<UnityTimeAdapter>().AsSingle();

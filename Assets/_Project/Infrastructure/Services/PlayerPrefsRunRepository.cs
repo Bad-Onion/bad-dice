@@ -19,16 +19,17 @@ namespace _Project.Infrastructure.Services
 
         public void SaveRun(PlayerRunState state)
         {
-            var saveData = new PlayerRunSaveData { MaxEquippedDice = state.MaxEquippedDice };
+            // TODO: Create an adaper class to handle the conversion from PlayerRunState to PlayerRunSaveData
+            var saveData = new PlayerRunSaveData { maxEquippedDice = state.MaxEquippedDice };
 
             foreach (var dice in state.Inventory)
             {
-                saveData.Inventory.Add(new OwnedDiceSaveData
+                saveData.inventory.Add(new OwnedDiceSaveData
                 {
-                    Id = dice.Id,
-                    DefinitionName = dice.Definition.name,
-                    Level = dice.Level,
-                    IsEquipped = dice.IsEquipped
+                    id = dice.Id,
+                    definitionName = dice.Definition.name,
+                    level = dice.Level,
+                    isEquipped = dice.IsEquipped
                 });
             }
 
@@ -44,19 +45,20 @@ namespace _Project.Infrastructure.Services
             string json = PlayerPrefs.GetString(SaveKey);
             var saveData = JsonUtility.FromJson<PlayerRunSaveData>(json);
 
-            var state = new PlayerRunState { MaxEquippedDice = saveData.MaxEquippedDice };
+            // TODO: Create an adaper class to handle the conversion from PlayerRunSaveData to PlayerRunState
+            var state = new PlayerRunState { MaxEquippedDice = saveData.maxEquippedDice };
 
-            foreach (var savedDice in saveData.Inventory)
+            foreach (var savedDice in saveData.inventory)
             {
-                DiceDefinition def = _diceDatabase.GetDefinition(savedDice.DefinitionName);
+                DiceDefinition def = _diceDatabase.GetDefinition(savedDice.definitionName);
                 if (def == null) continue;
 
                 state.Inventory.Add(new OwnedDiceData
                 {
-                    Id = savedDice.Id,
+                    Id = savedDice.id,
                     Definition = def,
-                    Level = savedDice.Level,
-                    IsEquipped = savedDice.IsEquipped
+                    Level = savedDice.level,
+                    IsEquipped = savedDice.isEquipped
                 });
             }
 

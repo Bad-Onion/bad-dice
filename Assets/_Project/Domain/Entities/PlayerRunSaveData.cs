@@ -6,7 +6,7 @@ namespace _Project.Domain.Entities
     [Serializable]
     public class PlayerRunSaveData
     {
-        public List<OwnedDiceSaveData> Inventory = new();
-        public int MaxEquippedDice = 5;
+        public List<OwnedDiceSaveData> inventory = new();
+        public int maxEquippedDice = 5;
     }
 }

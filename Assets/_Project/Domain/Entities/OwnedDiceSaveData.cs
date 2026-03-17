@@ -5,9 +5,9 @@ namespace _Project.Domain.Entities
     [Serializable]
     public class OwnedDiceSaveData
     {
-        public string Id;
-        public string DefinitionName;
-        public int Level;
-        public bool IsEquipped;
+        public string id;
+        public string definitionName;
+        public int level;
+        public bool isEquipped;
     }
 }
