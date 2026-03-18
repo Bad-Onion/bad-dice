@@ -26,6 +26,7 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IDiceDamageService>().To<DiceDamageService>().AsSingle();
             Container.Bind<IDiceSimulationService>().To<DiceSimulationService>().AsSingle();
             Container.Bind<IDiceRollUseCase>().To<DiceRollService>().AsSingle();
+            Container.Bind<IDiceMergeUseCase>().To<DiceMergeService>().AsSingle();
             Container.Bind<IEncounterPreparationUseCase>().To<EncounterPreparationService>().AsSingle();
 
             // UI Views

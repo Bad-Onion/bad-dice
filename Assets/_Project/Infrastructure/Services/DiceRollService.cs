@@ -48,6 +48,9 @@ namespace _Project.Infrastructure.Services
             for (int i = 0; i < diceToRoll.Count; i++)
             {
                 var die = diceToRoll[i];
+
+                if (die.Level == 0) die.Level = 1;
+
                 int randomFaceIndex = die.Definition.GetRandomFaceIndex();
                 die.CurrentFaceIndex = randomFaceIndex;
                 die.IsSelectedForReroll = false;

@@ -15,6 +15,10 @@ namespace _Project.Presentation.Scripts.Controllers
         [Tooltip("Assign the Visuals child object here to animate it upon selection.")]
         [SerializeField] private Transform visualsTransform;
 
+        [Header("Merge Visuals")]
+        [Tooltip("Assign an object/renderer here to act as the merge outline indicator.")]
+        [SerializeField] private GameObject outlineVisual;
+
         private Coroutine _playbackCoroutine;
 
         public string DiceId { get; private set; }
@@ -70,9 +74,25 @@ namespace _Project.Presentation.Scripts.Controllers
         {
             if (visualsTransform == null) return;
 
-            // Simple hover feedback: Scale the dice up slightly
             float targetScale = isHovered ? 1.15f : 1.0f;
             visualsTransform.localScale = Vector3.one * targetScale;
+        }
+
+        public void SetMergeableOutline(bool isMergeable)
+        {
+            if (outlineVisual != null) outlineVisual.SetActive(isMergeable);
+        }
+
+        public void SetMergeSelectionVisual(bool isSelected, bool isTarget)
+        {
+            if (visualsTransform == null) return;
+
+            float targetY = isSelected ? (isTarget ? 0.8f : 0.4f) : 0f;
+            visualsTransform.localPosition = new Vector3(
+                visualsTransform.localPosition.x,
+                targetY,
+                visualsTransform.localPosition.z
+            );
         }
     }
 }

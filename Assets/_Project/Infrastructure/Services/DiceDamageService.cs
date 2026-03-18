@@ -9,6 +9,8 @@ namespace _Project.Infrastructure.Services
         {
             // Future gimmick logic (Metal Dice, Medusa Dice) will be evaluated here
             // by checking dice.Definition type or checking active modifiers.
+            if (dice.Level == 0) return 1;
+
             return dice.CurrentValue * dice.Level;
         }
     }

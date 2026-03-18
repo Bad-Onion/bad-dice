@@ -1,5 +1,6 @@
 ﻿using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
+using _Project.Domain.Entities;
 using UnityEngine;
 using Zenject;
 
@@ -12,15 +13,19 @@ namespace _Project.Presentation.Scripts.Controllers
         [SerializeField] private LayerMask diceLayerMask;
 
         private IDiceRollUseCase _diceRollUseCase;
+        private IDiceMergeUseCase _diceMergeUseCase;
+        private DiceSession _diceSession;
         private IInputProvider _inputProvider;
         private Camera _levelCamera;
 
         private DiceController _hoveredDice;
 
         [Inject]
-        public void Construct(IDiceRollUseCase diceRollUseCase, IInputProvider inputProvider, Camera levelCamera)
+        public void Construct(IDiceRollUseCase diceRollUseCase, IDiceMergeUseCase diceMergeUseCase, DiceSession diceSession, IInputProvider inputProvider, Camera levelCamera)
         {
             _diceRollUseCase = diceRollUseCase;
+            _diceMergeUseCase = diceMergeUseCase;
+            _diceSession = diceSession;
             _inputProvider = inputProvider;
             _levelCamera = levelCamera;
         }
@@ -64,6 +69,8 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void HandleInteraction()
         {
+            if (_diceSession.IsRolling) return;
+
             Vector2 pointerPos = _inputProvider.GetPointerPosition();
             Ray ray = _levelCamera.ScreenPointToRay(pointerPos);
 
@@ -72,20 +79,16 @@ namespace _Project.Presentation.Scripts.Controllers
                 var diceController = hit.collider.GetComponentInParent<DiceController>();
                 if (diceController != null)
                 {
-                    _diceRollUseCase.ToggleDiceRerollSelection(diceController.DiceId);
+                    if (_diceSession.IsMergeModeActive)
+                    {
+                        _diceMergeUseCase.ToggleDiceMergeSelection(diceController.DiceId);
+                    }
+                    else
+                    {
+                        _diceRollUseCase.ToggleDiceRerollSelection(diceController.DiceId);
+                    }
                 }
             }
-        }
-
-        private void OnDrawGizmos()
-        {
-            if (!UnityEngine.Application.isPlaying || _inputProvider == null || _levelCamera == null) return;
-
-            Vector2 pointerPos = _inputProvider.GetPointerPosition();
-            Ray ray = _levelCamera.ScreenPointToRay(pointerPos);
-
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(ray.origin, ray.direction * 100f);
         }
     }
 }
