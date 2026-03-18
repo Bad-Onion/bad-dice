@@ -28,42 +28,69 @@ namespace _Project.Infrastructure.Services
         {
             if (_diceSession.IsRolling) return;
 
+            bool isFirstRoll = _diceSession.ActiveDice.All(d => d.CurrentFaceIndex == -1);
+            if (!isFirstRoll && _diceSession.RerollsLeft <= 0) return;
+
             var diceToRoll = GetDiceToRoll();
-            if (diceToRoll.Count == 0) return;
+            if (!isFirstRoll && diceToRoll.Count == 0) return;
 
             _diceSession.IsRolling = true;
 
+            if (!isFirstRoll)
+            {
+                _diceSession.RerollsLeft--;
+            }
+
             // TODO: Move this to a separate function
             int[] targetFaceIndices = new int[diceToRoll.Count];
+            DiceDefinition[] definitions = new DiceDefinition[diceToRoll.Count];
 
             for (int i = 0; i < diceToRoll.Count; i++)
             {
                 var die = diceToRoll[i];
                 int randomFaceIndex = die.Definition.GetRandomFaceIndex();
-
                 die.CurrentFaceIndex = randomFaceIndex;
                 die.IsSelectedForReroll = false;
 
                 targetFaceIndices[i] = randomFaceIndex;
+                definitions[i] = die.Definition;
             }
 
             Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
 
-            DiceSimulationResult simulationResult = SimulateRoll(diceToRoll, diceToRoll.Count, targetFaceIndices);
+            DiceSimulationResult simulationResult = _simulationService.SimulateTrajectory(
+                definitions,
+                targetFaceIndices,
+                GetStartPositions(diceToRoll.Count),
+                GetRandomRotations(diceToRoll.Count),
+                GetRandomForces(diceToRoll.Count),
+                GetRandomTorques(diceToRoll.Count)
+            );
+
             Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent
-                { SimulationResult = simulationResult, RolledDiceIds = diceToRoll.Select(d => d.Id).ToList() });
+            {
+                SimulationResult = simulationResult,
+                RolledDiceIds = diceToRoll.Select(d => d.Id).ToList()
+            });
+        }
+
+        public void EndRoll()
+        {
+            _diceSession.IsRolling = false;
+            Bus<DiceRollFinishedEvent>.Raise(new DiceRollFinishedEvent());
         }
 
         public void ResetDice()
         {
             _diceSession.IsRolling = false;
+            // TODO: Replace hardcoded with a config value
+            _diceSession.RerollsLeft = 3;
 
             foreach (var die in _diceSession.ActiveDice)
             {
                 die.CurrentFaceIndex = -1;
                 die.IsSelectedForReroll = false;
             }
-
             Bus<DiceResetEvent>.Raise(new DiceResetEvent());
         }
 
@@ -72,10 +99,16 @@ namespace _Project.Infrastructure.Services
             if (_diceSession.IsRolling) return;
 
             var die = _diceSession.ActiveDice.FirstOrDefault(d => d.Id == diceId);
-            if (die != null)
+
+            if (die != null && die.CurrentFaceIndex != -1)
             {
                 die.IsSelectedForReroll = !die.IsSelectedForReroll;
-                // TODO: Raise an event to update the UI to reflect the selection change
+
+                Bus<DiceRerollToggledEvent>.Raise(new DiceRerollToggledEvent
+                {
+                    DiceId = diceId,
+                    IsSelected = die.IsSelectedForReroll
+                });
             }
         }
 

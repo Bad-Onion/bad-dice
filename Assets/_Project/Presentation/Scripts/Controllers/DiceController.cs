@@ -11,7 +11,19 @@ namespace _Project.Presentation.Scripts.Controllers
         [Tooltip("Assign the child GameObject that holds all the visual numbers and meshes.")]
         [SerializeField] private Transform visualsRoot;
 
+        [Header("Visual Feedback")]
+        [Tooltip("Assign the Visuals child object here to animate it upon selection.")]
+        [SerializeField] private Transform visualsTransform;
+
         private Coroutine _playbackCoroutine;
+
+        public string DiceId { get; private set; }
+
+        public void Initialize(string id)
+        {
+            DiceId = id;
+            SetSelectionVisual(false); // Ensure it starts unselected
+        }
 
         public void PlayTrajectory(DicePath path)
         {
@@ -39,6 +51,28 @@ namespace _Project.Presentation.Scripts.Controllers
 
                 yield return new WaitForFixedUpdate();
             }
+        }
+
+        public void SetSelectionVisual(bool isSelected)
+        {
+            if (visualsTransform == null) return;
+
+            // Simple visual feedback: Elevate the mesh slightly to show it's selected for a reroll
+            float targetY = isSelected ? 0.5f : 0f;
+            visualsTransform.localPosition = new Vector3(
+                visualsTransform.localPosition.x,
+                targetY,
+                visualsTransform.localPosition.z
+            );
+        }
+
+        public void SetHoverVisual(bool isHovered)
+        {
+            if (visualsTransform == null) return;
+
+            // Simple hover feedback: Scale the dice up slightly
+            float targetScale = isHovered ? 1.15f : 1.0f;
+            visualsTransform.localScale = Vector3.one * targetScale;
         }
     }
 }

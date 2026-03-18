@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 354533460868942704}
   - component: {fileID: 1282365688916702867}
   - component: {fileID: 1749104438943324043}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Face_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 5434310874237149403}
   - component: {fileID: 2270192727946717958}
   - component: {fileID: 1108581459258172857}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Face_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -373,7 +373,7 @@ GameObject:
   - component: {fileID: 1218975429752714674}
   - component: {fileID: 5370290985175379027}
   - component: {fileID: 7651313653358685864}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Face_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -554,7 +554,7 @@ GameObject:
   - component: {fileID: 1625399925889517513}
   - component: {fileID: 193162023153562391}
   - component: {fileID: 5503882701670848354}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Face_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -735,7 +735,8 @@ GameObject:
   - component: {fileID: 947386398950978688}
   - component: {fileID: 422240903788142307}
   - component: {fileID: 4917757576403494918}
-  m_Layer: 0
+  - component: {fileID: 4680210017744320484}
+  m_Layer: 3
   m_Name: Visuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -820,6 +821,27 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &4680210017744320484
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5735503124641761106}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7180922480648631188
 GameObject:
   m_ObjectHideFlags: 0
@@ -831,7 +853,7 @@ GameObject:
   - component: {fileID: 1470397979963176337}
   - component: {fileID: 5135753382067955218}
   - component: {fileID: 3737473928474465259}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Face_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1011,7 +1033,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6936506496539486382}
   - component: {fileID: 6772289930224646982}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: DicePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1047,6 +1069,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Controllers.DiceController
   visualsRoot: {fileID: 947386398950978688}
+  visualsTransform: {fileID: 947386398950978688}
 --- !u!1 &8476276885673819139
 GameObject:
   m_ObjectHideFlags: 0
@@ -1058,7 +1081,7 @@ GameObject:
   - component: {fileID: 6165540440624812682}
   - component: {fileID: 4044844372140662437}
   - component: {fileID: 8312139490836119856}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Face_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -390,6 +390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1062066241}
   - component: {fileID: 1062066242}
+  - component: {fileID: 1062066243}
   m_Layer: 0
   m_Name: DiceManager
   m_TagString: Untagged
@@ -424,6 +425,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7165d9904cc442788a73122d201c376, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Controllers.DiceManager
+--- !u!114 &1062066243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1062066240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad3f0128b5f54b1c8c27cb3b59fd28be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Controllers.DiceSelectionHandler
+  diceLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
 --- !u!1 &1352725494
 GameObject:
   m_ObjectHideFlags: 0
@@ -1388,9 +1404,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f97b4ceeb4242b0bd0835caa2a161df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Infrastructure.DependencyInjection.LevelInstaller
-  diceConfiguration: {fileID: 11400000, guid: 70460af2caa7e684e9d09df2b6d989be, type: 2}
-  startingDiceDefinition: {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
-  diceDatabase: {fileID: 11400000, guid: 0c3657ee4a1472c42a83dae59ba819a4, type: 2}
+  levelCamera: {fileID: 976091603}
 --- !u!4 &2099447743
 Transform:
   m_ObjectHideFlags: 0

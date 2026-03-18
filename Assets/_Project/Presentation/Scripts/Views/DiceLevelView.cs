@@ -43,6 +43,7 @@ namespace _Project.Presentation.Scripts.Views
 
             Bus<EncounterStartedEvent>.OnEvent += OnEncounterStarted;
             Bus<DiceResultDecidedEvent>.OnEvent += OnResultDecided;
+            Bus<DiceRollFinishedEvent>.OnEvent += OnRollFinished;
             Bus<DiceResetEvent>.OnEvent += OnDiceReset;
         }
 
@@ -53,19 +54,42 @@ namespace _Project.Presentation.Scripts.Views
 
             Bus<EncounterStartedEvent>.OnEvent -= OnEncounterStarted;
             Bus<DiceResultDecidedEvent>.OnEvent -= OnResultDecided;
+            Bus<DiceRollFinishedEvent>.OnEvent -= OnRollFinished;
             Bus<DiceResetEvent>.OnEvent -= OnDiceReset;
         }
 
         private void OnEncounterStarted(EncounterStartedEvent evt)
         {
             if (_levelContainer != null) _levelContainer.style.display = DisplayStyle.Flex;
+            if (_resultLabel != null) _resultLabel.text = "Ready to roll.";
+        }
+
+        private void OnRollFinished(DiceRollFinishedEvent evt)
+        {
+            if (_resultLabel == null) return;
+
+            StringBuilder sb = new StringBuilder($"Rerolls Left: {_diceSession.RerollsLeft}\n\nResults: ");
+            int totalEncounterDamage = 0;
+
+            foreach (DiceState die in _diceSession.ActiveDice)
+            {
+                if (die.CurrentFaceIndex >= 0)
+                {
+                    int damage = _damageService.CalculateDamage(die);
+                    sb.Append($"[{die.CurrentValue} (Lv{die.Level})] ");
+                    totalEncounterDamage += damage;
+                }
+            }
+
+            sb.Append($"\nTotal Damage: {totalEncounterDamage}");
+            _resultLabel.text = sb.ToString();
         }
 
         private void OnResultDecided(DiceResultDecidedEvent evt)
         {
             if (_resultLabel == null) return;
 
-            StringBuilder sb = new StringBuilder("Results: ");
+            StringBuilder sb = new StringBuilder($"Rerolls Left: {_diceSession.RerollsLeft}\n\nResults: ");
             int totalEncounterDamage = 0;
 
             foreach (DiceState die in _diceSession.ActiveDice)

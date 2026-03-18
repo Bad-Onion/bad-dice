@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using _Project.Application.Events;
 using _Project.Application.Events.DiceEvents;
+using _Project.Application.UseCases;
 using _Project.Domain.Entities;
 using UnityEngine;
 using Zenject;
@@ -12,16 +14,18 @@ namespace _Project.Presentation.Scripts.Controllers
     {
         private DiContainer _container;
         private DiceSession _diceSession;
+        private IDiceRollUseCase _diceRollUseCase;
 
         private readonly Dictionary<string, (DiceController controller, GameObject prefab)> _activeDice = new();
         private readonly Dictionary<GameObject, Queue<DiceController>> _pools = new();
         private Transform _poolRoot;
 
         [Inject]
-        public void Construct(DiContainer container, DiceSession diceSession)
+        public void Construct(DiContainer container, DiceSession diceSession, IDiceRollUseCase diceRollUseCase)
         {
             _container = container;
             _diceSession = diceSession;
+            _diceRollUseCase = diceRollUseCase;
         }
 
         private void Awake()
@@ -34,16 +38,20 @@ namespace _Project.Presentation.Scripts.Controllers
         {
             Bus<DicePlaybackRequestedEvent>.OnEvent += HandlePlaybackRequested;
             Bus<DiceResetEvent>.OnEvent += HandleReset;
+            Bus<DiceRerollToggledEvent>.OnEvent += HandleDiceSelected;
         }
 
         private void OnDisable()
         {
             Bus<DicePlaybackRequestedEvent>.OnEvent -= HandlePlaybackRequested;
             Bus<DiceResetEvent>.OnEvent -= HandleReset;
+            Bus<DiceRerollToggledEvent>.OnEvent -= HandleDiceSelected;
         }
 
         private void HandlePlaybackRequested(DicePlaybackRequestedEvent evt)
         {
+            float longestPlaybackTime = 0f;
+
             for (int i = 0; i < evt.RolledDiceIds.Count; i++)
             {
                 string diceId = evt.RolledDiceIds[i];
@@ -56,16 +64,39 @@ namespace _Project.Presentation.Scripts.Controllers
                 if (!_activeDice.TryGetValue(diceId, out var activePair))
                 {
                     DiceController newController = SpawnDice(prefab);
+                    newController.Initialize(diceId);
+
                     activePair = (newController, prefab);
                     _activeDice[diceId] = activePair;
                 }
 
-                activePair.controller.PlayTrajectory(evt.SimulationResult.DicePaths[i]);
+                activePair.controller.SetSelectionVisual(false);
+
+                var path = evt.SimulationResult.DicePaths[i];
+                activePair.controller.PlayTrajectory(path);
+
+                // Calculate how long this specific die will animate
+                float duration = path.Frames.Count * Time.fixedDeltaTime;
+                if (duration > longestPlaybackTime)
+                {
+                    longestPlaybackTime = duration;
+                }
             }
+
+            // Unlock the session interactions after the dice finish moving
+            StartCoroutine(UnlockSessionAfterDelay(longestPlaybackTime));
+        }
+
+        private IEnumerator UnlockSessionAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            _diceRollUseCase.EndRoll();
         }
 
         private void HandleReset(DiceResetEvent evt)
         {
+            StopAllCoroutines();
+
             // TODO: Rename kvp to something more descriptive like "diceEntry" or "activeDiceEntry"
             foreach (var kvp in _activeDice)
             {
@@ -100,6 +131,14 @@ namespace _Project.Presentation.Scripts.Controllers
         {
             dice.gameObject.SetActive(false);
             _pools[prefab].Enqueue(dice);
+        }
+
+        private void HandleDiceSelected(DiceRerollToggledEvent evt)
+        {
+            if (_activeDice.TryGetValue(evt.DiceId, out var activePair))
+            {
+                activePair.controller.SetSelectionVisual(evt.IsSelected);
+            }
         }
     }
 }

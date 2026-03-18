@@ -21,6 +21,10 @@ namespace _Project.Infrastructure.Services
 
         public void EnsureRunInitialized()
         {
+            // DEBUG (use to reset game state during development)
+            // PlayerPrefs.DeleteAll();
+            // return;
+
             if (_repository.HasActiveRun())
             {
                 var loadedState = _repository.LoadRun();

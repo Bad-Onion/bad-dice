@@ -25,6 +25,10 @@ namespace _Project.Infrastructure.DependencyInjection
         [Header("Input")]
         [Tooltip("Assign the input action to pause the game.")]
         [SerializeField] private InputActionReference pauseInputAction;
+        [Tooltip("Assign the input action to interact with the game, usually the mouse left button.")]
+        [SerializeField] private InputActionReference interactInputAction;
+        [Tooltip("Assign the input action to get the mouse position.")]
+        [SerializeField] private InputActionReference pointerPositionAction;
 
         [Header("Run Configuration")]
         [Tooltip("Assign the generic physics/spacing configuration.")]
@@ -68,8 +72,9 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IGameStateMachine>().To<GameStateMachine>().AsSingle();
 
             // Input
-            Container.BindInstance(pauseInputAction).WhenInjectedInto<InputAdapter>();
-            Container.BindInterfacesTo<InputAdapter>().AsSingle();
+            Container.BindInterfacesTo<InputAdapter>()
+                .AsSingle()
+                .WithArguments(pauseInputAction, interactInputAction, pointerPositionAction);
         }
     }
 }
