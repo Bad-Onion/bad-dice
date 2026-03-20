@@ -1123,7 +1123,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6936506496539486382}
-  - component: {fileID: 6772289930224646982}
+  - component: {fileID: -2005912791192404023}
+  - component: {fileID: 6649897844758741004}
+  - component: {fileID: 7580039658905373800}
   m_Layer: 3
   m_Name: DicePrefab
   m_TagString: Untagged
@@ -1147,7 +1149,34 @@ Transform:
   - {fileID: 947386398950978688}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6772289930224646982
+--- !u!114 &-2005912791192404023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7710947953943999187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bce91b9b45c04169863a25d9ce6104c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Controllers.DiceTrajectoryRoutineController
+  visualsRoot: {fileID: 947386398950978688}
+--- !u!114 &6649897844758741004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7710947953943999187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1e3e26d874445bb92f7f66a55c0a9d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Controllers.DiceVisualFeedbackController
+  visualsTransform: {fileID: 947386398950978688}
+  outlineVisual: {fileID: 5381023953509350590}
+--- !u!114 &7580039658905373800
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1159,9 +1188,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36c673a167d549c7aab3ca9e00c4bb13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Controllers.DiceController
-  visualsRoot: {fileID: 947386398950978688}
-  visualsTransform: {fileID: 947386398950978688}
-  outlineVisual: {fileID: 5381023953509350590}
+  trajectoryController: {fileID: -2005912791192404023}
+  visualFeedbackController: {fileID: 6649897844758741004}
 --- !u!1 &8476276885673819139
 GameObject:
   m_ObjectHideFlags: 0

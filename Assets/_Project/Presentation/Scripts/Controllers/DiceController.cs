@@ -1,87 +1,48 @@
-﻿using System.Collections;
-using _Project.Domain.Entities.DiceSimulation;
+﻿using _Project.Domain.Entities.DiceSimulation;
 using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
-    // Class dedicated to handle a Dice Prefab (a singular dice)
-    // TODO: Separate into "DiceTrajectoryRoutineController" and "DiceVisualFeedbackController" components
+    // Coordinator component for managing a Dice Prefab (a singular dice)
     public class DiceController : MonoBehaviour
     {
-        [Header("References")]
-        [Tooltip("Assign the child GameObject that holds all the visual numbers and meshes.")]
-        [SerializeField] private Transform visualsRoot;
-
-        [Header("Visual Feedback")]
-        [Tooltip("Assign the Visuals child object here to animate it upon selection.")]
-        [SerializeField] private Transform visualsTransform;
-
-        [Header("Merge Visuals")]
-        [Tooltip("Assign an object/renderer here to act as the merge outline indicator.")]
-        [SerializeField] private GameObject outlineVisual;
-
-        private Coroutine _playbackCoroutine;
+        [Header("Components")]
+        [Tooltip("Assign the DiceTrajectoryRoutineController here to control the dice trajectory.")]
+        [SerializeField] private DiceTrajectoryRoutineController trajectoryController;
+        [Tooltip("Assign the DiceVisualFeedbackController here to control the dice visual feedback.")]
+        [SerializeField] private DiceVisualFeedbackController visualFeedbackController;
 
         public string DiceId { get; private set; }
 
         public void Initialize(string id)
         {
             DiceId = id;
-            SetSelectionVisual(false);
+            visualFeedbackController.SetSelectionVisual(false);
         }
 
         public void PlayTrajectory(DicePoseSimulationResultPath poseSimulationResultPath)
         {
-            if (_playbackCoroutine != null) StopCoroutine(_playbackCoroutine);
-
-            _playbackCoroutine = StartCoroutine(PlaybackRoutine(poseSimulationResultPath));
+            trajectoryController.PlayTrajectory(poseSimulationResultPath);
         }
 
         public void StopPlayback()
         {
-            if (_playbackCoroutine == null) return;
-
-            StopCoroutine(_playbackCoroutine);
-            _playbackCoroutine = null;
-        }
-
-        private IEnumerator PlaybackRoutine(DicePoseSimulationResultPath poseSimulationResultPath)
-        {
-            visualsRoot.localRotation = poseSimulationResultPath.VisualCorrection;
-
-            for (int i = 0; i < poseSimulationResultPath.Frames.Count; i++)
-            {
-                transform.position = poseSimulationResultPath.Frames[i].Position;
-                transform.rotation = poseSimulationResultPath.Frames[i].Rotation;
-
-                yield return new WaitForFixedUpdate();
-            }
+            trajectoryController.StopPlayback();
         }
 
         public void SetSelectionVisual(bool isSelected)
         {
-            if (visualsTransform == null) return;
-
-            // Simple visual feedback: Elevate the mesh slightly to show it's selected for a reroll
-            float targetY = isSelected ? 0.5f : 0f;
-            visualsTransform.localPosition = new Vector3(
-                visualsTransform.localPosition.x,
-                targetY,
-                visualsTransform.localPosition.z
-            );
+            visualFeedbackController.SetSelectionVisual(isSelected);
         }
 
         public void SetHoverVisual(bool isHovered)
         {
-            if (visualsTransform == null) return;
-
-            float targetScale = isHovered ? 1.15f : 1.0f;
-            visualsTransform.localScale = Vector3.one * targetScale;
+            visualFeedbackController.SetHoverVisual(isHovered);
         }
 
         public void SetMergeableOutline(bool isMergeable)
         {
-            if (outlineVisual != null) outlineVisual.SetActive(isMergeable);
+            visualFeedbackController.SetMergeableOutline(isMergeable);
         }
     }
 }

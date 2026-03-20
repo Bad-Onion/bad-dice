@@ -2,7 +2,6 @@
 using _Project.Application.UseCases;
 using _Project.Domain.Entities.Session;
 using _Project.Infrastructure.Services;
-using _Project.Presentation.Scripts.Views;
 using _Project.Presentation.Scripts.Views.Components;
 using UnityEngine;
 using Zenject;
