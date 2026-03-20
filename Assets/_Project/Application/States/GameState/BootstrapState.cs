@@ -1,4 +1,4 @@
-﻿using _Project.Application.Events;
+﻿using _Project.Application.Events.EventChannels;
 using _Project.Application.Interfaces;
 
 namespace _Project.Application.States.GameState

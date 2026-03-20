@@ -1,19 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using _Project.Application.Events;
+using _Project.Application.Events.Core;
+using _Project.Application.Events.DiceState;
 using _Project.Application.Events.MergeEvents;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities;
+using _Project.Domain.Entities.Session;
 
 namespace _Project.Infrastructure.Services
 {
     public class DiceMergeService : IDiceMergeUseCase
     {
-        private readonly DiceSession _diceSession;
+        private readonly DiceSessionState _diceSessionState;
 
-        public DiceMergeService(DiceSession diceSession)
+        public DiceMergeService(DiceSessionState diceSessionState)
         {
-            _diceSession = diceSession;
+            _diceSessionState = diceSessionState;
         }
 
         public void EvaluateMergePossibilities()
@@ -21,7 +22,7 @@ namespace _Project.Infrastructure.Services
             var mergeableIds = new List<string>();
 
             // TODO: Move to another function and name to "GetMergeableDiceIds"
-            var mergeableGroups = _diceSession.ActiveDice
+            var mergeableGroups = _diceSessionState.ActiveDice
                 .Where(diceState => diceState.CurrentFaceIndex != -1 && diceState.Level > 0)
                 .GroupBy(diceState => new { diceState.CurrentValue, diceState.Level })
                 .Where(grouping => grouping.Count() > 1);
@@ -31,7 +32,7 @@ namespace _Project.Infrastructure.Services
                 mergeableIds.AddRange(group.Select(diceState => diceState.Id));
             }
 
-            _diceSession.MergeableDiceIds = mergeableIds;
+            _diceSessionState.MergeableDiceIds = mergeableIds;
 
             Bus<MergePossibilitiesEvaluatedEvent>.Raise(new MergePossibilitiesEvaluatedEvent
             {
@@ -43,15 +44,15 @@ namespace _Project.Infrastructure.Services
         public void ExecuteAutoMerge(string targetDiceId)
         {
             // TODO: Move conditions to another function and name to "CanMergeDice"
-            if (_diceSession.IsRolling) return;
+            if (_diceSessionState.IsRolling) return;
 
-            var targetDie = _diceSession.ActiveDice.FirstOrDefault(d => d.Id == targetDiceId);
+            var targetDie = _diceSessionState.ActiveDice.FirstOrDefault(d => d.Id == targetDiceId);
             if (targetDie == null || targetDie.CurrentFaceIndex == -1 || targetDie.Level == 0) return;
 
-            if (!_diceSession.MergeableDiceIds.Contains(targetDie.Id)) return;
+            if (!_diceSessionState.MergeableDiceIds.Contains(targetDie.Id)) return;
 
             // TODO: Move to another function and name to "GetDicesToAbsorb"
-            var diceToAbsorb = _diceSession.ActiveDice
+            var diceToAbsorb = _diceSessionState.ActiveDice
                 .Where(d => d.Id != targetDie.Id && d.CurrentValue == targetDie.CurrentValue && d.Level == targetDie.Level)
                 .ToList();
 

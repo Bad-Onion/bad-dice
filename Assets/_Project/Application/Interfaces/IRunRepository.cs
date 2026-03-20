@@ -1,4 +1,5 @@
 ﻿using _Project.Domain.Entities;
+using _Project.Domain.Entities.Session;
 
 namespace _Project.Application.Interfaces
 {

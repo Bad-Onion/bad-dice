@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using _Project.Domain.Entities;
+using _Project.Domain.Entities.DiceSimulation;
 using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Controllers
@@ -30,11 +30,11 @@ namespace _Project.Presentation.Scripts.Controllers
             SetSelectionVisual(false);
         }
 
-        public void PlayTrajectory(DicePath path)
+        public void PlayTrajectory(DicePoseSimulationResultPath poseSimulationResultPath)
         {
             if (_playbackCoroutine != null) StopCoroutine(_playbackCoroutine);
 
-            _playbackCoroutine = StartCoroutine(PlaybackRoutine(path));
+            _playbackCoroutine = StartCoroutine(PlaybackRoutine(poseSimulationResultPath));
         }
 
         public void StopPlayback()
@@ -45,14 +45,14 @@ namespace _Project.Presentation.Scripts.Controllers
             _playbackCoroutine = null;
         }
 
-        private IEnumerator PlaybackRoutine(DicePath path)
+        private IEnumerator PlaybackRoutine(DicePoseSimulationResultPath poseSimulationResultPath)
         {
-            visualsRoot.localRotation = path.VisualCorrection;
+            visualsRoot.localRotation = poseSimulationResultPath.VisualCorrection;
 
-            for (int i = 0; i < path.Frames.Count; i++)
+            for (int i = 0; i < poseSimulationResultPath.Frames.Count; i++)
             {
-                transform.position = path.Frames[i].Position;
-                transform.rotation = path.Frames[i].Rotation;
+                transform.position = poseSimulationResultPath.Frames[i].Position;
+                transform.rotation = poseSimulationResultPath.Frames[i].Rotation;
 
                 yield return new WaitForFixedUpdate();
             }

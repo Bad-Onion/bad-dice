@@ -1,5 +1,5 @@
 ﻿using _Project.Application.Interfaces;
-using _Project.Application.Events;
+using _Project.Application.Events.EventChannels;
 
 namespace _Project.Application.States.GameState
 {

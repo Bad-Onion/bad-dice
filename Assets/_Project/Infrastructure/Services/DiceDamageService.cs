@@ -1,5 +1,5 @@
 ﻿using _Project.Application.Interfaces;
-using _Project.Domain.Entities;
+using _Project.Domain.Entities.DiceData;
 
 namespace _Project.Infrastructure.Services
 {

@@ -1,8 +1,9 @@
 ﻿using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities;
+using _Project.Domain.Entities.Session;
 using _Project.Infrastructure.Services;
 using _Project.Presentation.Scripts.Views;
+using _Project.Presentation.Scripts.Views.Components;
 using UnityEngine;
 using Zenject;
 
@@ -20,17 +21,17 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.BindInstance(levelCamera).AsSingle();
 
             // Domain Entities
-            Container.Bind<DiceSession>().AsSingle();
+            Container.Bind<DiceSessionState>().AsSingle();
 
             // Services
             Container.Bind<IDiceDamageService>().To<DiceDamageService>().AsSingle();
             Container.Bind<IDiceSimulationService>().To<DiceSimulationService>().AsSingle();
             Container.Bind<IDiceRollUseCase>().To<DiceRollService>().AsSingle();
             Container.Bind<IDiceMergeUseCase>().To<DiceMergeService>().AsSingle();
-            Container.Bind<IEncounterPreparationUseCase>().To<EncounterPreparationService>().AsSingle();
+            Container.Bind<IDicePouchUseCase>().To<DicePouchService>().AsSingle();
 
             // UI Views
-            Container.Bind<PreFightView>().FromComponentInHierarchy().AsSingle();
+            Container.Bind<DicePouchSelectorView>().FromComponentInHierarchy().AsSingle();
         }
     }
 }

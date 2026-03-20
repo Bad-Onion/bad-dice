@@ -1,26 +1,31 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using _Project.Application.Events;
-using _Project.Application.Events.DiceEvents;
+using _Project.Application.Events.Core;
+using _Project.Application.Events.DiceInput;
+using _Project.Application.Events.DiceSimulation;
+using _Project.Application.Events.DiceState;
 using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities;
-using _Project.Domain.ScriptableObjects;
+using _Project.Domain.Entities.DiceData;
+using _Project.Domain.Entities.DiceSimulation;
+using _Project.Domain.Entities.Session;
+using _Project.Domain.ScriptableObjects.Configuration;
+using _Project.Domain.ScriptableObjects.DiceDefinitions;
 
 namespace _Project.Infrastructure.Services
 {
     public class DiceRollService : IDiceRollUseCase
     {
-        private readonly DiceSession _diceSession;
-        private readonly DiceConfiguration _diceConfiguration;
+        private readonly DiceSessionState _diceSessionState;
+        private readonly DiceRollConfiguration _diceRollConfiguration;
         private readonly IDiceSimulationService _simulationService;
 
-        public DiceRollService(DiceSession diceSession, DiceConfiguration diceConfiguration,
+        public DiceRollService(DiceSessionState diceSessionState, DiceRollConfiguration diceRollConfiguration,
             IDiceSimulationService simulationService)
         {
-            _diceSession = diceSession;
-            _diceConfiguration = diceConfiguration;
+            _diceSessionState = diceSessionState;
+            _diceRollConfiguration = diceRollConfiguration;
             _simulationService = simulationService;
         }
 
@@ -28,20 +33,20 @@ namespace _Project.Infrastructure.Services
         public void RequestRoll()
         {
             // TODO: Move this to a separate function and name it "CanRollDice"
-            if (_diceSession.IsRolling) return;
+            if (_diceSessionState.IsRolling) return;
 
             // TODO: Move this to a separate function and name it "IsFirstRoll"
-            bool isFirstRoll = _diceSession.ActiveDice.All(d => d.CurrentFaceIndex == -1);
-            if (!isFirstRoll && _diceSession.RerollsLeft <= 0) return;
+            bool isFirstRoll = _diceSessionState.ActiveDice.All(d => d.CurrentFaceIndex == -1);
+            if (!isFirstRoll && _diceSessionState.RerollsLeft <= 0) return;
 
             var diceToRoll = GetDiceToRoll();
             if (!isFirstRoll && diceToRoll.Count == 0) return;
 
-            _diceSession.IsRolling = true;
+            _diceSessionState.IsRolling = true;
 
             if (!isFirstRoll)
             {
-                _diceSession.RerollsLeft--;
+                _diceSessionState.RerollsLeft--;
             }
 
             // TODO: Move this to a separate function
@@ -84,17 +89,17 @@ namespace _Project.Infrastructure.Services
 
         public void EndRoll()
         {
-            _diceSession.IsRolling = false;
+            _diceSessionState.IsRolling = false;
             Bus<DiceRollFinishedEvent>.Raise(new DiceRollFinishedEvent());
         }
 
         public void ResetDice()
         {
-            _diceSession.IsRolling = false;
+            _diceSessionState.IsRolling = false;
             // TODO: Replace hardcoded with a config value
-            _diceSession.RerollsLeft = 3;
+            _diceSessionState.RerollsLeft = 3;
 
-            foreach (var die in _diceSession.ActiveDice)
+            foreach (var die in _diceSessionState.ActiveDice)
             {
                 die.CurrentFaceIndex = -1;
                 die.IsSelectedForReroll = false;
@@ -105,10 +110,10 @@ namespace _Project.Infrastructure.Services
 
         public void ToggleDiceRerollSelection(string diceId)
         {
-            if (_diceSession.IsRolling) return;
+            if (_diceSessionState.IsRolling) return;
 
             // TODO: Move this to a separate function and name it "GetDiceToReroll""
-            var die = _diceSession.ActiveDice.FirstOrDefault(dice => dice.Id == diceId);
+            var die = _diceSessionState.ActiveDice.FirstOrDefault(dice => dice.Id == diceId);
 
             // TODO: Invert this condition to reduce nesting
             if (die != null && die.CurrentFaceIndex != -1)
@@ -126,10 +131,10 @@ namespace _Project.Infrastructure.Services
         private List<DiceState> GetDiceToRoll()
         {
             // TODO: Move this to a separate function and name it "IsFirstRoll"
-            bool isFirstRoll = _diceSession.ActiveDice.All(d => d.CurrentFaceIndex == -1);
-            if (isFirstRoll) return _diceSession.ActiveDice.ToList();
+            bool isFirstRoll = _diceSessionState.ActiveDice.All(d => d.CurrentFaceIndex == -1);
+            if (isFirstRoll) return _diceSessionState.ActiveDice.ToList();
 
-            return _diceSession.ActiveDice.Where(d => d.IsSelectedForReroll).ToList();
+            return _diceSessionState.ActiveDice.Where(d => d.IsSelectedForReroll).ToList();
         }
 
         private DiceSimulationResult SimulateRoll(List<DiceState> diceToRoll, int rollCount, int[] targetFaceIndices)
@@ -148,9 +153,9 @@ namespace _Project.Infrastructure.Services
         {
             return BuildArray(count, i =>
             {
-                Vector3 offset = new Vector3((i - (count / 2f)) * _diceConfiguration.spawnSpacing, 0, 0);
+                Vector3 offset = new Vector3((i - (count / 2f)) * _diceRollConfiguration.spawnSpacing, 0, 0);
 
-                return _diceConfiguration.spawnCenter + offset;
+                return _diceRollConfiguration.spawnCenter + offset;
             });
         }
 
@@ -159,7 +164,7 @@ namespace _Project.Infrastructure.Services
             return BuildArray(count, _ =>
             {
                 Vector3 randomForce = Random.onUnitSphere *
-                                      Random.Range(_diceConfiguration.minForce, _diceConfiguration.maxForce);
+                                      Random.Range(_diceRollConfiguration.minForce, _diceRollConfiguration.maxForce);
                 randomForce.y = Mathf.Abs(randomForce.y);
 
                 return randomForce;
@@ -168,7 +173,7 @@ namespace _Project.Infrastructure.Services
 
         private Vector3[] GetRandomTorques(int count)
         {
-            return BuildArray(count, _ => Random.onUnitSphere * _diceConfiguration.torqueMultiplier);
+            return BuildArray(count, _ => Random.onUnitSphere * _diceRollConfiguration.torqueMultiplier);
         }
 
         private Quaternion[] GetRandomRotations(int count)

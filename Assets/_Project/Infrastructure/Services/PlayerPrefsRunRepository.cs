@@ -1,6 +1,8 @@
 ﻿using _Project.Application.Interfaces;
-using _Project.Domain.Entities;
-using _Project.Domain.ScriptableObjects;
+using _Project.Domain.Entities.DiceData;
+using _Project.Domain.Entities.DTO;
+using _Project.Domain.Entities.Session;
+using _Project.Domain.ScriptableObjects.DiceDefinitions;
 using UnityEngine;
 
 namespace _Project.Infrastructure.Services

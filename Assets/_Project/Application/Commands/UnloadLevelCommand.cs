@@ -2,6 +2,7 @@
 using Zenject;
 using _Project.Application.Interfaces;
 using _Project.Domain.ScriptableObjects;
+using _Project.Domain.ScriptableObjects.GameSettings;
 
 namespace _Project.Application.Commands
 {

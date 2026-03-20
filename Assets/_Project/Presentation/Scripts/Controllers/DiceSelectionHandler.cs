@@ -1,6 +1,6 @@
 ﻿using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities;
+using _Project.Domain.Entities.Session;
 using UnityEngine;
 using Zenject;
 
@@ -14,18 +14,18 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private IDiceRollUseCase _diceRollUseCase;
         private IDiceMergeUseCase _diceMergeUseCase;
-        private DiceSession _diceSession;
+        private DiceSessionState _diceSessionState;
         private IInputProvider _inputProvider;
         private Camera _levelCamera;
 
         private DiceController _hoveredDice;
 
         [Inject]
-        public void Construct(IDiceRollUseCase diceRollUseCase, IDiceMergeUseCase diceMergeUseCase, DiceSession diceSession, IInputProvider inputProvider, Camera levelCamera)
+        public void Construct(IDiceRollUseCase diceRollUseCase, IDiceMergeUseCase diceMergeUseCase, DiceSessionState diceSessionState, IInputProvider inputProvider, Camera levelCamera)
         {
             _diceRollUseCase = diceRollUseCase;
             _diceMergeUseCase = diceMergeUseCase;
-            _diceSession = diceSession;
+            _diceSessionState = diceSessionState;
             _inputProvider = inputProvider;
             _levelCamera = levelCamera;
         }
@@ -79,7 +79,7 @@ namespace _Project.Presentation.Scripts.Controllers
         // TODO: Reuse code between HandleInteraction and HandleHoldInteraction and Update in a separate function
         private void HandleInteraction()
         {
-            if (_diceSession.IsRolling) return;
+            if (_diceSessionState.IsRolling) return;
 
             // TODO: Move this to a separate function and name it "GetCameraRay"
             Ray ray = _levelCamera.ScreenPointToRay(_inputProvider.GetPointerPosition());
@@ -100,7 +100,7 @@ namespace _Project.Presentation.Scripts.Controllers
         // TODO: Reuse code between HandleInteraction and HandleHoldInteraction and Update in a separate function
         private void HandleHoldInteraction()
         {
-            if (_diceSession.IsRolling) return;
+            if (_diceSessionState.IsRolling) return;
 
             Vector2 pointerPos = _inputProvider.GetPointerPosition();
             Ray ray = _levelCamera.ScreenPointToRay(pointerPos);

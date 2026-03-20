@@ -1,12 +1,14 @@
 ﻿using System;
 using _Project.Application.Commands;
-using _Project.Application.Events;
-using _Project.Application.Events.Payload;
+using _Project.Application.Events.Core;
+using _Project.Application.Events.EventChannels;
+using _Project.Application.Events.EventChannels.Payload;
+using _Project.Application.Events.Load;
 using _Project.Application.Interfaces;
 using _Project.Application.States.GameState;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities;
-using _Project.Domain.ScriptableObjects;
+using _Project.Domain.Entities.Session;
+using _Project.Domain.ScriptableObjects.GameSettings;
 using Zenject;
 
 namespace _Project.Infrastructure.Services

@@ -1,5 +1,5 @@
-﻿using _Project.Domain.Entities;
-using _Project.Domain.ScriptableObjects;
+﻿using _Project.Domain.Entities.Session;
+using _Project.Domain.ScriptableObjects.GameSettings;
 using _Project.Infrastructure.Services;
 using Zenject;
 using UnityEngine;

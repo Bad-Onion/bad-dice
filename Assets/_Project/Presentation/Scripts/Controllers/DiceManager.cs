@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using _Project.Application.Events;
-using _Project.Application.Events.DiceEvents;
+using _Project.Application.Events.Core;
+using _Project.Application.Events.DiceInput;
+using _Project.Application.Events.DiceSimulation;
+using _Project.Application.Events.DiceState;
 using _Project.Application.Events.MergeEvents;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities;
+using _Project.Domain.Entities.DiceData;
+using _Project.Domain.Entities.Session;
 using UnityEngine;
 using Zenject;
 
@@ -14,7 +17,7 @@ namespace _Project.Presentation.Scripts.Controllers
     public class DiceManager : MonoBehaviour
     {
         private DiContainer _container;
-        private DiceSession _diceSession;
+        private DiceSessionState _diceSessionState;
         private IDiceRollUseCase _diceRollUseCase;
         private IDiceMergeUseCase _diceMergeUseCase;
 
@@ -23,10 +26,10 @@ namespace _Project.Presentation.Scripts.Controllers
         private Transform _poolRoot;
 
         [Inject]
-        public void Construct(DiContainer container, DiceSession diceSession, IDiceRollUseCase diceRollUseCase, IDiceMergeUseCase diceMergeUseCase)
+        public void Construct(DiContainer container, DiceSessionState diceSessionState, IDiceRollUseCase diceRollUseCase, IDiceMergeUseCase diceMergeUseCase)
         {
             _container = container;
-            _diceSession = diceSession;
+            _diceSessionState = diceSessionState;
             _diceRollUseCase = diceRollUseCase;
             _diceMergeUseCase = diceMergeUseCase;
         }
@@ -63,7 +66,7 @@ namespace _Project.Presentation.Scripts.Controllers
             for (int i = 0; i < evt.RolledDiceIds.Count; i++)
             {
                 string diceId = evt.RolledDiceIds[i];
-                DiceState diceState = _diceSession.ActiveDice.Find(d => d.Id == diceId);
+                DiceState diceState = _diceSessionState.ActiveDice.Find(d => d.Id == diceId);
 
                 if (diceState == null || diceState.Definition.visualPrefab == null) continue;
 

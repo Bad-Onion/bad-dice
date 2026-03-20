@@ -2,12 +2,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using _Project.Application.Commands;
-using _Project.Application.Events;
+using _Project.Application.Events.EventChannels;
 using _Project.Application.Interfaces;
 using _Project.Application.States.GameState;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities;
-using _Project.Domain.ScriptableObjects;
+using _Project.Domain.Entities.Session;
+using _Project.Domain.ScriptableObjects.Configuration;
+using _Project.Domain.ScriptableObjects.DiceDefinitions;
+using _Project.Domain.ScriptableObjects.GameSettings;
 using _Project.Infrastructure.Adapters;
 using _Project.Infrastructure.Services;
 
@@ -35,7 +37,7 @@ namespace _Project.Infrastructure.DependencyInjection
 
         [Header("Run Configuration")]
         [Tooltip("Assign the generic physics/spacing configuration.")]
-        [SerializeField] private DiceConfiguration diceConfiguration;
+        [SerializeField] private DiceRollConfiguration diceRollConfiguration;
 
         [Tooltip("Assign the default DiceDefinition the player starts the run with.")]
         [SerializeField] private DiceDefinition startingDiceDefinition;
@@ -50,7 +52,7 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.BindInstance(transitionEventChannel).AsSingle();
 
             // Run State & Persistence (Cross-Scene)
-            Container.BindInstance(diceConfiguration).AsSingle();
+            Container.BindInstance(diceRollConfiguration).AsSingle();
             Container.BindInstance(startingDiceDefinition).AsSingle();
             Container.BindInstance(diceDatabase).AsSingle();
             Container.Bind<PlayerRunState>().AsSingle();

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Events;
-using _Project.Application.Events;
+using _Project.Application.Events.Core;
 
 namespace _Project.Presentation.Scripts.ChannelListeners
 {

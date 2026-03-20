@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using _Project.Application.Interfaces;
-using _Project.Domain.Entities;
+using _Project.Domain.Entities.DiceSimulation;
 using _Project.Domain.Enums;
-using _Project.Domain.ScriptableObjects;
+using _Project.Domain.ScriptableObjects.DiceDefinitions;
 using UnityEngine;
 
 namespace _Project.Infrastructure.Services
@@ -32,7 +32,7 @@ namespace _Project.Infrastructure.Services
                 GameObject[] dummyPhysicsObjects = CreateAndInitializeDiceArray(definitions, startPos, startRot, forces, torques);
                 Rigidbody[] rigidBodies = GetRigidbodies(dummyPhysicsObjects);
 
-                List<DicePath> dicePaths = SimulateUntilAllSettled(rigidBodies);
+                List<DicePoseSimulationResultPath> dicePaths = SimulateUntilAllSettled(rigidBodies);
                 ApplyVisualCorrections(dicePaths, definitions, targetFaceIndices, dummyPhysicsObjects);
 
                 CleanupDummies(dummyPhysicsObjects);
@@ -85,10 +85,10 @@ namespace _Project.Infrastructure.Services
             rb.AddTorque(torque, ForceMode.Impulse);
         }
 
-        private List<DicePath> SimulateUntilAllSettled(Rigidbody[] rigidBodies)
+        private List<DicePoseSimulationResultPath> SimulateUntilAllSettled(Rigidbody[] rigidBodies)
         {
             int count = rigidBodies.Length;
-            List<DicePath> paths = Enumerable.Range(0, count).Select(_ => new DicePath { Frames = new List<DiceFrame>(MaxRecordCapacity) }).ToList();
+            List<DicePoseSimulationResultPath> paths = Enumerable.Range(0, count).Select(_ => new DicePoseSimulationResultPath { Frames = new List<DicePoseFrame>(MaxRecordCapacity) }).ToList();
 
             for (int frame = 0; frame < MaxRecordCapacity; frame++)
             {
@@ -97,7 +97,7 @@ namespace _Project.Infrastructure.Services
 
                 for (int i = 0; i < count; i++)
                 {
-                    paths[i].Frames.Add(new DiceFrame(rigidBodies[i].position, rigidBodies[i].rotation));
+                    paths[i].Frames.Add(new DicePoseFrame(rigidBodies[i].position, rigidBodies[i].rotation));
 
                     if (!HasDiceSettled(rigidBodies[i]))
                     {
@@ -122,13 +122,13 @@ namespace _Project.Infrastructure.Services
                    rb.angularVelocity.sqrMagnitude < MaxMotionThreshold;
         }
 
-        private void ApplyVisualCorrections(List<DicePath> paths, DiceDefinition[] definitions, int[] targetFaceIndices, GameObject[] diceObjects)
+        private void ApplyVisualCorrections(List<DicePoseSimulationResultPath> paths, DiceDefinition[] definitions, int[] targetFaceIndices, GameObject[] diceObjects)
         {
             for (int i = 0; i < paths.Count; i++)
             {
-                DicePath path = paths[i];
-                path.VisualCorrection = CalculateVisualCorrection(definitions[i], targetFaceIndices[i], diceObjects[i]);
-                paths[i] = path;
+                DicePoseSimulationResultPath poseSimulationResultPath = paths[i];
+                poseSimulationResultPath.VisualCorrection = CalculateVisualCorrection(definitions[i], targetFaceIndices[i], diceObjects[i]);
+                paths[i] = poseSimulationResultPath;
             }
         }
 
