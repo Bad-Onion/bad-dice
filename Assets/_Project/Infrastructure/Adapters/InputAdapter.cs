@@ -10,18 +10,22 @@ namespace _Project.Infrastructure.Adapters
     {
         private readonly InputActionReference _pauseInputAction;
         private readonly InputActionReference _interactInputAction;
+        private readonly InputActionReference _holdInteractAction;
         private readonly InputActionReference _pointerPositionAction;
 
         public event Action OnPauseAction;
         public event Action OnInteract;
+        public event Action OnHoldInteract;
 
         public InputAdapter(
             InputActionReference pauseInputAction,
             InputActionReference interactInputAction,
+            InputActionReference holdInteractAction,
             InputActionReference pointerPositionAction)
         {
             _pauseInputAction = pauseInputAction;
             _interactInputAction = interactInputAction;
+            _holdInteractAction = holdInteractAction;
             _pointerPositionAction = pointerPositionAction;
         }
 
@@ -37,6 +41,12 @@ namespace _Project.Infrastructure.Adapters
             {
                 _interactInputAction.action.Enable();
                 _interactInputAction.action.performed += HandleInteractPerformed;
+            }
+
+            if (_holdInteractAction != null)
+            {
+                _holdInteractAction.action.Enable();
+                _holdInteractAction.action.performed += HandleHoldInteractPerformed;
             }
 
             if (_pointerPositionAction != null)
@@ -56,17 +66,13 @@ namespace _Project.Infrastructure.Adapters
             {
                 _interactInputAction.action.performed -= HandleInteractPerformed;
             }
+
+            if (_holdInteractAction != null) _holdInteractAction.action.performed -= HandleHoldInteractPerformed;
         }
 
-        private void OnPausePerformed(InputAction.CallbackContext context)
-        {
-            OnPauseAction?.Invoke();
-        }
-
-        private void HandleInteractPerformed(InputAction.CallbackContext context)
-        {
-            OnInteract?.Invoke();
-        }
+        private void OnPausePerformed(InputAction.CallbackContext context) => OnPauseAction?.Invoke();
+        private void HandleInteractPerformed(InputAction.CallbackContext context) => OnInteract?.Invoke();
+        private void HandleHoldInteractPerformed(InputAction.CallbackContext context) => OnHoldInteract?.Invoke();
 
         public Vector2 GetPointerPosition()
         {

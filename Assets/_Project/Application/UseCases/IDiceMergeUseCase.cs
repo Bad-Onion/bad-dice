@@ -2,9 +2,7 @@
 {
     public interface IDiceMergeUseCase
     {
-        void ToggleMergeMode();
-        void ToggleDiceMergeSelection(string diceId);
-        void SubmitMerge();
+        void ExecuteAutoMerge(string targetDiceId);
         void EvaluateMergePossibilities();
     }
 }

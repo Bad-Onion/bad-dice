@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1920
     height: 1037
   m_ShowMode: 4
-  m_Title: Game
+  m_Title: Project
   m_RootView: {fileID: 6}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 112}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 116
+  controlID: 63
   draggingID: 0
 --- !u!114 &3
 MonoBehaviour:
@@ -250,7 +250,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 56}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 18
+  controlID: 54
   draggingID: 0
 --- !u!114 &11
 MonoBehaviour:
@@ -594,7 +594,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Settings/Input
+    - Assets/_Project/Presentation/Visuals/UI
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -604,33 +604,33 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Settings/Input
+  - Assets/_Project/Presentation/Visuals/UI
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\orthm\Documents\Projetos\Unity\bad-dice
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 414}
+    scrollPos: {x: 0, y: 250}
     m_SelectedIDs:
-    - m_Data: 66170
+    - m_Data: 50530
     m_LastClickedID:
-      m_Data: 66170
+      m_Data: 50530
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 50166
-    - m_Data: 50168
-    - m_Data: 50170
-    - m_Data: 50172
-    - m_Data: 50174
-    - m_Data: 50176
-    - m_Data: 50178
-    - m_Data: 50180
-    - m_Data: 50182
     - m_Data: 50184
     - m_Data: 50186
     - m_Data: 50188
     - m_Data: 50190
+    - m_Data: 50192
+    - m_Data: 50194
+    - m_Data: 50196
+    - m_Data: 50198
+    - m_Data: 50200
+    - m_Data: 50202
+    - m_Data: 50204
+    - m_Data: 50206
+    - m_Data: 50208
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -663,19 +663,19 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 50166
-    - m_Data: 50168
-    - m_Data: 50170
-    - m_Data: 50172
-    - m_Data: 50174
-    - m_Data: 50176
-    - m_Data: 50178
-    - m_Data: 50180
-    - m_Data: 50182
     - m_Data: 50184
     - m_Data: 50186
     - m_Data: 50188
     - m_Data: 50190
+    - m_Data: 50192
+    - m_Data: 50194
+    - m_Data: 50196
+    - m_Data: 50198
+    - m_Data: 50200
+    - m_Data: 50202
+    - m_Data: 50204
+    - m_Data: 50206
+    - m_Data: 50208
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -832,41 +832,11 @@ MonoBehaviour:
       m_LastClickedID:
         m_Data: 0
       m_ExpandedIDs:
-      - m_Data: -122758
-      - m_Data: -122752
-      - m_Data: -122494
-      - m_Data: -122488
-      - m_Data: -122438
-      - m_Data: -122434
-      - m_Data: -121594
-      - m_Data: -120918
-      - m_Data: -117682
-      - m_Data: -117676
-      - m_Data: -117362
-      - m_Data: -117358
-      - m_Data: -112948
-      - m_Data: -112592
-      - m_Data: -99732
-      - m_Data: -99232
-      - m_Data: -70768
-      - m_Data: -28966
-      - m_Data: -5856
       - m_Data: -1302
-      - m_Data: 50542
-      - m_Data: 50610
-      - m_Data: 52304
-      - m_Data: 52330
-      - m_Data: 57468
-      - m_Data: 60860
-      - m_Data: 61048
-      - m_Data: 62800
-      - m_Data: 62990
-      - m_Data: 63794
-      - m_Data: 63858
-      - m_Data: 64030
-      - m_Data: 64102
-      - m_Data: 64550
-      - m_Data: 64614
+      - m_Data: 50022
+      - m_Data: 50050
+      - m_Data: 50066
+      - m_Data: 50076
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -1477,7 +1447,7 @@ MonoBehaviour:
     m_OverlaysVisible: 1
     m_DynamicPanelBehavior: 0
   m_WindowGUID: cc27987af1a868c49b0894db9c0f5429
-  m_Gizmos: 1
+  m_Gizmos: 0
   m_OverrideSceneCullingMask: 6917529027641081856
   m_SceneIsLit: 1
   m_SceneLighting: 1

@@ -7,6 +7,7 @@ namespace _Project.Application.Interfaces
     {
         event Action OnPauseAction;
         event Action OnInteract;
+        event Action OnHoldInteract;
         Vector2 GetPointerPosition();
     }
 }

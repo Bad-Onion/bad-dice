@@ -30,7 +30,7 @@
                     "id": "852140f2-7766-474d-8707-702459ba45f3",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Tap(duration=0.3)",
                     "initialStateCheck": false
                 },
                 {
@@ -49,6 +49,15 @@
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hold Interact",
+                    "type": "Button",
+                    "id": "90f852ec-df5a-48ab-991d-522372ba042e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold(duration=1)",
                     "initialStateCheck": false
                 }
             ],
@@ -270,6 +279,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c1030235-f9ed-4d7c-81c3-412b16c07996",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Hold Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

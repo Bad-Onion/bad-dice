@@ -44,8 +44,6 @@ namespace _Project.Presentation.Scripts.Controllers
             Bus<DiceRerollToggledEvent>.OnEvent += HandleDiceSelected;
             Bus<DiceRollFinishedEvent>.OnEvent += HandleRollFinished;
             Bus<MergePossibilitiesEvaluatedEvent>.OnEvent += HandleMergePossibilities;
-            Bus<MergeSelectionUpdatedEvent>.OnEvent += HandleMergeSelection;
-            Bus<MergeModeToggledEvent>.OnEvent += HandleMergeModeToggled;
         }
 
         private void OnDisable()
@@ -55,8 +53,6 @@ namespace _Project.Presentation.Scripts.Controllers
             Bus<DiceRerollToggledEvent>.OnEvent -= HandleDiceSelected;
             Bus<DiceRollFinishedEvent>.OnEvent -= HandleRollFinished;
             Bus<MergePossibilitiesEvaluatedEvent>.OnEvent -= HandleMergePossibilities;
-            Bus<MergeSelectionUpdatedEvent>.OnEvent -= HandleMergeSelection;
-            Bus<MergeModeToggledEvent>.OnEvent -= HandleMergeModeToggled;
         }
 
         private void HandlePlaybackRequested(DicePlaybackRequestedEvent evt)
@@ -163,26 +159,6 @@ namespace _Project.Presentation.Scripts.Controllers
             {
                 bool isMergeable = evt.MergeableDiceIds.Contains(kvp.Key);
                 kvp.Value.controller.SetMergeableOutline(isMergeable);
-            }
-        }
-
-        private void HandleMergeModeToggled(MergeModeToggledEvent evt)
-        {
-            // Reset all selection visuals when entering/exiting
-            foreach (var kvp in _activeDice)
-            {
-                kvp.Value.controller.SetSelectionVisual(false);
-                kvp.Value.controller.SetMergeSelectionVisual(false, false);
-            }
-        }
-
-        private void HandleMergeSelection(MergeSelectionUpdatedEvent evt)
-        {
-            foreach (var kvp in _activeDice)
-            {
-                bool isSelected = evt.SelectedDiceIds.Contains(kvp.Key);
-                bool isTarget = kvp.Key == evt.TargetDiceId;
-                kvp.Value.controller.SetMergeSelectionVisual(isSelected, isTarget);
             }
         }
     }

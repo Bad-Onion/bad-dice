@@ -29,6 +29,8 @@ namespace _Project.Infrastructure.DependencyInjection
         [SerializeField] private InputActionReference interactInputAction;
         [Tooltip("Assign the input action to get the mouse position.")]
         [SerializeField] private InputActionReference pointerPositionAction;
+        [Tooltip("Assign the input action to hold the interact action.")]
+        [SerializeField] private InputActionReference holdInteractAction;
 
         [Header("Run Configuration")]
         [Tooltip("Assign the generic physics/spacing configuration.")]
@@ -74,7 +76,7 @@ namespace _Project.Infrastructure.DependencyInjection
             // Input
             Container.BindInterfacesTo<InputAdapter>()
                 .AsSingle()
-                .WithArguments(pauseInputAction, interactInputAction, pointerPositionAction);
+                .WithArguments(pauseInputAction, interactInputAction, holdInteractAction, pointerPositionAction);
         }
     }
 }

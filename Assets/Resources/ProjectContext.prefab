@@ -81,6 +81,7 @@ MonoBehaviour:
   pauseInputAction: {fileID: 8697300747514083369, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   interactInputAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   pointerPositionAction: {fileID: -1654692200621890270, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  holdInteractAction: {fileID: 2114820687052758311, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   diceConfiguration: {fileID: 11400000, guid: 70460af2caa7e684e9d09df2b6d989be, type: 2}
   startingDiceDefinition: {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
   diceDatabase: {fileID: 11400000, guid: 0c3657ee4a1472c42a83dae59ba819a4, type: 2}

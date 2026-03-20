@@ -33,13 +33,19 @@ namespace _Project.Presentation.Scripts.Controllers
         private void OnEnable()
         {
             if (_inputProvider != null)
+            {
                 _inputProvider.OnInteract += HandleInteraction;
+                _inputProvider.OnHoldInteract += HandleHoldInteraction;
+            }
         }
 
         private void OnDisable()
         {
             if (_inputProvider != null)
+            {
                 _inputProvider.OnInteract -= HandleInteraction;
+                _inputProvider.OnHoldInteract -= HandleHoldInteraction;
+            }
         }
 
         private void Update()
@@ -79,14 +85,24 @@ namespace _Project.Presentation.Scripts.Controllers
                 var diceController = hit.collider.GetComponentInParent<DiceController>();
                 if (diceController != null)
                 {
-                    if (_diceSession.IsMergeModeActive)
-                    {
-                        _diceMergeUseCase.ToggleDiceMergeSelection(diceController.DiceId);
-                    }
-                    else
-                    {
-                        _diceRollUseCase.ToggleDiceRerollSelection(diceController.DiceId);
-                    }
+                    _diceRollUseCase.ToggleDiceRerollSelection(diceController.DiceId);
+                }
+            }
+        }
+
+        private void HandleHoldInteraction()
+        {
+            if (_diceSession.IsRolling) return;
+
+            Vector2 pointerPos = _inputProvider.GetPointerPosition();
+            Ray ray = _levelCamera.ScreenPointToRay(pointerPos);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, diceLayerMask))
+            {
+                var diceController = hit.collider.GetComponentInParent<DiceController>();
+                if (diceController != null)
+                {
+                    _diceMergeUseCase.ExecuteAutoMerge(diceController.DiceId);
                 }
             }
         }

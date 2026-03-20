@@ -15,7 +15,6 @@ namespace _Project.Presentation.Scripts.Views
     {
         private Button _rollButton;
         private Button _resetButton;
-        private Button _mergeButton;
         private Label _resultLabel;
         private VisualElement _levelContainer;
 
@@ -40,24 +39,15 @@ namespace _Project.Presentation.Scripts.Views
             _levelContainer = UiContainer.Q<VisualElement>("level-container");
             _rollButton = UiContainer.Q<Button>("roll-button");
             _resetButton = UiContainer.Q<Button>("reset-button");
-            _mergeButton = UiContainer.Q<Button>("merge-button");
             _resultLabel = UiContainer.Q<Label>("result-label");
 
             if (_rollButton != null) _rollButton.clicked += _diceRollUseCase.RequestRoll;
             if (_resetButton != null) _resetButton.clicked += _diceRollUseCase.ResetDice;
 
-            if (_mergeButton != null)
-            {
-                _mergeButton.SetEnabled(false);
-                _mergeButton.clicked += OnMergeButtonClicked;
-            }
-
             Bus<EncounterStartedEvent>.OnEvent += OnEncounterStarted;
             Bus<DiceResultDecidedEvent>.OnEvent += OnResultDecided;
             Bus<DiceRollFinishedEvent>.OnEvent += OnRollFinished;
             Bus<DiceResetEvent>.OnEvent += OnDiceReset;
-            Bus<MergePossibilitiesEvaluatedEvent>.OnEvent += OnMergePossibilitiesEvaluated;
-            Bus<MergeModeToggledEvent>.OnEvent += OnMergeModeToggled;
             Bus<MergeCompletedEvent>.OnEvent += OnMergeCompleted;
         }
 
@@ -65,14 +55,11 @@ namespace _Project.Presentation.Scripts.Views
         {
             if (_rollButton != null) _rollButton.clicked -= _diceRollUseCase.RequestRoll;
             if (_resetButton != null) _resetButton.clicked -= _diceRollUseCase.ResetDice;
-            if (_mergeButton != null) _mergeButton.clicked -= OnMergeButtonClicked;
 
             Bus<EncounterStartedEvent>.OnEvent -= OnEncounterStarted;
             Bus<DiceResultDecidedEvent>.OnEvent -= OnResultDecided;
             Bus<DiceRollFinishedEvent>.OnEvent -= OnRollFinished;
             Bus<DiceResetEvent>.OnEvent -= OnDiceReset;
-            Bus<MergePossibilitiesEvaluatedEvent>.OnEvent -= OnMergePossibilitiesEvaluated;
-            Bus<MergeModeToggledEvent>.OnEvent -= OnMergeModeToggled;
             Bus<MergeCompletedEvent>.OnEvent -= OnMergeCompleted;
         }
 
@@ -127,36 +114,6 @@ namespace _Project.Presentation.Scripts.Views
         private void OnDiceReset(DiceResetEvent evt)
         {
             if (_resultLabel != null) _resultLabel.text = "Waiting to roll...";
-        }
-
-        private void OnMergeButtonClicked()
-        {
-            if (_diceSession.IsMergeModeActive)
-            {
-                _diceMergeUseCase.SubmitMerge();
-            }
-            else
-            {
-                _diceMergeUseCase.ToggleMergeMode();
-            }
-        }
-
-        private void OnMergePossibilitiesEvaluated(MergePossibilitiesEvaluatedEvent evt)
-        {
-            if (_mergeButton != null && !_diceSession.IsMergeModeActive)
-            {
-                _mergeButton.SetEnabled(evt.CanMerge);
-                _mergeButton.text = "Merge";
-            }
-        }
-
-        private void OnMergeModeToggled(MergeModeToggledEvent evt)
-        {
-            if (_mergeButton != null)
-            {
-                _mergeButton.text = evt.IsActive ? "Submit" : "Merge";
-                _rollButton.SetEnabled(!evt.IsActive);
-            }
         }
 
         private void OnMergeCompleted(MergeCompletedEvent evt)

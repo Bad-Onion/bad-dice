@@ -26,7 +26,7 @@ namespace _Project.Presentation.Scripts.Controllers
         public void Initialize(string id)
         {
             DiceId = id;
-            SetSelectionVisual(false); // Ensure it starts unselected
+            SetSelectionVisual(false);
         }
 
         public void PlayTrajectory(DicePath path)
@@ -81,18 +81,6 @@ namespace _Project.Presentation.Scripts.Controllers
         public void SetMergeableOutline(bool isMergeable)
         {
             if (outlineVisual != null) outlineVisual.SetActive(isMergeable);
-        }
-
-        public void SetMergeSelectionVisual(bool isSelected, bool isTarget)
-        {
-            if (visualsTransform == null) return;
-
-            float targetY = isSelected ? (isTarget ? 0.8f : 0.4f) : 0f;
-            visualsTransform.localPosition = new Vector3(
-                visualsTransform.localPosition.x,
-                targetY,
-                visualsTransform.localPosition.z
-            );
         }
     }
 }
