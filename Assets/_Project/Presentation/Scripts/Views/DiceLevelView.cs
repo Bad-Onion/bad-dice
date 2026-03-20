@@ -41,7 +41,9 @@ namespace _Project.Presentation.Scripts.Views
             _resetButton = UiContainer.Q<Button>("reset-button");
             _resultLabel = UiContainer.Q<Label>("result-label");
 
+            // TODO: Create a new event for requesting a roll instead of directly calling the use case method, to keep the view more decoupled from the application layer.
             if (_rollButton != null) _rollButton.clicked += _diceRollUseCase.RequestRoll;
+            // TODO: Use the DiceResetEvent instead of directly calling the use case method, to keep the view more decoupled from the application layer.
             if (_resetButton != null) _resetButton.clicked += _diceRollUseCase.ResetDice;
 
             Bus<EncounterStartedEvent>.OnEvent += OnEncounterStarted;
@@ -53,7 +55,9 @@ namespace _Project.Presentation.Scripts.Views
 
         protected override void UnbindUIElements()
         {
+            // TODO: Create a new event for requesting a roll instead of directly calling the use case method, to keep the view more decoupled from the application layer.
             if (_rollButton != null) _rollButton.clicked -= _diceRollUseCase.RequestRoll;
+            // TODO: Use the DiceResetEvent instead of directly calling the use case method, to keep the view more decoupled from the application layer.
             if (_resetButton != null) _resetButton.clicked -= _diceRollUseCase.ResetDice;
 
             Bus<EncounterStartedEvent>.OnEvent -= OnEncounterStarted;

@@ -24,10 +24,13 @@ namespace _Project.Infrastructure.Services
             _simulationService = simulationService;
         }
 
+        // TODO: Separate roll from reroll and reuse the same functionality for both. For example, the roll function could take a list of dice to roll and the reroll function could call it with the selected dice.
         public void RequestRoll()
         {
+            // TODO: Move this to a separate function and name it "CanRollDice"
             if (_diceSession.IsRolling) return;
 
+            // TODO: Move this to a separate function and name it "IsFirstRoll"
             bool isFirstRoll = _diceSession.ActiveDice.All(d => d.CurrentFaceIndex == -1);
             if (!isFirstRoll && _diceSession.RerollsLeft <= 0) return;
 
@@ -49,6 +52,7 @@ namespace _Project.Infrastructure.Services
             {
                 var die = diceToRoll[i];
 
+                // TODO: Move this line to a separate function and name it "ResetZeroedDice"
                 if (die.Level == 0) die.Level = 1;
 
                 int randomFaceIndex = die.Definition.GetRandomFaceIndex();
@@ -61,6 +65,7 @@ namespace _Project.Infrastructure.Services
 
             Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
 
+            // TODO: Use the SimulateRoll function instead of this as it is more generic and can be reused for other use cases
             DiceSimulationResult simulationResult = _simulationService.SimulateTrajectory(
                 definitions,
                 targetFaceIndices,
@@ -94,6 +99,7 @@ namespace _Project.Infrastructure.Services
                 die.CurrentFaceIndex = -1;
                 die.IsSelectedForReroll = false;
             }
+
             Bus<DiceResetEvent>.Raise(new DiceResetEvent());
         }
 
@@ -101,8 +107,10 @@ namespace _Project.Infrastructure.Services
         {
             if (_diceSession.IsRolling) return;
 
-            var die = _diceSession.ActiveDice.FirstOrDefault(d => d.Id == diceId);
+            // TODO: Move this to a separate function and name it "GetDiceToReroll""
+            var die = _diceSession.ActiveDice.FirstOrDefault(dice => dice.Id == diceId);
 
+            // TODO: Invert this condition to reduce nesting
             if (die != null && die.CurrentFaceIndex != -1)
             {
                 die.IsSelectedForReroll = !die.IsSelectedForReroll;
@@ -117,6 +125,7 @@ namespace _Project.Infrastructure.Services
 
         private List<DiceState> GetDiceToRoll()
         {
+            // TODO: Move this to a separate function and name it "IsFirstRoll"
             bool isFirstRoll = _diceSession.ActiveDice.All(d => d.CurrentFaceIndex == -1);
             if (isFirstRoll) return _diceSession.ActiveDice.ToList();
 

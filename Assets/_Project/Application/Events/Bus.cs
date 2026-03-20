@@ -2,6 +2,7 @@
 
 namespace _Project.Application.Events
 {
+    // TODO: Move abstract event to a more appropriate location like inside a "Events/Core" folder
     public static class Bus<T> where T : struct, IEvent
     {
         public delegate void EventDelegate(T evt);

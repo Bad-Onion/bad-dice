@@ -2,6 +2,7 @@
 
 namespace _Project.Domain.Entities
 {
+    // TODO: Move to "Entities/Session"
     public class GameSession
     {
         public bool IsLevelLoaded { get; set; }

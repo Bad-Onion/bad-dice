@@ -2,6 +2,8 @@
 
 namespace _Project.Domain.ScriptableObjects
 {
+    // TODO: Rename to something more descriptive like "DiceRollConfiguration"
+    // TODO: Move to "ScriptableObjects/Configuration"
     [CreateAssetMenu(fileName = "DiceConfiguration", menuName = "Domain/Dice/DiceConfiguration")]
     public class DiceConfiguration : ScriptableObject
     {

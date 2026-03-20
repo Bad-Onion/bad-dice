@@ -2,10 +2,12 @@
 
 namespace _Project.Domain.ScriptableObjects
 {
+    // TODO: Move to "ScriptableObjects/GameSettings"
     [CreateAssetMenu(menuName = "Project/Data/Level Data", fileName = "NewLevelData")]
     public class LevelData : ScriptableObject
     {
-        [field: SerializeField] public string SceneName { get; private set; }
-        // Future Player Spawn Position, Level Music, etc.
+        [Header("Scene Settings")]
+        [Tooltip("The name of the scene to be loaded when this level is loaded.")]
+        public string SceneName { get; private set; }
     }
 }

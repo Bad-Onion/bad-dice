@@ -29,6 +29,7 @@ namespace _Project.Infrastructure.Adapters
             _pointerPositionAction = pointerPositionAction;
         }
 
+        // TODO: Change this to adhere to the Open Closed principle, right now it is not possible to add new input actions without modifying this class, which is not ideal.
         public void Initialize()
         {
             if (_pauseInputAction != null)

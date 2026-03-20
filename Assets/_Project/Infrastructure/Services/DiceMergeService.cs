@@ -20,14 +20,15 @@ namespace _Project.Infrastructure.Services
         {
             var mergeableIds = new List<string>();
 
-            var groups = _diceSession.ActiveDice
-                .Where(d => d.CurrentFaceIndex != -1 && d.Level > 0)
-                .GroupBy(d => new { d.CurrentValue, d.Level })
-                .Where(g => g.Count() > 1);
+            // TODO: Move to another function and name to "GetMergeableDiceIds"
+            var mergeableGroups = _diceSession.ActiveDice
+                .Where(diceState => diceState.CurrentFaceIndex != -1 && diceState.Level > 0)
+                .GroupBy(diceState => new { diceState.CurrentValue, diceState.Level })
+                .Where(grouping => grouping.Count() > 1);
 
-            foreach (var group in groups)
+            foreach (var group in mergeableGroups)
             {
-                mergeableIds.AddRange(group.Select(d => d.Id));
+                mergeableIds.AddRange(group.Select(diceState => diceState.Id));
             }
 
             _diceSession.MergeableDiceIds = mergeableIds;
@@ -41,6 +42,7 @@ namespace _Project.Infrastructure.Services
 
         public void ExecuteAutoMerge(string targetDiceId)
         {
+            // TODO: Move conditions to another function and name to "CanMergeDice"
             if (_diceSession.IsRolling) return;
 
             var targetDie = _diceSession.ActiveDice.FirstOrDefault(d => d.Id == targetDiceId);
@@ -48,12 +50,14 @@ namespace _Project.Infrastructure.Services
 
             if (!_diceSession.MergeableDiceIds.Contains(targetDie.Id)) return;
 
+            // TODO: Move to another function and name to "GetDicesToAbsorb"
             var diceToAbsorb = _diceSession.ActiveDice
                 .Where(d => d.Id != targetDie.Id && d.CurrentValue == targetDie.CurrentValue && d.Level == targetDie.Level)
                 .ToList();
 
             if (diceToAbsorb.Count == 0) return;
 
+            // TODO: Move to another function and name to "AbsorbDice"
             foreach (var absorbed in diceToAbsorb)
             {
                 targetDie.Level += absorbed.Level;

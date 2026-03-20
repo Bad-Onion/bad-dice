@@ -12,6 +12,7 @@ namespace _Project.Infrastructure.Services
     {
         private const int MaxRecordCapacity = 300;
         private const float MaxMotionThreshold = 0.001f;
+        // TODO: Use DiceFaceDirection instead of hardcoded vectors
         private static readonly Vector3[] ExactFaces = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
         public DiceSimulationResult SimulateTrajectory(
@@ -29,9 +30,9 @@ namespace _Project.Infrastructure.Services
                 Physics.simulationMode = SimulationMode.Script;
 
                 GameObject[] dummyPhysicsObjects = CreateAndInitializeDiceArray(definitions, startPos, startRot, forces, torques);
-                Rigidbody[] rbs = GetRigidbodies(dummyPhysicsObjects);
+                Rigidbody[] rigidBodies = GetRigidbodies(dummyPhysicsObjects);
 
-                List<DicePath> dicePaths = SimulateUntilAllSettled(rbs);
+                List<DicePath> dicePaths = SimulateUntilAllSettled(rigidBodies);
                 ApplyVisualCorrections(dicePaths, definitions, targetFaceIndices, dummyPhysicsObjects);
 
                 CleanupDummies(dummyPhysicsObjects);
@@ -57,10 +58,10 @@ namespace _Project.Infrastructure.Services
                 GameObject physicsPrefab = definitions[i].physicsPrefab;
 
                 dummyDice[i] = Object.Instantiate(physicsPrefab, positions[i], rotations[i]);
-                Rigidbody rb = dummyDice[i].GetComponent<Rigidbody>();
+                Rigidbody rigidBody = dummyDice[i].GetComponent<Rigidbody>();
 
-                rb.isKinematic = false;
-                ApplyForces(rb, forces[i], torques[i]);
+                rigidBody.isKinematic = false;
+                ApplyForces(rigidBody, forces[i], torques[i]);
             }
 
             return dummyDice;
@@ -68,14 +69,14 @@ namespace _Project.Infrastructure.Services
 
         private Rigidbody[] GetRigidbodies(GameObject[] dummies)
         {
-            Rigidbody[] rbs = new Rigidbody[dummies.Length];
+            Rigidbody[] dummyRigidbodies = new Rigidbody[dummies.Length];
 
             for (int i = 0; i < dummies.Length; i++)
             {
-                rbs[i] = dummies[i].GetComponent<Rigidbody>();
+                dummyRigidbodies[i] = dummies[i].GetComponent<Rigidbody>();
             }
 
-            return rbs;
+            return dummyRigidbodies;
         }
 
         private void ApplyForces(Rigidbody rb, Vector3 force, Vector3 torque)
@@ -84,9 +85,9 @@ namespace _Project.Infrastructure.Services
             rb.AddTorque(torque, ForceMode.Impulse);
         }
 
-        private List<DicePath> SimulateUntilAllSettled(Rigidbody[] rbs)
+        private List<DicePath> SimulateUntilAllSettled(Rigidbody[] rigidBodies)
         {
-            int count = rbs.Length;
+            int count = rigidBodies.Length;
             List<DicePath> paths = Enumerable.Range(0, count).Select(_ => new DicePath { Frames = new List<DiceFrame>(MaxRecordCapacity) }).ToList();
 
             for (int frame = 0; frame < MaxRecordCapacity; frame++)
@@ -96,9 +97,9 @@ namespace _Project.Infrastructure.Services
 
                 for (int i = 0; i < count; i++)
                 {
-                    paths[i].Frames.Add(new DiceFrame(rbs[i].position, rbs[i].rotation));
+                    paths[i].Frames.Add(new DiceFrame(rigidBodies[i].position, rigidBodies[i].rotation));
 
-                    if (!HasDiceSettled(rbs[i]))
+                    if (!HasDiceSettled(rigidBodies[i]))
                     {
                         allSettled = false;
                     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace _Project.Domain.Entities
 {
+    // TODO: Move to "Entities/DTO"
     [Serializable]
     public class PlayerRunSaveData
     {

@@ -22,6 +22,7 @@ namespace _Project.Infrastructure.DependencyInjection
         [Tooltip("Assign the global event channel for transitions.")]
         [SerializeField] private TransitionEventChannel transitionEventChannel;
 
+        // TODO: Turn into a toggleable list of input actions for better scalability and flexibility.
         [Header("Input")]
         [Tooltip("Assign the input action to pause the game.")]
         [SerializeField] private InputActionReference pauseInputAction;

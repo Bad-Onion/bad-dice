@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace _Project.Domain.ScriptableObjects
 {
+    // TODO: Move to "ScriptableObjects/DiceDefinitions"
     [CreateAssetMenu(fileName = "DiceDatabase", menuName = "Domain/Dice/DiceDatabase")]
     public class DiceDatabase : ScriptableObject
     {

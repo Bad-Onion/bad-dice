@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
-    // Dice Prefab Controller
+    // Class dedicated to handle a Dice Prefab (a singular dice)
+    // TODO: Separate into "DiceTrajectoryRoutineController" and "DiceVisualFeedbackController" components
     public class DiceController : MonoBehaviour
     {
         [Header("References")]

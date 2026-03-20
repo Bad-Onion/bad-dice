@@ -27,6 +27,7 @@ namespace _Project.Infrastructure.Services
 
             if (_repository.HasActiveRun())
             {
+                // TODO: Move to separate function and name it "LoadRun"
                 var loadedState = _repository.LoadRun();
                 _runState.Inventory = loadedState.Inventory;
                 _runState.MaxEquippedDice = loadedState.MaxEquippedDice;
@@ -35,7 +36,7 @@ namespace _Project.Infrastructure.Services
 
             _runState.Inventory.Clear();
 
-            // TODO: Move to separate function
+            // TODO: Move to separate function and name it "InitializeRun"
             for (int i = 0; i < 5; i++)
             {
                 _runState.Inventory.Add(new OwnedDiceData

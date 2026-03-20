@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using _Project.Application.Events;
 using _Project.Application.Events.DiceEvents;
 using _Project.Application.UseCases;
@@ -6,7 +7,7 @@ using _Project.Domain.Entities;
 
 namespace _Project.Infrastructure.Services
 {
-    // TODO: Change name to something more related to the Inventory view like DicePouchUseCase or something
+    // TODO: Change name to something more related to the Inventory view like DicePouchService or something
     public class EncounterPreparationService : IEncounterPreparationUseCase
     {
         private readonly PlayerRunState _runState;
@@ -20,9 +21,11 @@ namespace _Project.Infrastructure.Services
 
         public void ToggleDiceEquip(string diceId)
         {
+            // TODO: Move to a separate function and name it "GetDiceToEquip"
             var dice = _runState.Inventory.FirstOrDefault(d => d.Id == diceId);
             if (dice == null) return;
 
+            // TODO: Move to a separate function and name it "IsMaxDiceEquipped"
             int currentlyEquipped = _runState.Inventory.Count(d => d.IsEquipped);
 
             if (!dice.IsEquipped && currentlyEquipped >= _runState.MaxEquippedDice) return;
@@ -41,7 +44,9 @@ namespace _Project.Infrastructure.Services
             if (!CanStartEncounter()) return;
 
             _diceSession.ActiveDice.Clear();
-            var equippedDice = _runState.Inventory.Where(d => d.IsEquipped).ToList();
+
+            // TODO: Move to a separate function and name it "SetActiveDices"
+            List<OwnedDiceData> equippedDice = _runState.Inventory.Where(diceData => diceData.IsEquipped).ToList();
 
             foreach (var ownedDice in equippedDice)
             {

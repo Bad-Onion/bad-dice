@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace _Project.Domain.ScriptableObjects
 {
+    // TODO: Move to "Entities/DTO"
     [Serializable]
     public struct DiceFaceData
     {
@@ -14,6 +15,7 @@ namespace _Project.Domain.ScriptableObjects
         public DiceFaceDirection localDirection;
     }
 
+    // TODO: Move to "ScriptableObjects/DiceDefinitions"
     [CreateAssetMenu(fileName = "NewDiceDefinition", menuName = "Domain/Dice/DiceDefinition")]
     public class DiceDefinition : ScriptableObject
     {

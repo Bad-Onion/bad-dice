@@ -10,7 +10,7 @@ using Zenject;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
-    // TODO: Rename to something more descriptive and related to the DiceSession, like "DiceSessionManager"
+    // TODO: Split into "DicePrefabManager or something" that only handles spawning/despawning and pooling of dice prefabs, and a "DiceSessionEventHandler" that subscribes to session-related events and updates the visuals accordingly
     public class DiceManager : MonoBehaviour
     {
         private DiContainer _container;
@@ -57,6 +57,7 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void HandlePlaybackRequested(DicePlaybackRequestedEvent evt)
         {
+            // TODO: Move this to a separate function and name it "GetLongestPlaybackTime"
             float longestPlaybackTime = 0f;
 
             for (int i = 0; i < evt.RolledDiceIds.Count; i++)
@@ -104,11 +105,10 @@ namespace _Project.Presentation.Scripts.Controllers
         {
             StopAllCoroutines();
 
-            // TODO: Rename kvp to something more descriptive like "diceEntry" or "activeDiceEntry"
-            foreach (var kvp in _activeDice)
+            foreach (var activeDiceEntry in _activeDice)
             {
-                kvp.Value.controller.StopPlayback();
-                DespawnDice(kvp.Value.controller, kvp.Value.prefab);
+                activeDiceEntry.Value.controller.StopPlayback();
+                DespawnDice(activeDiceEntry.Value.controller, activeDiceEntry.Value.prefab);
             }
 
             _activeDice.Clear();
@@ -155,10 +155,10 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void HandleMergePossibilities(MergePossibilitiesEvaluatedEvent evt)
         {
-            foreach (var kvp in _activeDice)
+            foreach (var activeDiceEntry in _activeDice)
             {
-                bool isMergeable = evt.MergeableDiceIds.Contains(kvp.Key);
-                kvp.Value.controller.SetMergeableOutline(isMergeable);
+                bool isMergeable = evt.MergeableDiceIds.Contains(activeDiceEntry.Key);
+                activeDiceEntry.Value.controller.SetMergeableOutline(isMergeable);
             }
         }
     }

@@ -7,7 +7,7 @@ using Zenject;
 
 namespace _Project.Presentation.Scripts.Views
 {
-    // TODO: Change name to something more related to the Inventory view like DicePouchSelectorView or something
+    // TODO: Change name to something more related to the Inventory view like "DicePouchSelectorView" or something
     public class PreFightView : BaseView
     {
         private IEncounterPreparationUseCase _preparationUseCase;

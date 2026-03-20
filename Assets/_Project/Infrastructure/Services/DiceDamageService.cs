@@ -5,6 +5,7 @@ namespace _Project.Infrastructure.Services
 {
     public class DiceDamageService : IDiceDamageService
     {
+        // TODO: Should the dice itself calculate its own damage?
         public int CalculateDamage(DiceState dice)
         {
             // Future gimmick logic (Metal Dice, Medusa Dice) will be evaluated here

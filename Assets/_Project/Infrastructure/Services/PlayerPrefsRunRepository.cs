@@ -19,7 +19,7 @@ namespace _Project.Infrastructure.Services
 
         public void SaveRun(PlayerRunState state)
         {
-            // TODO: Create an adaper class to handle the conversion from PlayerRunState to PlayerRunSaveData
+            // TODO: Create a conversion class to handle the conversion from PlayerRunState to PlayerRunSaveData
             var saveData = new PlayerRunSaveData { maxEquippedDice = state.MaxEquippedDice };
 
             foreach (var dice in state.Inventory)
@@ -45,7 +45,7 @@ namespace _Project.Infrastructure.Services
             string json = PlayerPrefs.GetString(SaveKey);
             var saveData = JsonUtility.FromJson<PlayerRunSaveData>(json);
 
-            // TODO: Create an adaper class to handle the conversion from PlayerRunSaveData to PlayerRunState
+            // TODO: Create a conversion class to handle the conversion from PlayerRunSaveData to PlayerRunState
             var state = new PlayerRunState { MaxEquippedDice = saveData.maxEquippedDice };
 
             foreach (var savedDice in saveData.inventory)

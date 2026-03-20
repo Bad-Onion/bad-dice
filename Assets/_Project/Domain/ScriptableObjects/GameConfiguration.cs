@@ -2,6 +2,7 @@
 
 namespace _Project.Domain.ScriptableObjects
 {
+    // TODO: Move to "ScriptableObjects/GameSettings"
     [CreateAssetMenu(fileName = "GameConfiguration", menuName = "Domain/GameConfiguration")]
     public class GameConfiguration : ScriptableObject
     {
