@@ -21,31 +21,43 @@ namespace _Project.Infrastructure.Services
 
         public void ToggleDiceEquip(string diceId)
         {
-            // TODO: Move to a separate function and name it "GetDiceToEquip"
-            var dice = _runState.Inventory.FirstOrDefault(d => d.Id == diceId);
+            var dice = GetDiceToEquip(diceId);
+
             if (dice == null) return;
-
-            // TODO: Move to a separate function and name it "IsMaxDiceEquipped"
-            int currentlyEquipped = _runState.Inventory.Count(d => d.IsEquipped);
-
-            if (!dice.IsEquipped && currentlyEquipped >= _runState.MaxEquippedDice) return;
+            if (!dice.IsEquipped && IsMaxDiceEquipped()) return;
 
             dice.IsEquipped = !dice.IsEquipped;
         }
 
-        public bool CanStartEncounter()
-        {
-            // TODO: Use Any() to test whether this is empty or not.
-            return _runState.Inventory.Count(d => d.IsEquipped) > 0;
-        }
-
         public void StartEncounter()
         {
-            if (!CanStartEncounter()) return;
+            if (!IsAnyDiceEquipped()) return;
 
             _diceSessionState.ActiveDice.Clear();
 
-            // TODO: Move to a separate function and name it "SetActiveDices"
+            SetActiveDices();
+
+            Bus<EncounterStartedEvent>.Raise(new EncounterStartedEvent());
+        }
+
+        private bool IsAnyDiceEquipped()
+        {
+            return _runState.Inventory.Any(d => d.IsEquipped);
+        }
+
+        private OwnedDiceData GetDiceToEquip(string diceId)
+        {
+            return _runState.Inventory.FirstOrDefault(d => d.Id == diceId);
+        }
+
+        private bool IsMaxDiceEquipped()
+        {
+            int currentlyEquipped = _runState.Inventory.Count(d => d.IsEquipped);
+            return currentlyEquipped >= _runState.MaxEquippedDice;
+        }
+
+        private void SetActiveDices()
+        {
             List<OwnedDiceData> equippedDice = _runState.Inventory.Where(diceData => diceData.IsEquipped).ToList();
 
             foreach (var ownedDice in equippedDice)
@@ -59,8 +71,6 @@ namespace _Project.Infrastructure.Services
                     IsSelectedForReroll = false
                 });
             }
-
-            Bus<EncounterStartedEvent>.Raise(new EncounterStartedEvent());
         }
     }
 }

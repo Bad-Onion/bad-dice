@@ -66,7 +66,8 @@ namespace _Project.Infrastructure.Services
             return _diceSessionState.MergeableDiceIds.Contains(targetDie.Id);
         }
 
-        private bool WasDiceRolled(DiceState diceState)        {
+        private static bool WasDiceRolled(DiceState diceState)
+        {
             return diceState.CurrentFaceIndex != -1;
         }
 
