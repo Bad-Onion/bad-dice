@@ -91,6 +91,7 @@ namespace _Project.Presentation.Scripts.Controllers
                 var diceController = hit.collider.GetComponentInParent<DiceController>();
                 if (diceController != null)
                 {
+                    // TODO: Use events instead of calling this function directly (see if it's possible or an anti-pattern in this case)
                     _diceRollUseCase.ToggleDiceRerollSelection(diceController.DiceId);
                 }
             }
@@ -110,6 +111,7 @@ namespace _Project.Presentation.Scripts.Controllers
                 var diceController = hit.collider.GetComponentInParent<DiceController>();
                 if (diceController != null)
                 {
+                    // TODO: Use events instead of calling this function directly (see if it's possible or an anti-pattern in this case)
                     _diceMergeUseCase.ExecuteAutoMerge(diceController.DiceId);
                 }
             }
