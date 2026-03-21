@@ -4,6 +4,7 @@ using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceState;
 using _Project.Application.Events.MergeEvents;
 using _Project.Application.UseCases;
+using _Project.Domain.Entities.DiceData;
 using _Project.Domain.Entities.Session;
 
 namespace _Project.Infrastructure.Services
@@ -19,18 +20,7 @@ namespace _Project.Infrastructure.Services
 
         public void EvaluateMergePossibilities()
         {
-            var mergeableIds = new List<string>();
-
-            // TODO: Move to another function and name to "GetMergeableDiceIds"
-            var mergeableGroups = _diceSessionState.ActiveDice
-                .Where(diceState => diceState.CurrentFaceIndex != -1 && diceState.Level > 0)
-                .GroupBy(diceState => new { diceState.CurrentValue, diceState.Level })
-                .Where(grouping => grouping.Count() > 1);
-
-            foreach (var group in mergeableGroups)
-            {
-                mergeableIds.AddRange(group.Select(diceState => diceState.Id));
-            }
+            List<string> mergeableIds = GetMergeableDiceIds();
 
             _diceSessionState.MergeableDiceIds = mergeableIds;
 
@@ -43,29 +33,60 @@ namespace _Project.Infrastructure.Services
 
         public void ExecuteAutoMerge(string targetDiceId)
         {
-            // TODO: Move conditions to another function and name to "CanMergeDice"
-            if (_diceSessionState.IsRolling) return;
+            if (!CanMergeDice(targetDiceId, out var targetDie)) return;
 
-            var targetDie = _diceSessionState.ActiveDice.FirstOrDefault(d => d.Id == targetDiceId);
-            if (targetDie == null || targetDie.CurrentFaceIndex == -1 || targetDie.Level == 0) return;
-
-            if (!_diceSessionState.MergeableDiceIds.Contains(targetDie.Id)) return;
-
-            // TODO: Move to another function and name to "GetDicesToAbsorb"
-            var diceToAbsorb = _diceSessionState.ActiveDice
-                .Where(d => d.Id != targetDie.Id && d.CurrentValue == targetDie.CurrentValue && d.Level == targetDie.Level)
-                .ToList();
+            List<DiceState> diceToAbsorb = GetDicesToAbsorb(targetDie);
 
             if (diceToAbsorb.Count == 0) return;
 
-            // TODO: Move to another function and name to "AbsorbDice"
-            foreach (var absorbed in diceToAbsorb)
-            {
-                targetDie.Level += absorbed.Level;
-                absorbed.Level = 0;
-            }
+            AbsorbDice(targetDie, diceToAbsorb);
 
             Bus<MergeCompletedEvent>.Raise(new MergeCompletedEvent());
+        }
+
+        private List<string> GetMergeableDiceIds()
+        {
+            return _diceSessionState.ActiveDice
+                .Where(diceState => diceState.CurrentFaceIndex != -1 && diceState.Level > 0)
+                .GroupBy(diceState => new { diceState.CurrentValue, diceState.Level })
+                .Where(grouping => grouping.Count() > 1)
+                .SelectMany(grouping => grouping.Select(diceState => diceState.Id))
+                .ToList();
+        }
+
+        private bool CanMergeDice(string targetDiceId, out DiceState targetDie)
+        {
+            targetDie = null;
+
+            if (_diceSessionState.IsRolling) return false;
+
+            targetDie = _diceSessionState.ActiveDice.FirstOrDefault(diceState => diceState.Id == targetDiceId);
+            if (targetDie == null || !WasDiceRolled(targetDie) || targetDie.Level == 0) return false;
+
+            return _diceSessionState.MergeableDiceIds.Contains(targetDie.Id);
+        }
+
+        private bool WasDiceRolled(DiceState diceState)        {
+            return diceState.CurrentFaceIndex != -1;
+        }
+
+        private List<DiceState> GetDicesToAbsorb(DiceState targetDie)
+        {
+            return _diceSessionState.ActiveDice
+                .Where(diceState =>
+                    diceState.Id != targetDie.Id &&
+                    diceState.CurrentValue == targetDie.CurrentValue &&
+                    diceState.Level == targetDie.Level)
+                .ToList();
+        }
+
+        private static void AbsorbDice(DiceState targetDie, List<DiceState> diceToAbsorb)
+        {
+            foreach (var absorbedDie in diceToAbsorb)
+            {
+                targetDie.Level += absorbedDie.Level;
+                absorbedDie.Level = 0;
+            }
         }
     }
 }
