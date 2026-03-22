@@ -47,7 +47,7 @@ namespace _Project.Infrastructure.Services
 
         private OwnedDiceData GetDiceToEquip(string diceId)
         {
-            return _runState.Inventory.FirstOrDefault(d => d.Id == diceId);
+            return _runState.Inventory.FirstOrDefault(d => d.Dice.Id == diceId);
         }
 
         private bool IsMaxDiceEquipped()
@@ -64,9 +64,8 @@ namespace _Project.Infrastructure.Services
             {
                 _diceSessionState.ActiveDice.Add(new DiceState
                 {
-                    Id = ownedDice.Id,
-                    Definition = ownedDice.Definition,
-                    Level = ownedDice.Level,
+                    Dice = ownedDice.Dice,
+                    Level = 1, // Default starting level for an encounter, or could be mapped if persisted differently
                     CurrentFaceIndex = -1,
                     IsSelectedForReroll = false
                 });

@@ -22,29 +22,41 @@ namespace _Project.Infrastructure.Services
 
         public void EnsureRunInitialized()
         {
-            // DEBUG (use to reset game state during development)
-            // PlayerPrefs.DeleteAll();
-            // return;
-
             if (_repository.HasActiveRun())
             {
-                // TODO: Move to separate function and name it "LoadRun"
-                var loadedState = _repository.LoadRun();
-                _runState.Inventory = loadedState.Inventory;
-                _runState.MaxEquippedDice = loadedState.MaxEquippedDice;
+                LoadRun();
                 return;
             }
 
+            InitializeRun();
+        }
+
+        private void LoadRun()
+        {
+            var loadedState = _repository.LoadRun();
+            SetRunState(loadedState);
+        }
+
+        private void SetRunState(PlayerRunState runState)
+        {
+            _runState.Inventory = runState.Inventory;
+            _runState.MaxEquippedDice = runState.MaxEquippedDice;
+        }
+
+        private void InitializeRun()
+        {
             _runState.Inventory.Clear();
 
-            // TODO: Move to separate function and name it "InitializeRun"
+            // TODO: Load from a scriptable object called "Starting Dice Pool" or something like that, which can be configured per ritual or run type
             for (int i = 0; i < 5; i++)
             {
                 _runState.Inventory.Add(new OwnedDiceData
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Definition = _startingDiceDefinition,
-                    Level = 1,
+                    Dice = new DiceData
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Definition = _startingDiceDefinition
+                    },
                     IsEquipped = true
                 });
             }

@@ -1,5 +1,4 @@
-﻿using _Project.Domain.ScriptableObjects;
-using _Project.Domain.ScriptableObjects.GameSettings;
+﻿using _Project.Domain.ScriptableObjects.GameSettings;
 
 namespace _Project.Domain.Entities.Session
 {

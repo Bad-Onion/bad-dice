@@ -50,7 +50,7 @@ namespace _Project.Infrastructure.Services
                 .Where(diceState => diceState.CurrentFaceIndex != -1 && diceState.Level > 0)
                 .GroupBy(diceState => new { diceState.CurrentValue, diceState.Level })
                 .Where(grouping => grouping.Count() > 1)
-                .SelectMany(grouping => grouping.Select(diceState => diceState.Id))
+                .SelectMany(grouping => grouping.Select(diceState => diceState.Dice.Id))
                 .ToList();
         }
 
@@ -60,10 +60,10 @@ namespace _Project.Infrastructure.Services
 
             if (_diceSessionState.IsRolling) return false;
 
-            targetDie = _diceSessionState.ActiveDice.FirstOrDefault(diceState => diceState.Id == targetDiceId);
+            targetDie = _diceSessionState.ActiveDice.FirstOrDefault(diceState => diceState.Dice.Id == targetDiceId);
             if (targetDie == null || !WasDiceRolled(targetDie) || targetDie.Level == 0) return false;
 
-            return _diceSessionState.MergeableDiceIds.Contains(targetDie.Id);
+            return _diceSessionState.MergeableDiceIds.Contains(targetDie.Dice.Id);
         }
 
         private static bool WasDiceRolled(DiceState diceState)
@@ -75,7 +75,7 @@ namespace _Project.Infrastructure.Services
         {
             return _diceSessionState.ActiveDice
                 .Where(diceState =>
-                    diceState.Id != targetDie.Id &&
+                    diceState.Dice.Id != targetDie.Dice.Id &&
                     diceState.CurrentValue == targetDie.CurrentValue &&
                     diceState.Level == targetDie.Level)
                 .ToList();

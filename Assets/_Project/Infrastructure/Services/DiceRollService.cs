@@ -29,62 +29,19 @@ namespace _Project.Infrastructure.Services
             _simulationService = simulationService;
         }
 
-        // TODO: Separate roll from reroll and reuse the same functionality for both. For example, the roll function could take a list of dice to roll and the reroll function could call it with the selected dice.
         public void RequestRoll()
         {
-            // TODO: Move this to a separate function and name it "CanRollDice"
-            if (_diceSessionState.IsRolling) return;
-
-            // TODO: Move this to a separate function and name it "IsFirstRoll"
-            bool isFirstRoll = _diceSessionState.ActiveDice.All(d => d.CurrentFaceIndex == -1);
-            if (!isFirstRoll && _diceSessionState.RerollsLeft <= 0) return;
-
             var diceToRoll = GetDiceToRoll();
-            if (!isFirstRoll && diceToRoll.Count == 0) return;
+            if (!CanRollDice(diceToRoll)) return;
 
             _diceSessionState.IsRolling = true;
 
-            if (!isFirstRoll)
+            if (!IsFirstRoll())
             {
                 _diceSessionState.RerollsLeft--;
             }
 
-            // TODO: Move this to a separate function
-            int[] targetFaceIndices = new int[diceToRoll.Count];
-            DiceDefinition[] definitions = new DiceDefinition[diceToRoll.Count];
-
-            for (int i = 0; i < diceToRoll.Count; i++)
-            {
-                var die = diceToRoll[i];
-
-                // TODO: Move this line to a separate function and name it "ResetZeroedDice"
-                if (die.Level == 0) die.Level = 1;
-
-                int randomFaceIndex = die.Definition.GetRandomFaceIndex();
-                die.CurrentFaceIndex = randomFaceIndex;
-                die.IsSelectedForReroll = false;
-
-                targetFaceIndices[i] = randomFaceIndex;
-                definitions[i] = die.Definition;
-            }
-
-            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
-
-            // TODO: Use the SimulateRoll function instead of this as it is more generic and can be reused for other use cases
-            DiceSimulationResult simulationResult = _simulationService.SimulateTrajectory(
-                definitions,
-                targetFaceIndices,
-                GetStartPositions(diceToRoll.Count),
-                GetRandomRotations(diceToRoll.Count),
-                GetRandomForces(diceToRoll.Count),
-                GetRandomTorques(diceToRoll.Count)
-            );
-
-            Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent
-            {
-                SimulationResult = simulationResult,
-                RolledDiceIds = diceToRoll.Select(d => d.Id).ToList()
-            });
+            PerformRoll(diceToRoll);
         }
 
         public void EndRoll()
@@ -96,7 +53,7 @@ namespace _Project.Infrastructure.Services
         public void ResetDice()
         {
             _diceSessionState.IsRolling = false;
-            // TODO: Replace hardcoded with a config value
+            // TODO: This should be a configuration value inside a scriptable object
             _diceSessionState.RerollsLeft = 3;
 
             foreach (var die in _diceSessionState.ActiveDice)
@@ -112,35 +69,92 @@ namespace _Project.Infrastructure.Services
         {
             if (_diceSessionState.IsRolling) return;
 
-            // TODO: Move this to a separate function and name it "GetDiceToReroll""
-            var die = _diceSessionState.ActiveDice.FirstOrDefault(dice => dice.Id == diceId);
+            var die = GetDiceToReroll(diceId);
 
-            // TODO: Invert this condition to reduce nesting
-            if (die != null && die.CurrentFaceIndex != -1)
+            if (die == null || !HasBeenRolled(die)) return;
+
+            die.IsSelectedForReroll = !die.IsSelectedForReroll;
+
+            Bus<DiceRerollToggledEvent>.Raise(new DiceRerollToggledEvent
             {
-                die.IsSelectedForReroll = !die.IsSelectedForReroll;
+                DiceId = diceId,
+                IsSelected = die.IsSelectedForReroll
+            });
+        }
 
-                Bus<DiceRerollToggledEvent>.Raise(new DiceRerollToggledEvent
-                {
-                    DiceId = diceId,
-                    IsSelected = die.IsSelectedForReroll
-                });
+        private bool CanRollDice(List<DiceState> diceToRoll)
+        {
+            if (_diceSessionState.IsRolling) return false;
+            if (!IsFirstRoll() && _diceSessionState.RerollsLeft <= 0) return false;
+            if (diceToRoll.Count == 0) return false;
+
+            return true;
+        }
+
+        private bool IsFirstRoll()
+        {
+            return _diceSessionState.ActiveDice.All(die => !HasBeenRolled(die));
+        }
+
+        private void PerformRoll(List<DiceState> diceToRoll)
+        {
+            int[] targetFaceIndices = new int[diceToRoll.Count];
+            DiceDefinition[] definitions = new DiceDefinition[diceToRoll.Count];
+
+            for (int i = 0; i < diceToRoll.Count; i++)
+            {
+                DiceState die = diceToRoll[i];
+
+                ResetZeroedDice(die);
+
+                int randomFaceIndex = die.Dice.Definition.GetRandomFaceIndex();
+
+                die.CurrentFaceIndex = randomFaceIndex;
+                die.IsSelectedForReroll = false;
+
+                targetFaceIndices[i] = randomFaceIndex;
+                definitions[i] = die.Dice.Definition;
             }
+
+            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
+
+            DiceSimulationResult simulationResult = SimulateRoll(definitions, targetFaceIndices);
+
+            Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent
+            {
+                SimulationResult = simulationResult,
+                RolledDiceIds = diceToRoll.Select(diceState => diceState.Dice.Id).ToList()
+            });
+        }
+
+        private static bool HasBeenRolled(DiceState die)
+        {
+            return die.CurrentFaceIndex != -1;
+        }
+
+        private static void ResetZeroedDice(DiceState die)
+        {
+            if (die.Level == 0) die.Level = 1;
+        }
+
+        private DiceState GetDiceToReroll(string diceId)
+        {
+            return _diceSessionState.ActiveDice.FirstOrDefault(dice => dice.Dice.Id == diceId);
         }
 
         private List<DiceState> GetDiceToRoll()
         {
-            // TODO: Move this to a separate function and name it "IsFirstRoll"
-            bool isFirstRoll = _diceSessionState.ActiveDice.All(d => d.CurrentFaceIndex == -1);
-            if (isFirstRoll) return _diceSessionState.ActiveDice.ToList();
+            if (IsFirstRoll()) return _diceSessionState.ActiveDice.ToList();
 
-            return _diceSessionState.ActiveDice.Where(d => d.IsSelectedForReroll).ToList();
+            return _diceSessionState.ActiveDice.Where(diceState => diceState.IsSelectedForReroll).ToList();
         }
 
-        private DiceSimulationResult SimulateRoll(List<DiceState> diceToRoll, int rollCount, int[] targetFaceIndices)
+        private DiceSimulationResult SimulateRoll(DiceDefinition[] definitions, int[] targetFaceIndices)
         {
+            int rollCount = definitions.Length;
+
             return _simulationService.SimulateTrajectory(
-                diceToRoll.Select(d => d.Definition).ToArray(),
+                definitions,
                 targetFaceIndices,
                 GetStartPositions(rollCount),
                 GetRandomRotations(rollCount),
@@ -176,7 +190,7 @@ namespace _Project.Infrastructure.Services
             return BuildArray(count, _ => Random.onUnitSphere * _diceRollConfiguration.torqueMultiplier);
         }
 
-        private Quaternion[] GetRandomRotations(int count)
+        private static Quaternion[] GetRandomRotations(int count)
         {
             return BuildArray(count, _ => Random.rotation);
         }

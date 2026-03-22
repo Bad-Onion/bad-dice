@@ -1,6 +1,7 @@
 ﻿using _Project.Application.Events.Core;
 using _Project.Application.Events.EncounterState;
 using _Project.Application.UseCases;
+using _Project.Domain.Entities.DiceData;
 using _Project.Domain.Entities.Session;
 using _Project.Presentation.Scripts.Views.Core;
 using UnityEngine.UIElements;
@@ -49,19 +50,24 @@ namespace _Project.Presentation.Scripts.Views.Components
         {
             _inventoryList.Clear();
 
-            // TODO: Move this to another method
             foreach (var dice in _runState.Inventory)
             {
-                Toggle diceToggle = new Toggle($"{dice.Definition.name} (Lv {dice.Level})");
-                diceToggle.value = dice.IsEquipped;
-                diceToggle.RegisterValueChangedCallback(evt =>
-                {
-                    _dicePouchUseCase.ToggleDiceEquip(dice.Id);
-                    diceToggle.SetValueWithoutNotify(dice.IsEquipped); // Enforce max limit constraint visually
-                });
-
-                _inventoryList.Add(diceToggle);
+                AddDiceToInventoryList(dice);
             }
+        }
+
+        private void AddDiceToInventoryList(OwnedDiceData dice)
+        {
+            Toggle diceToggle = new Toggle($"{dice.Dice.Definition.name}");
+
+            diceToggle.value = dice.IsEquipped;
+            diceToggle.RegisterValueChangedCallback(evt =>
+            {
+                _dicePouchUseCase.ToggleDiceEquip(dice.Dice.Id);
+                diceToggle.SetValueWithoutNotify(dice.IsEquipped);
+            });
+
+            _inventoryList.Add(diceToggle);
         }
 
         private void OnStartClicked()

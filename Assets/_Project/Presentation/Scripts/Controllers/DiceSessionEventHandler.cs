@@ -6,6 +6,7 @@ using _Project.Application.Events.DiceState;
 using _Project.Application.Events.MergeEvents;
 using _Project.Application.UseCases;
 using _Project.Domain.Entities.DiceData;
+using _Project.Domain.Entities.DiceSimulation;
 using _Project.Domain.Entities.Session;
 using UnityEngine;
 using Zenject;
@@ -53,38 +54,48 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void HandlePlaybackRequested(DicePlaybackRequestedEvent evt)
         {
-            // TODO: Move this to a separate function and name it "GetLongestPlaybackTime"
+            float longestPlaybackTime = GetLongestPlaybackTime(evt);
+
+            // Unlock the session interactions after the dice finish moving
+            StartCoroutine(UnlockSessionAfterDelay(longestPlaybackTime));
+        }
+
+        private float GetLongestPlaybackTime(DicePlaybackRequestedEvent evt)
+        {
             float longestPlaybackTime = 0f;
 
             for (int i = 0; i < evt.RolledDiceIds.Count; i++)
             {
                 string diceId = evt.RolledDiceIds[i];
-                DiceState diceState = _diceSessionState.ActiveDice.Find(d => d.Id == diceId);
+                DiceState diceState = _diceSessionState.ActiveDice.Find(activeDice => activeDice.Dice.Id == diceId);
 
-                if (diceState == null || diceState.Definition.visualPrefab == null) continue;
+                if (diceState == null || diceState.Dice.Definition.visualPrefab == null) continue;
 
-                DiceController diceController = _dicePrefabManager.GetOrSpawnDice(diceId, diceState.Definition.visualPrefab);
+                DiceController diceController = _dicePrefabManager.GetOrSpawnDice(diceId, diceState.Dice.Definition.visualPrefab);
                 diceController.SetSelectionVisual(false);
 
-                var path = evt.SimulationResult.DicePaths[i];
+                DicePoseSimulationResultPath path = evt.SimulationResult.DicePaths[i];
                 diceController.PlayTrajectory(path);
 
-                // Calculate how long this specific die will animate
-                float duration = path.Frames.Count * Time.fixedDeltaTime;
+                float duration = GetDieAnimationDuration(path);
                 if (duration > longestPlaybackTime)
                 {
                     longestPlaybackTime = duration;
                 }
             }
 
-            // Unlock the session interactions after the dice finish moving
-            StartCoroutine(UnlockSessionAfterDelay(longestPlaybackTime));
+            return longestPlaybackTime;
+        }
+
+        private static float GetDieAnimationDuration(DicePoseSimulationResultPath path)
+        {
+            return path.Frames.Count * Time.fixedDeltaTime;
         }
 
         private IEnumerator UnlockSessionAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
-            // TODO: Use events instead of calling this function directly (see if it's possible or an anti-pattern in this case)
+            // TODO: Use events instead of calling a function from a different domain directly (see if it's possible or an anti-pattern in this case)
             _diceRollUseCase.EndRoll();
         }
 
@@ -104,7 +115,7 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void HandleRollFinished(DiceRollFinishedEvent evt)
         {
-            // TODO: Use events instead of calling this function directly (see if it's possible or an anti-pattern in this case)
+            // TODO: Use events instead of calling a function from a different domain directly (see if it's possible or an anti-pattern in this case)
             _diceMergeUseCase.EvaluateMergePossibilities();
         }
 
@@ -118,4 +129,3 @@ namespace _Project.Presentation.Scripts.Controllers
         }
     }
 }
-
