@@ -7,7 +7,6 @@ namespace _Project.Domain.Entities.DTO
     {
         public string id;
         public string definitionName;
-        public int level;
         public bool isEquipped;
     }
 }

@@ -42,23 +42,23 @@ namespace _Project.Infrastructure.Services
 
         private bool IsAnyDiceEquipped()
         {
-            return _runState.Inventory.Any(d => d.IsEquipped);
+            return _runState.DiceInventory.Any(d => d.IsEquipped);
         }
 
         private OwnedDiceData GetDiceToEquip(string diceId)
         {
-            return _runState.Inventory.FirstOrDefault(d => d.Dice.Id == diceId);
+            return _runState.DiceInventory.FirstOrDefault(d => d.Dice.Id == diceId);
         }
 
         private bool IsMaxDiceEquipped()
         {
-            int currentlyEquipped = _runState.Inventory.Count(d => d.IsEquipped);
+            int currentlyEquipped = _runState.DiceInventory.Count(d => d.IsEquipped);
             return currentlyEquipped >= _runState.MaxEquippedDice;
         }
 
         private void SetActiveDices()
         {
-            List<OwnedDiceData> equippedDice = _runState.Inventory.Where(diceData => diceData.IsEquipped).ToList();
+            List<OwnedDiceData> equippedDice = _runState.DiceInventory.Where(diceData => diceData.IsEquipped).ToList();
 
             foreach (var ownedDice in equippedDice)
             {

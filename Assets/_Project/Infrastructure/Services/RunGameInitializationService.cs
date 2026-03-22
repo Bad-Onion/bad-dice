@@ -22,6 +22,9 @@ namespace _Project.Infrastructure.Services
 
         public void EnsureRunInitialized()
         {
+            // Use to reset the game database
+            // PlayerPrefs.DeleteAll();
+
             if (_repository.HasActiveRun())
             {
                 LoadRun();
@@ -39,18 +42,18 @@ namespace _Project.Infrastructure.Services
 
         private void SetRunState(PlayerRunState runState)
         {
-            _runState.Inventory = runState.Inventory;
+            _runState.DiceInventory = runState.DiceInventory;
             _runState.MaxEquippedDice = runState.MaxEquippedDice;
         }
 
         private void InitializeRun()
         {
-            _runState.Inventory.Clear();
+            _runState.DiceInventory.Clear();
 
             // TODO: Load from a scriptable object called "Starting Dice Pool" or something like that, which can be configured per ritual or run type
             for (int i = 0; i < 5; i++)
             {
-                _runState.Inventory.Add(new OwnedDiceData
+                _runState.DiceInventory.Add(new OwnedDiceData
                 {
                     Dice = new DiceData
                     {

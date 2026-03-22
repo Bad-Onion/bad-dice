@@ -7,13 +7,13 @@ namespace _Project.Infrastructure.Services
 {
     public static class RunDataConverter
     {
-        public static PlayerRunSaveData ToSaveData(PlayerRunState state)
+        public static PlayerRunSaveData ToSaveData(PlayerRunState runState)
         {
-            var saveData = new PlayerRunSaveData { maxEquippedDice = state.MaxEquippedDice };
+            var saveData = new PlayerRunSaveData { maxEquippedDice = runState.MaxEquippedDice };
 
-            foreach (var ownedDice in state.Inventory)
+            foreach (var ownedDice in runState.DiceInventory)
             {
-                saveData.inventory.Add(new OwnedDiceSaveData
+                saveData.diceInventory.Add(new OwnedDiceSaveData
                 {
                     id = ownedDice.Dice.Id,
                     definitionName = ownedDice.Dice.Definition.name,
@@ -26,25 +26,25 @@ namespace _Project.Infrastructure.Services
 
         public static PlayerRunState ToRunState(PlayerRunSaveData saveData, DiceDatabase diceDatabase)
         {
-            var state = new PlayerRunState { MaxEquippedDice = saveData.maxEquippedDice };
+            var runState = new PlayerRunState { MaxEquippedDice = saveData.maxEquippedDice };
 
-            foreach (var savedDice in saveData.inventory)
+            foreach (var savedDice in saveData.diceInventory)
             {
-                DiceDefinition def = diceDatabase.GetDefinition(savedDice.definitionName);
-                if (def == null) continue;
+                DiceDefinition definition = diceDatabase.GetDefinition(savedDice.definitionName);
+                if (definition == null) continue;
 
-                state.Inventory.Add(new OwnedDiceData
+                runState.DiceInventory.Add(new OwnedDiceData
                 {
                     Dice = new DiceData
                     {
                         Id = savedDice.id,
-                        Definition = def
+                        Definition = definition
                     },
                     IsEquipped = savedDice.isEquipped
                 });
             }
 
-            return state;
+            return runState;
         }
     }
 }

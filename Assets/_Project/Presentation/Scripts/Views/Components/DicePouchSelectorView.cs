@@ -50,7 +50,7 @@ namespace _Project.Presentation.Scripts.Views.Components
         {
             _inventoryList.Clear();
 
-            foreach (var dice in _runState.Inventory)
+            foreach (var dice in _runState.DiceInventory)
             {
                 AddDiceToInventoryList(dice);
             }
