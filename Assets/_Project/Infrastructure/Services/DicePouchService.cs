@@ -34,6 +34,7 @@ namespace _Project.Infrastructure.Services
             if (!IsAnyDiceEquipped()) return;
 
             _diceSessionState.ActiveDice.Clear();
+            _diceSessionState.RerollsLeft = _runState.RerollsPerTurn;
 
             SetActiveDices();
 
@@ -65,7 +66,7 @@ namespace _Project.Infrastructure.Services
                 _diceSessionState.ActiveDice.Add(new DiceState
                 {
                     Dice = ownedDice.Dice,
-                    Level = 1, // Default starting level for an encounter, or could be mapped if persisted differently
+                    Level = 1,
                     CurrentFaceIndex = -1,
                     IsSelectedForReroll = false
                 });

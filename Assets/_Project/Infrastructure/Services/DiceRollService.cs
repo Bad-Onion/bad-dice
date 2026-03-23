@@ -18,13 +18,18 @@ namespace _Project.Infrastructure.Services
     public class DiceRollService : IDiceRollUseCase
     {
         private readonly DiceSessionState _diceSessionState;
+        private readonly PlayerRunState _runState;
         private readonly DiceRollConfiguration _diceRollConfiguration;
         private readonly IDiceSimulationService _simulationService;
 
-        public DiceRollService(DiceSessionState diceSessionState, DiceRollConfiguration diceRollConfiguration,
+        public DiceRollService(
+            DiceSessionState diceSessionState,
+            PlayerRunState runState,
+            DiceRollConfiguration diceRollConfiguration,
             IDiceSimulationService simulationService)
         {
             _diceSessionState = diceSessionState;
+            _runState = runState;
             _diceRollConfiguration = diceRollConfiguration;
             _simulationService = simulationService;
         }
@@ -53,8 +58,7 @@ namespace _Project.Infrastructure.Services
         public void ResetDice()
         {
             _diceSessionState.IsRolling = false;
-            // TODO: This should be a configuration value inside a scriptable object
-            _diceSessionState.RerollsLeft = 3;
+            _diceSessionState.RerollsLeft = _runState.RerollsPerTurn;
 
             foreach (var die in _diceSessionState.ActiveDice)
             {

@@ -7,7 +7,8 @@ namespace _Project.Domain.Entities.DTO
     public class PlayerRunSaveData
     {
         public List<OwnedDiceSaveData> diceInventory = new();
-        // TODO: This should be set by an scriptable object
-        public int maxEquippedDice = 5;
+        public int maxEquippedDice;
+        public int rerollsPerTurn;
+        public int turnsPerFight;
     }
 }

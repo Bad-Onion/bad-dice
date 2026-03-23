@@ -7,8 +7,7 @@ namespace _Project.Domain.Entities.Session
     {
         public List<DiceState> ActiveDice { get; set; } = new();
         public bool IsRolling { get; set; }
-        // TODO: The RerollsLeft value should be set by an scriptable object
-        public int RerollsLeft { get; set; } = 3;
+        public int RerollsLeft { get; set; }
         public List<string> MergeableDiceIds { get; set; } = new();
     }
 }

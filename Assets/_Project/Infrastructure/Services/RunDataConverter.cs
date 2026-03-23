@@ -9,7 +9,12 @@ namespace _Project.Infrastructure.Services
     {
         public static PlayerRunSaveData ToSaveData(PlayerRunState runState)
         {
-            var saveData = new PlayerRunSaveData { maxEquippedDice = runState.MaxEquippedDice };
+            var saveData = new PlayerRunSaveData
+            {
+                maxEquippedDice = runState.MaxEquippedDice,
+                rerollsPerTurn = runState.RerollsPerTurn,
+                turnsPerFight = runState.TurnsPerFight
+            };
 
             foreach (var ownedDice in runState.DiceInventory)
             {
@@ -26,7 +31,12 @@ namespace _Project.Infrastructure.Services
 
         public static PlayerRunState ToRunState(PlayerRunSaveData saveData, DiceDatabase diceDatabase)
         {
-            var runState = new PlayerRunState { MaxEquippedDice = saveData.maxEquippedDice };
+            var runState = new PlayerRunState
+            {
+                MaxEquippedDice = saveData.maxEquippedDice,
+                RerollsPerTurn = saveData.rerollsPerTurn,
+                TurnsPerFight = saveData.turnsPerFight
+            };
 
             foreach (var savedDice in saveData.diceInventory)
             {

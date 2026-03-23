@@ -3,20 +3,20 @@ using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
 using _Project.Domain.Entities.DiceData;
 using _Project.Domain.Entities.Session;
-using _Project.Domain.ScriptableObjects.DiceDefinitions;
+using _Project.Domain.ScriptableObjects.GameSettings;
 
 namespace _Project.Infrastructure.Services
 {
     public class RunGameInitializationService : IRunInitializationUseCase
     {
         private readonly IRunRepository _repository;
-        private readonly DiceDefinition _startingDiceDefinition;
+        private readonly GameConfiguration _gameConfiguration;
         private readonly PlayerRunState _runState;
 
-        public RunGameInitializationService(IRunRepository repository, DiceDefinition startingDiceDefinition, PlayerRunState runState)
+        public RunGameInitializationService(IRunRepository repository, GameConfiguration gameConfiguration, PlayerRunState runState)
         {
             _repository = repository;
-            _startingDiceDefinition = startingDiceDefinition;
+            _gameConfiguration = gameConfiguration;
             _runState = runState;
         }
 
@@ -42,26 +42,37 @@ namespace _Project.Infrastructure.Services
 
         private void SetRunState(PlayerRunState runState)
         {
+            RunDefinitions runDefinitions = _gameConfiguration.runDefinitions;
+
             _runState.DiceInventory = runState.DiceInventory;
-            _runState.MaxEquippedDice = runState.MaxEquippedDice;
+            _runState.MaxEquippedDice = runState.MaxEquippedDice > 0 ? runState.MaxEquippedDice : runDefinitions.maxEquippedDice;
+            _runState.RerollsPerTurn = runState.RerollsPerTurn > 0 ? runState.RerollsPerTurn : runDefinitions.rerollsPerTurn;
+            _runState.TurnsPerFight = runState.TurnsPerFight > 0 ? runState.TurnsPerFight : runDefinitions.turnsPerFight;
         }
 
         private void InitializeRun()
         {
-            _runState.DiceInventory.Clear();
+            RunDefinitions runDefinitions = _gameConfiguration.runDefinitions;
 
-            // TODO: Load from a scriptable object called "Starting Dice Pool" or something like that, which can be configured per ritual or run type
-            for (int i = 0; i < 5; i++)
+            _runState.DiceInventory.Clear();
+            _runState.MaxEquippedDice = runDefinitions.maxEquippedDice;
+            _runState.RerollsPerTurn = runDefinitions.rerollsPerTurn;
+            _runState.TurnsPerFight = runDefinitions.turnsPerFight;
+
+            if (runDefinitions.startingDicePool != null)
             {
-                _runState.DiceInventory.Add(new OwnedDiceData
+                foreach (var definition in runDefinitions.startingDicePool.diceDefinitions)
                 {
-                    Dice = new DiceData
+                    _runState.DiceInventory.Add(new OwnedDiceData
                     {
-                        Id = Guid.NewGuid().ToString(),
-                        Definition = _startingDiceDefinition
-                    },
-                    IsEquipped = true
-                });
+                        Dice = new DiceData
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            Definition = definition
+                        },
+                        IsEquipped = true
+                    });
+                }
             }
 
             _repository.SaveRun(_runState);

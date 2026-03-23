@@ -39,8 +39,8 @@ namespace _Project.Infrastructure.DependencyInjection
         [Tooltip("Assign the generic physics/spacing configuration.")]
         [SerializeField] private DiceRollConfiguration diceRollConfiguration;
 
-        [Tooltip("Assign the default DiceDefinition the player starts the run with.")]
-        [SerializeField] private DiceDefinition startingDiceDefinition;
+        [Tooltip("Assign the game configuration containing run settings.")]
+        [SerializeField] private GameConfiguration gameConfiguration;
 
         [Tooltip("Assign the DiceDatabase containing all available dice definitions.")]
         [SerializeField] private DiceDatabase diceDatabase;
@@ -51,15 +51,19 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.BindInstance(gameStateEventChannel).AsSingle();
             Container.BindInstance(transitionEventChannel).AsSingle();
 
+            // Entities
+            Container.Bind<PlayerRunState>().AsSingle();
+            Container.Bind<GameSession>().AsSingle();
+
             // Run State & Persistence (Cross-Scene)
             Container.BindInstance(diceRollConfiguration).AsSingle();
-            Container.BindInstance(startingDiceDefinition).AsSingle();
+            Container.BindInstance(gameConfiguration).AsSingle();
             Container.BindInstance(diceDatabase).AsSingle();
-            Container.Bind<PlayerRunState>().AsSingle();
             Container.Bind<IRunRepository>().To<PlayerPrefsRunRepository>().AsSingle();
             Container.Bind<IRunInitializationUseCase>().To<RunGameInitializationService>().AsSingle();
 
             // Core Services
+            Container.BindInterfacesTo<GameFlowService>().AsSingle();
             Container.Bind<ITimeService>().To<UnityTimeAdapter>().AsSingle();
             Container.Bind<ISceneLoader>().To<UnitySceneLoader>().AsSingle();
 

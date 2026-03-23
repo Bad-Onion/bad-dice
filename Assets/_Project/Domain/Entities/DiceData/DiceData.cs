@@ -8,4 +8,3 @@ namespace _Project.Domain.Entities.DiceData
         public DiceDefinition Definition { get; set; }
     }
 }
-
