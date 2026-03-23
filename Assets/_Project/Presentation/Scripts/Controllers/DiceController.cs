@@ -1,10 +1,11 @@
 ﻿using _Project.Domain.Entities.DiceSimulation;
+using _Project.Application.Interfaces;
 using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
     // Coordinator component for managing a Dice Prefab (a singular dice)
-    public class DiceController : MonoBehaviour
+    public class DiceController : MonoBehaviour, IHoverablePointerTarget
     {
         [Header("Components")]
         [Tooltip("Assign the DiceTrajectoryRoutineController here to control the dice trajectory.")]

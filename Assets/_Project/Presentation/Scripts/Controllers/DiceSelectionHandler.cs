@@ -1,9 +1,6 @@
 ﻿using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.MergeEvents;
-using _Project.Domain.Entities.Session;
-using _Project.Infrastructure.Adapters;
-using System;
 using UnityEngine;
 using Zenject;
 
@@ -12,139 +9,54 @@ namespace _Project.Presentation.Scripts.Controllers
     public class DiceSelectionHandler : MonoBehaviour
     {
         [Header("Physics")]
-        [Tooltip("Set this to the layer your Dice are on (Currently is 'Dice').")]
+        [Tooltip("Set this to the layer that contains dice colliders.")]
         [SerializeField] private LayerMask diceLayerMask;
 
-        private InputReader _inputReader;
-        private DiceSessionState _diceSessionState;
-        private Camera _levelCamera;
-
-        private DiceController _hoveredDice;
+        private DiceSelectionPresenter _diceSelectionPresenter;
 
         [Inject]
-        public void Construct(DiceSessionState diceSessionState, Camera levelCamera, InputReader inputReader)
+        public void Construct(DiceSelectionPresenter diceSelectionPresenter)
         {
-            _diceSessionState = diceSessionState;
-            _levelCamera = levelCamera;
-            _inputReader = inputReader;
+            _diceSelectionPresenter = diceSelectionPresenter;
         }
 
         private void OnEnable()
         {
-            if (_inputReader == null) return;
+            if (_diceSelectionPresenter == null) return;
 
-            _inputReader.OnInteract += HandleInteraction;
-            _inputReader.OnHoldInteract += HandleHoldInteraction;
+            _diceSelectionPresenter.Configure(diceLayerMask);
+            _diceSelectionPresenter.OnRerollRequested += HandleRerollRequested;
+            _diceSelectionPresenter.OnAutoMergeRequested += HandleAutoMergeRequested;
+            _diceSelectionPresenter.Enable();
         }
 
         private void OnDisable()
         {
-            if (_inputReader == null) return;
+            if (_diceSelectionPresenter == null) return;
 
-            _inputReader.OnInteract -= HandleInteraction;
-            _inputReader.OnHoldInteract -= HandleHoldInteraction;
+            _diceSelectionPresenter.OnRerollRequested -= HandleRerollRequested;
+            _diceSelectionPresenter.OnAutoMergeRequested -= HandleAutoMergeRequested;
+            _diceSelectionPresenter.Disable();
         }
 
         private void Update()
         {
-            if (!TryGetPointerRay(out Ray pointerRay)) return;
-
-            HandleHover(pointerRay);
+            _diceSelectionPresenter?.Tick();
         }
 
-        private void HandleInteraction()
-        {
-            TryHandleDiceAction(RequestRerollForDice);
-        }
-
-        private void HandleHoldInteraction()
-        {
-            TryHandleDiceAction(RequestAutoMergeForDice);
-        }
-
-        private void HandleHover(Ray pointerRay)
-        {
-            if (!TryGetDiceControllerFromRay(pointerRay, out DiceController diceController))
-            {
-                ClearHoveredDice();
-                return;
-            }
-
-            SetHoveredDice(diceController);
-        }
-
-        private void TryHandleDiceAction(Action<DiceController> onDiceSelected)
-        {
-            if (!CanProcessInteraction()) return;
-            if (!TryGetPointedDiceController(out DiceController diceController)) return;
-
-            onDiceSelected?.Invoke(diceController);
-        }
-
-        private bool CanProcessInteraction()
-        {
-            if (_inputReader == null || _levelCamera == null || _diceSessionState == null) return false;
-
-            return !_diceSessionState.IsRolling;
-        }
-
-        private bool TryGetPointedDiceController(out DiceController diceController)
-        {
-            diceController = null;
-
-            if (!TryGetPointerRay(out Ray pointerRay)) return false;
-
-            return TryGetDiceControllerFromRay(pointerRay, out diceController);
-        }
-
-        private bool TryGetPointerRay(out Ray pointerRay)
-        {
-            pointerRay = default;
-            if (_inputReader == null || _levelCamera == null) return false;
-
-            pointerRay = _levelCamera.ScreenPointToRay(_inputReader.GetPointerPosition());
-            return true;
-        }
-
-        private bool TryGetDiceControllerFromRay(Ray pointerRay, out DiceController diceController)
-        {
-            diceController = null;
-            if (!Physics.Raycast(pointerRay, out RaycastHit hit, Mathf.Infinity, diceLayerMask)) return false;
-
-            diceController = hit.collider.GetComponentInParent<DiceController>();
-            return diceController != null;
-        }
-
-        private void SetHoveredDice(DiceController diceController)
-        {
-            if (diceController == _hoveredDice) return;
-
-            ClearHoveredDice();
-            _hoveredDice = diceController;
-            _hoveredDice.SetHoverVisual(true);
-        }
-
-        private void ClearHoveredDice()
-        {
-            if (_hoveredDice == null) return;
-
-            _hoveredDice.SetHoverVisual(false);
-            _hoveredDice = null;
-        }
-
-        private static void RequestRerollForDice(DiceController diceController)
+        private static void HandleRerollRequested(string diceId)
         {
             Bus<DiceRerollSelectionRequestedEvent>.Raise(new DiceRerollSelectionRequestedEvent
             {
-                DiceId = diceController.DiceId
+                DiceId = diceId
             });
         }
 
-        private static void RequestAutoMergeForDice(DiceController diceController)
+        private static void HandleAutoMergeRequested(string diceId)
         {
             Bus<DiceAutoMergeRequestedEvent>.Raise(new DiceAutoMergeRequestedEvent
             {
-                DiceId = diceController.DiceId
+                DiceId = diceId
             });
         }
     }
