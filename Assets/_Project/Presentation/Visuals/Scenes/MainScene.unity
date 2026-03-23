@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 154683300}
   - component: {fileID: 154683302}
   - component: {fileID: 154683301}
+  - component: {fileID: 154683303}
   m_Layer: 0
   m_Name: InputEventSystem
   m_TagString: Untagged
@@ -198,6 +199,19 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
+--- !u!114 &154683303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 154683299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cd29762455944de8f114e079f3e913b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Controllers.PauseInputListener
+  inputReader: {fileID: 11400000, guid: 5eafba7a585d9db4b8f2065dd68d9821, type: 2}
 --- !u!1 &173587046
 GameObject:
   m_ObjectHideFlags: 0
@@ -828,7 +842,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e04426e16a4625a429130234524ef9c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Infrastructure.DependencyInjection.GameInstaller
-  gameConfiguration: {fileID: 11400000, guid: f9afa1811191fa94488d6c19cc68448d, type: 2}
 --- !u!1 &1575806650
 GameObject:
   m_ObjectHideFlags: 0
@@ -1011,7 +1024,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: c608a739cce165641b228c550b8a78bd, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 9197481963319205126, guid: 0a7c9e7543615274c9a2db41d035aa0c, type: 3}
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920

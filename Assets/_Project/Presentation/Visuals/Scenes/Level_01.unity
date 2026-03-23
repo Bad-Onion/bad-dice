@@ -443,6 +443,7 @@ MonoBehaviour:
   diceLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  inputReader: {fileID: 11400000, guid: 5eafba7a585d9db4b8f2065dd68d9821, type: 2}
 --- !u!114 &1062066244
 MonoBehaviour:
   m_ObjectHideFlags: 0

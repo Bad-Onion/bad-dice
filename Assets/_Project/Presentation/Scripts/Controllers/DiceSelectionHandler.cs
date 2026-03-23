@@ -1,8 +1,8 @@
 ﻿using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.MergeEvents;
-using _Project.Application.Interfaces;
 using _Project.Domain.Entities.Session;
+using _Project.Infrastructure.Adapters;
 using UnityEngine;
 using Zenject;
 
@@ -14,42 +14,42 @@ namespace _Project.Presentation.Scripts.Controllers
         [Tooltip("Set this to the layer your Dice are on (Currently is 'Dice').")]
         [SerializeField] private LayerMask diceLayerMask;
 
+        private InputReader _inputReader;
         private DiceSessionState _diceSessionState;
-        private IInputProvider _inputProvider;
         private Camera _levelCamera;
 
         private DiceController _hoveredDice;
 
         [Inject]
-        public void Construct(DiceSessionState diceSessionState, IInputProvider inputProvider, Camera levelCamera)
+        public void Construct(DiceSessionState diceSessionState, Camera levelCamera, InputReader inputReader)
         {
             _diceSessionState = diceSessionState;
-            _inputProvider = inputProvider;
             _levelCamera = levelCamera;
+            _inputReader = inputReader;
         }
 
         private void OnEnable()
         {
-            if (_inputProvider == null) return;
+            if (_inputReader == null) return;
 
-            _inputProvider.OnInteract += HandleInteraction;
-            _inputProvider.OnHoldInteract += HandleHoldInteraction;
+            _inputReader.OnInteract += HandleInteraction;
+            _inputReader.OnHoldInteract += HandleHoldInteraction;
         }
 
         private void OnDisable()
         {
-            if (_inputProvider == null) return;
+            if (_inputReader == null) return;
 
-            _inputProvider.OnInteract -= HandleInteraction;
-            _inputProvider.OnHoldInteract -= HandleHoldInteraction;
+            _inputReader.OnInteract -= HandleInteraction;
+            _inputReader.OnHoldInteract -= HandleHoldInteraction;
         }
 
         private void Update()
         {
-            if (_inputProvider == null || _levelCamera == null) return;
+            if (_inputReader == null || _levelCamera == null) return;
 
             // TODO: Move this to a separate function and name it "GetCameraRay"
-            Ray ray = _levelCamera.ScreenPointToRay(_inputProvider.GetPointerPosition());
+            Ray ray = _levelCamera.ScreenPointToRay(_inputReader.GetPointerPosition());
 
             // TODO: Too much conditionals for an update function, move to a separate function and name it "HandleHover" and if possible find another way to do it
             // TODO: Reuse code between HandleInteraction and HandleHoldInteraction and Update in a separate function
@@ -80,7 +80,7 @@ namespace _Project.Presentation.Scripts.Controllers
             if (_diceSessionState.IsRolling) return;
 
             // TODO: Move this to a separate function and name it "GetCameraRay"
-            Ray ray = _levelCamera.ScreenPointToRay(_inputProvider.GetPointerPosition());
+            Ray ray = _levelCamera.ScreenPointToRay(_inputReader.GetPointerPosition());
 
             // TODO: Invert this condition to reduce nesting
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, diceLayerMask))
@@ -103,7 +103,7 @@ namespace _Project.Presentation.Scripts.Controllers
         {
             if (_diceSessionState.IsRolling) return;
 
-            Vector2 pointerPos = _inputProvider.GetPointerPosition();
+            Vector2 pointerPos = _inputReader.GetPointerPosition();
             Ray ray = _levelCamera.ScreenPointToRay(pointerPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, diceLayerMask))

@@ -72,8 +72,6 @@ namespace _Project.Presentation.Scripts.Controllers
             _activeDice.Clear();
         }
 
-        // TODO: Search if it is possible to create a generic spawn/despawn method for any type of object,
-        // not just dice. This would involve using a more generic type parameter and possibly a factory pattern to handle different types of objects.
         private DiceController SpawnDice(GameObject prefab)
         {
             if (!_pools.TryGetValue(prefab, out Queue<DiceController> pool))
@@ -82,15 +80,15 @@ namespace _Project.Presentation.Scripts.Controllers
                 _pools[prefab] = pool;
             }
 
-            // TODO: Invert conditional to reduce nesting
-            if (pool.Count > 0)
+            if (pool.Count == 0)
             {
-                DiceController dice = pool.Dequeue();
-                dice.gameObject.SetActive(true);
-                return dice;
+                return _container.InstantiatePrefabForComponent<DiceController>(prefab, _poolRoot);
             }
 
-            return _container.InstantiatePrefabForComponent<DiceController>(prefab, _poolRoot);
+            DiceController dice = pool.Dequeue();
+            dice.gameObject.SetActive(true);
+
+            return dice;
         }
 
         private void DespawnDice(DiceController dice, GameObject prefab)

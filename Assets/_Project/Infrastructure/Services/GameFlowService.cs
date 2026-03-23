@@ -9,6 +9,7 @@ using _Project.Application.States.GameState;
 using _Project.Application.UseCases;
 using _Project.Domain.Entities.Session;
 using _Project.Domain.ScriptableObjects.GameSettings;
+using _Project.Infrastructure.Adapters;
 using Zenject;
 
 namespace _Project.Infrastructure.Services
@@ -16,30 +17,30 @@ namespace _Project.Infrastructure.Services
     public class GameFlowService : IGameFlowUseCase, IInitializable, IDisposable
     {
         private readonly IGameStateMachine _gameStateMachine;
-        private readonly IInputProvider _inputProvider;
         private readonly TransitionEventChannel _transitionEventChannel;
         private readonly CommandProcessor _commandProcessor;
         private readonly LoadLevelCommand.Factory _loadLevelCommandFactory;
         private readonly UnloadLevelCommand.Factory _unloadLevelCommandFactory;
         private readonly GameSession _gameSession;
+        private readonly InputReader _inputReader;
 
         public GameFlowService(
             IGameStateMachine stateMachine,
-            IInputProvider inputProvider,
             TransitionEventChannel transitionEventChannel,
             LoadLevelCommand.Factory loadLevelCommandFactory,
             CommandProcessor commandProcessor,
             UnloadLevelCommand.Factory unloadLevelCommandFactory,
             GameSession gameSession,
-            GameConfiguration gameConfiguration)
+            GameConfiguration gameConfiguration,
+            InputReader inputReader)
         {
             _gameStateMachine = stateMachine;
-            _inputProvider = inputProvider;
             _transitionEventChannel = transitionEventChannel;
             _commandProcessor = commandProcessor;
             _loadLevelCommandFactory = loadLevelCommandFactory;
             _unloadLevelCommandFactory = unloadLevelCommandFactory;
             _gameSession = gameSession;
+            _inputReader = inputReader;
 
             _gameSession.CurrentLevelData = gameConfiguration.defaultLevelData;
         }
@@ -47,7 +48,7 @@ namespace _Project.Infrastructure.Services
         public void Initialize()
         {
             Bus<BootstrapReadyEvent>.OnEvent += HandleBootstrapReady;
-            _inputProvider.OnPauseAction += TogglePause;
+            _inputReader.OnPauseAction += TogglePause;
 
             _transitionEventChannel.RaiseEvent(new TransitionPayload(true, 0f));
             _gameStateMachine.ChangeState<BootstrapState>();
@@ -56,7 +57,7 @@ namespace _Project.Infrastructure.Services
         public void Dispose()
         {
             Bus<BootstrapReadyEvent>.OnEvent -= HandleBootstrapReady;
-            _inputProvider.OnPauseAction -= TogglePause;
+            _inputReader.OnPauseAction -= TogglePause;
         }
 
         private void HandleBootstrapReady(BootstrapReadyEvent evt)

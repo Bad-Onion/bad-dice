@@ -1,6 +1,5 @@
 ﻿using Zenject;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using _Project.Application.Commands;
 using _Project.Application.Events.EventChannels;
 using _Project.Application.Interfaces;
@@ -24,17 +23,6 @@ namespace _Project.Infrastructure.DependencyInjection
         [Tooltip("Assign the global event channel for transitions.")]
         [SerializeField] private TransitionEventChannel transitionEventChannel;
 
-        // TODO: Turn into a toggleable list of input actions for better scalability and flexibility.
-        [Header("Input")]
-        [Tooltip("Assign the input action to pause the game.")]
-        [SerializeField] private InputActionReference pauseInputAction;
-        [Tooltip("Assign the input action to interact with the game, usually the mouse left button.")]
-        [SerializeField] private InputActionReference interactInputAction;
-        [Tooltip("Assign the input action to get the mouse position.")]
-        [SerializeField] private InputActionReference pointerPositionAction;
-        [Tooltip("Assign the input action to hold the interact action.")]
-        [SerializeField] private InputActionReference holdInteractAction;
-
         [Header("Run Configuration")]
         [Tooltip("Assign the generic physics/spacing configuration.")]
         [SerializeField] private DiceRollConfiguration diceRollConfiguration;
@@ -45,11 +33,18 @@ namespace _Project.Infrastructure.DependencyInjection
         [Tooltip("Assign the DiceDatabase containing all available dice definitions.")]
         [SerializeField] private DiceDatabase diceDatabase;
 
+        [Header("Input")]
+        [Tooltip("Assign the input reader ScriptableObject for handling player input.")]
+        [SerializeField] private InputReader inputReader;
+
         public override void InstallBindings()
         {
             // Global Event Channels
             Container.BindInstance(gameStateEventChannel).AsSingle();
             Container.BindInstance(transitionEventChannel).AsSingle();
+
+            // Input
+            Container.BindInstance(inputReader).AsSingle();
 
             // Entities
             Container.Bind<PlayerRunState>().AsSingle();
@@ -80,11 +75,6 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IGameState>().To<PausedState>().AsSingle();
 
             Container.Bind<IGameStateMachine>().To<GameStateMachine>().AsSingle();
-
-            // Input
-            Container.BindInterfacesTo<InputAdapter>()
-                .AsSingle()
-                .WithArguments(pauseInputAction, interactInputAction, holdInteractAction, pointerPositionAction);
         }
     }
 }
