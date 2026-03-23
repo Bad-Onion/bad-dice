@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using _Project.Domain.ScriptableObjects.DiceDefinitions;
 using UnityEngine;
 using Zenject;
 
@@ -24,15 +25,19 @@ namespace _Project.Presentation.Scripts.Controllers
             _poolRoot.SetParent(transform);
         }
 
-        public DiceController GetOrSpawnDice(string diceId, GameObject prefab)
+        public DiceController GetOrSpawnDice(string diceId, DiceDefinition diceDefinition)
         {
+            if (diceDefinition == null || diceDefinition.visualPrefab == null) return null;
+
+            GameObject prefab = diceDefinition.visualPrefab;
             if (_activeDice.TryGetValue(diceId, out var activePair))
             {
+                activePair.controller.Initialize(diceId, diceDefinition);
                 return activePair.controller;
             }
 
             DiceController newController = SpawnDice(prefab);
-            newController.Initialize(diceId);
+            newController.Initialize(diceId, diceDefinition);
 
             _activeDice[diceId] = (newController, prefab);
             return newController;

@@ -7,11 +7,15 @@ namespace _Project.Domain.ScriptableObjects.DiceDefinitions
     public class DiceDefinition : ScriptableObject
     {
         [Header("Prefabs")]
-        [Tooltip("The visual representation of the dice (no colliders).")]
+        [Tooltip("The visual root prefab used by runtime systems to spawn this die.")]
         public GameObject visualPrefab;
 
         [Tooltip("The physics dummy for this specific dice (Rigidbody and Colliders only).")]
         public GameObject physicsPrefab;
+
+        [Header("Visual Configuration")]
+        [Tooltip("Visual data used to configure the runtime visual prefab for this die.")]
+        public DiceVisualConfigurationData visualConfiguration;
 
         [Header("Faces Setup")]
         [Tooltip("Define the faces of this dice. For a D6, this array should have 6 elements.")]

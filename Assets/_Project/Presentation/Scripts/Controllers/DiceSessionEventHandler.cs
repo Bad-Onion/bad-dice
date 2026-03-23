@@ -64,7 +64,8 @@ namespace _Project.Presentation.Scripts.Controllers
 
                 if (diceState == null || diceState.Dice.Definition.visualPrefab == null) continue;
 
-                DiceController diceController = _dicePrefabManager.GetOrSpawnDice(diceId, diceState.Dice.Definition.visualPrefab);
+                DiceController diceController = _dicePrefabManager.GetOrSpawnDice(diceId, diceState.Dice.Definition);
+                if (diceController == null) continue;
                 diceController.SetSelectionVisual(false);
 
                 DicePoseSimulationResultPath path = evt.SimulationResult.DicePaths[i];

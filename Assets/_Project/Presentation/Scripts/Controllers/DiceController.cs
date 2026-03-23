@@ -1,5 +1,6 @@
 ﻿using _Project.Domain.Entities.DiceSimulation;
 using _Project.Application.Interfaces;
+using _Project.Domain.ScriptableObjects.DiceDefinitions;
 using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Controllers
@@ -12,13 +13,20 @@ namespace _Project.Presentation.Scripts.Controllers
         [SerializeField] private DiceTrajectoryRoutineController trajectoryController;
         [Tooltip("Assign the DiceVisualFeedbackController here to control the dice visual feedback.")]
         [SerializeField] private DiceVisualFeedbackController visualFeedbackController;
+        [Tooltip("Assign the runtime visual configurator used to apply visual data from DiceDefinition.")]
+        [SerializeField] private DiceVisualRuntimeConfigurator visualRuntimeConfigurator;
 
         public string DiceId { get; private set; }
 
-        public void Initialize(string id)
+        public void Initialize(string id, DiceDefinition definition)
         {
             DiceId = id;
             visualFeedbackController.SetSelectionVisual(false);
+
+            if (visualRuntimeConfigurator != null)
+            {
+                visualRuntimeConfigurator.ApplyFromDefinition(definition);
+            }
         }
 
         public void PlayTrajectory(DicePoseSimulationResultPath poseSimulationResultPath)
