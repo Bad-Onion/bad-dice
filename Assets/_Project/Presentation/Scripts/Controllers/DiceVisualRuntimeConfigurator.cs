@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using _Project.Domain.Entities.DTO;
 using _Project.Domain.Enums;
 using _Project.Domain.ScriptableObjects.DiceDefinitions;
@@ -7,18 +6,9 @@ using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
+    // TODO: Check the expensive method invocations
     public class DiceVisualRuntimeConfigurator : MonoBehaviour
     {
-        [Serializable]
-        private struct FaceAnchorBinding
-        {
-            [Tooltip("Face direction used to map runtime face model placement.")]
-            public DiceFaceDirection localDirection;
-
-            [Tooltip("Transform used as spawn anchor for this face model.")]
-            public Transform anchor;
-        }
-
         [Header("Base Visual Targets")]
         [Tooltip("Parent transform used to spawn the optional base model prefab.")]
         [SerializeField] private Transform baseModelRoot;
@@ -43,7 +33,7 @@ namespace _Project.Presentation.Scripts.Controllers
             ApplyVisualConfiguration(diceDefinition.visualConfiguration);
         }
 
-        public void ApplyVisualConfiguration(DiceVisualConfigurationData visualConfiguration)
+        private void ApplyVisualConfiguration(DiceVisualConfigurationData visualConfiguration)
         {
             SetupBaseModel(visualConfiguration.baseModelPrefab);
             ApplyBaseMesh(visualConfiguration.baseMesh);
@@ -90,19 +80,18 @@ namespace _Project.Presentation.Scripts.Controllers
                 targetRenderer.sharedMaterial = diceMaterial;
             }
 
-            for (int index = 0; index < _spawnedFaceModels.Count; index++)
+            foreach (GameObject faceModel in _spawnedFaceModels)
             {
-                MeshRenderer[] renderers = _spawnedFaceModels[index].GetComponentsInChildren<MeshRenderer>(true);
-                for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+                MeshRenderer[] renderers = faceModel.GetComponentsInChildren<MeshRenderer>(true);
+
+                foreach (MeshRenderer meshRenderer in renderers)
                 {
-                    renderers[rendererIndex].sharedMaterial = diceMaterial;
+                    meshRenderer.sharedMaterial = diceMaterial;
                 }
             }
         }
 
-        private void SetupFaceModels(
-            DiceFaceVisualModelData[] faceModels,
-            Material overrideMaterial,
+        private void SetupFaceModels(DiceFaceVisualModelData[] faceModels, Material overrideMaterial,
             bool applyMaterialOverrideToFaceModels)
         {
             ClearSpawnedFaceModels();
@@ -114,7 +103,8 @@ namespace _Project.Presentation.Scripts.Controllers
             {
                 DiceFaceVisualModelData faceModel = faceModels[index];
                 if (faceModel.modelPrefab == null) continue;
-                if (!anchorsByDirection.TryGetValue(faceModel.localDirection, out Transform anchor) || anchor == null) continue;
+                if (!anchorsByDirection.TryGetValue(faceModel.localDirection, out Transform anchor) ||
+                    anchor == null) continue;
 
                 GameObject spawnedFaceModel = Instantiate(faceModel.modelPrefab, anchor);
                 spawnedFaceModel.transform.localPosition = Vector3.zero;
@@ -131,11 +121,11 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void ClearSpawnedFaceModels()
         {
-            for (int index = 0; index < _spawnedFaceModels.Count; index++)
+            foreach (GameObject spawnedFaceModel in _spawnedFaceModels)
             {
-                if (_spawnedFaceModels[index] != null)
+                if (spawnedFaceModel != null)
                 {
-                    Destroy(_spawnedFaceModels[index]);
+                    Destroy(spawnedFaceModel);
                 }
             }
 
@@ -147,9 +137,8 @@ namespace _Project.Presentation.Scripts.Controllers
             var anchorMap = new Dictionary<DiceFaceDirection, Transform>();
             if (faceAnchors == null) return anchorMap;
 
-            for (int index = 0; index < faceAnchors.Length; index++)
+            foreach (FaceAnchorBinding binding in faceAnchors)
             {
-                FaceAnchorBinding binding = faceAnchors[index];
                 if (binding.anchor == null) continue;
 
                 anchorMap[binding.localDirection] = binding.anchor;
@@ -158,27 +147,32 @@ namespace _Project.Presentation.Scripts.Controllers
             return anchorMap;
         }
 
+        // TODO: Reuse duplicated code
         private MeshFilter ResolveBaseMeshFilter()
         {
-            if (_spawnedBaseModel != null)
+            if (_spawnedBaseModel == null)
             {
-                MeshFilter meshFilter = _spawnedBaseModel.GetComponentInChildren<MeshFilter>(true);
-                if (meshFilter != null) return meshFilter;
+                return fallbackBaseMeshFilter;
             }
+
+            MeshFilter meshFilter = _spawnedBaseModel.GetComponentInChildren<MeshFilter>(true);
+            if (meshFilter != null) return meshFilter;
 
             return fallbackBaseMeshFilter;
         }
 
+        // TODO: Reuse duplicated code
         private MeshRenderer ResolveBaseMeshRenderer()
         {
-            if (_spawnedBaseModel != null)
+            if (_spawnedBaseModel == null)
             {
-                MeshRenderer meshRenderer = _spawnedBaseModel.GetComponentInChildren<MeshRenderer>(true);
-                if (meshRenderer != null) return meshRenderer;
+                return fallbackBaseMeshRenderer;
             }
+
+            MeshRenderer meshRenderer = _spawnedBaseModel.GetComponentInChildren<MeshRenderer>(true);
+            if (meshRenderer != null) return meshRenderer;
 
             return fallbackBaseMeshRenderer;
         }
     }
 }
-

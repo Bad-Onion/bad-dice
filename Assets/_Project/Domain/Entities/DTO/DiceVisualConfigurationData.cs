@@ -1,5 +1,4 @@
 ﻿using System;
-using _Project.Domain.Enums;
 using UnityEngine;
 
 namespace _Project.Domain.Entities.DTO
@@ -23,16 +22,6 @@ namespace _Project.Domain.Entities.DTO
         [Header("Face Models")]
         [Tooltip("Face model prefabs mapped by local direction.")]
         public DiceFaceVisualModelData[] faceModels;
-    }
-
-    [Serializable]
-    public struct DiceFaceVisualModelData
-    {
-        [Tooltip("The local direction where this face model should be attached.")]
-        public DiceFaceDirection localDirection;
-
-        [Tooltip("Model prefab exported from Blender for this face.")]
-        public GameObject modelPrefab;
     }
 }
 
