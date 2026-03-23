@@ -2,9 +2,7 @@
 using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.DiceSimulation;
-using _Project.Application.Events.DiceState;
 using _Project.Application.Events.MergeEvents;
-using _Project.Application.UseCases;
 using _Project.Domain.Entities.DiceData;
 using _Project.Domain.Entities.DiceSimulation;
 using _Project.Domain.Entities.Session;
@@ -17,16 +15,12 @@ namespace _Project.Presentation.Scripts.Controllers
     public class DiceSessionEventHandler : MonoBehaviour
     {
         private DiceSessionState _diceSessionState;
-        private IDiceRollUseCase _diceRollUseCase;
-        private IDiceMergeUseCase _diceMergeUseCase;
         private DicePrefabManager _dicePrefabManager;
 
         [Inject]
-        public void Construct(DiceSessionState diceSessionState, IDiceRollUseCase diceRollUseCase, IDiceMergeUseCase diceMergeUseCase)
+        public void Construct(DiceSessionState diceSessionState)
         {
             _diceSessionState = diceSessionState;
-            _diceRollUseCase = diceRollUseCase;
-            _diceMergeUseCase = diceMergeUseCase;
         }
 
         private void Awake()
@@ -39,7 +33,6 @@ namespace _Project.Presentation.Scripts.Controllers
             Bus<DicePlaybackRequestedEvent>.OnEvent += HandlePlaybackRequested;
             Bus<DiceResetEvent>.OnEvent += HandleReset;
             Bus<DiceRerollToggledEvent>.OnEvent += HandleDiceSelected;
-            Bus<DiceRollFinishedEvent>.OnEvent += HandleRollFinished;
             Bus<MergePossibilitiesEvaluatedEvent>.OnEvent += HandleMergePossibilities;
         }
 
@@ -48,7 +41,6 @@ namespace _Project.Presentation.Scripts.Controllers
             Bus<DicePlaybackRequestedEvent>.OnEvent -= HandlePlaybackRequested;
             Bus<DiceResetEvent>.OnEvent -= HandleReset;
             Bus<DiceRerollToggledEvent>.OnEvent -= HandleDiceSelected;
-            Bus<DiceRollFinishedEvent>.OnEvent -= HandleRollFinished;
             Bus<MergePossibilitiesEvaluatedEvent>.OnEvent -= HandleMergePossibilities;
         }
 
@@ -95,8 +87,7 @@ namespace _Project.Presentation.Scripts.Controllers
         private IEnumerator UnlockSessionAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
-            // TODO: Use events instead of calling a function from a different domain directly (see if it's possible or an anti-pattern in this case)
-            _diceRollUseCase.EndRoll();
+            Bus<DicePlaybackCompletedEvent>.Raise(new DicePlaybackCompletedEvent());
         }
 
         private void HandleReset(DiceResetEvent evt)
@@ -111,12 +102,6 @@ namespace _Project.Presentation.Scripts.Controllers
             {
                 diceController.SetSelectionVisual(evt.IsSelected);
             }
-        }
-
-        private void HandleRollFinished(DiceRollFinishedEvent evt)
-        {
-            // TODO: Use events instead of calling a function from a different domain directly (see if it's possible or an anti-pattern in this case)
-            _diceMergeUseCase.EvaluateMergePossibilities();
         }
 
         private void HandleMergePossibilities(MergePossibilitiesEvaluatedEvent evt)

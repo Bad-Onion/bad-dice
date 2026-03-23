@@ -1,6 +1,7 @@
 ﻿using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
 using _Project.Domain.Entities.Session;
+using _Project.Infrastructure.EventCoordinators;
 using _Project.Infrastructure.Services;
 using _Project.Presentation.Scripts.Views.Components;
 using UnityEngine;
@@ -28,6 +29,7 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IDiceRollUseCase>().To<DiceRollService>().AsSingle();
             Container.Bind<IDiceMergeUseCase>().To<DiceMergeService>().AsSingle();
             Container.Bind<IDicePouchUseCase>().To<DicePouchService>().AsSingle();
+            Container.BindInterfacesTo<DiceSessionFlowCoordinator>().AsSingle();
 
             // UI Views
             Container.Bind<DicePouchSelectorView>().FromComponentInHierarchy().AsSingle();

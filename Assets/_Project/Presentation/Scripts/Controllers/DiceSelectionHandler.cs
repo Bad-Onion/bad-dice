@@ -1,5 +1,7 @@
-﻿using _Project.Application.Interfaces;
-using _Project.Application.UseCases;
+﻿using _Project.Application.Events.Core;
+using _Project.Application.Events.DiceInput;
+using _Project.Application.Events.MergeEvents;
+using _Project.Application.Interfaces;
 using _Project.Domain.Entities.Session;
 using UnityEngine;
 using Zenject;
@@ -12,8 +14,6 @@ namespace _Project.Presentation.Scripts.Controllers
         [Tooltip("Set this to the layer your Dice are on (Currently is 'Dice').")]
         [SerializeField] private LayerMask diceLayerMask;
 
-        private IDiceRollUseCase _diceRollUseCase;
-        private IDiceMergeUseCase _diceMergeUseCase;
         private DiceSessionState _diceSessionState;
         private IInputProvider _inputProvider;
         private Camera _levelCamera;
@@ -21,10 +21,8 @@ namespace _Project.Presentation.Scripts.Controllers
         private DiceController _hoveredDice;
 
         [Inject]
-        public void Construct(IDiceRollUseCase diceRollUseCase, IDiceMergeUseCase diceMergeUseCase, DiceSessionState diceSessionState, IInputProvider inputProvider, Camera levelCamera)
+        public void Construct(DiceSessionState diceSessionState, IInputProvider inputProvider, Camera levelCamera)
         {
-            _diceRollUseCase = diceRollUseCase;
-            _diceMergeUseCase = diceMergeUseCase;
             _diceSessionState = diceSessionState;
             _inputProvider = inputProvider;
             _levelCamera = levelCamera;
@@ -91,8 +89,10 @@ namespace _Project.Presentation.Scripts.Controllers
                 var diceController = hit.collider.GetComponentInParent<DiceController>();
                 if (diceController != null)
                 {
-                    // TODO: Use events instead of calling this function directly (see if it's possible or an anti-pattern in this case)
-                    _diceRollUseCase.ToggleDiceRerollSelection(diceController.DiceId);
+                    Bus<DiceRerollSelectionRequestedEvent>.Raise(new DiceRerollSelectionRequestedEvent
+                    {
+                        DiceId = diceController.DiceId
+                    });
                 }
             }
         }
@@ -111,8 +111,10 @@ namespace _Project.Presentation.Scripts.Controllers
                 var diceController = hit.collider.GetComponentInParent<DiceController>();
                 if (diceController != null)
                 {
-                    // TODO: Use events instead of calling this function directly (see if it's possible or an anti-pattern in this case)
-                    _diceMergeUseCase.ExecuteAutoMerge(diceController.DiceId);
+                    Bus<DiceAutoMergeRequestedEvent>.Raise(new DiceAutoMergeRequestedEvent
+                    {
+                        DiceId = diceController.DiceId
+                    });
                 }
             }
         }
