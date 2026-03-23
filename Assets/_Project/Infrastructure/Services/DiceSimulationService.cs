@@ -12,8 +12,15 @@ namespace _Project.Infrastructure.Services
     {
         private const int MaxRecordCapacity = 300;
         private const float MaxMotionThreshold = 0.001f;
-        // TODO: Use DiceFaceDirection instead of hardcoded vectors
-        private static readonly Vector3[] ExactFaces = { Vector3.up, Vector3.down, Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
+        private static readonly DiceFaceDirection[] ExactFaces =
+        {
+            DiceFaceDirection.Up,
+            DiceFaceDirection.Down,
+            DiceFaceDirection.Left,
+            DiceFaceDirection.Right,
+            DiceFaceDirection.Forward,
+            DiceFaceDirection.Back
+        };
 
         public DiceSimulationResult SimulateTrajectory(
             DiceDefinition[] definitions,
@@ -148,21 +155,22 @@ namespace _Project.Infrastructure.Services
 
         private Vector3 GetClosestExactFace(Vector3 localDirection)
         {
-            Vector3 bestFace = ExactFaces[0];
-            float maxDot = Vector3.Dot(localDirection, bestFace);
+            DiceFaceDirection bestFaceDirection = ExactFaces[0];
+            float maxDot = Vector3.Dot(localDirection, bestFaceDirection.ToVector3());
 
             for (int i = 1; i < ExactFaces.Length; i++)
             {
-                float dot = Vector3.Dot(localDirection, ExactFaces[i]);
+                DiceFaceDirection currentFaceDirection = ExactFaces[i];
+                float dot = Vector3.Dot(localDirection, currentFaceDirection.ToVector3());
 
                 if (dot <= maxDot)
                     continue;
 
                 maxDot = dot;
-                bestFace = ExactFaces[i];
+                bestFaceDirection = currentFaceDirection;
             }
 
-            return bestFace;
+            return bestFaceDirection.ToVector3();
         }
 
         private void CleanupDummies(GameObject[] dummies)
