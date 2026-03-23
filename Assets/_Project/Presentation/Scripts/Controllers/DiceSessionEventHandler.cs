@@ -11,6 +11,7 @@ using Zenject;
 
 namespace _Project.Presentation.Scripts.Controllers
 {
+    // TODO: Check the expensive method invocations
     [RequireComponent(typeof(DicePrefabManager))]
     public class DiceSessionEventHandler : MonoBehaviour
     {
@@ -84,7 +85,7 @@ namespace _Project.Presentation.Scripts.Controllers
             return path.Frames.Count * Time.fixedDeltaTime;
         }
 
-        private IEnumerator UnlockSessionAfterDelay(float delay)
+        private static IEnumerator UnlockSessionAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
             Bus<DicePlaybackCompletedEvent>.Raise(new DicePlaybackCompletedEvent());

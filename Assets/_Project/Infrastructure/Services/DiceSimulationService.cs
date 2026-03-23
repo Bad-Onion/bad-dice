@@ -8,6 +8,7 @@ using UnityEngine;
 
 namespace _Project.Infrastructure.Services
 {
+    // TODO: Check the expensive method invocations
     public class DiceSimulationService : IDiceSimulationService
     {
         private const int MaxRecordCapacity = 300;
@@ -55,7 +56,7 @@ namespace _Project.Infrastructure.Services
             }
         }
 
-        private GameObject[] CreateAndInitializeDiceArray(DiceDefinition[] definitions, Vector3[] positions, Quaternion[] rotations, Vector3[] forces, Vector3[] torques)
+        private static GameObject[] CreateAndInitializeDiceArray(DiceDefinition[] definitions, Vector3[] positions, Quaternion[] rotations, Vector3[] forces, Vector3[] torques)
         {
             int count = definitions.Length;
             GameObject[] dummyDice = new GameObject[count];
@@ -74,7 +75,7 @@ namespace _Project.Infrastructure.Services
             return dummyDice;
         }
 
-        private Rigidbody[] GetRigidbodies(GameObject[] dummies)
+        private static Rigidbody[] GetRigidbodies(GameObject[] dummies)
         {
             Rigidbody[] dummyRigidbodies = new Rigidbody[dummies.Length];
 
@@ -86,7 +87,7 @@ namespace _Project.Infrastructure.Services
             return dummyRigidbodies;
         }
 
-        private void ApplyForces(Rigidbody rb, Vector3 force, Vector3 torque)
+        private static void ApplyForces(Rigidbody rb, Vector3 force, Vector3 torque)
         {
             rb.AddForce(force, ForceMode.Impulse);
             rb.AddTorque(torque, ForceMode.Impulse);
@@ -118,18 +119,18 @@ namespace _Project.Infrastructure.Services
             return paths;
         }
 
-        private bool HasDiceSettled(Rigidbody rb)
+        private static bool HasDiceSettled(Rigidbody rb)
         {
             return rb.IsSleeping() || IsMotionBelowThreshold(rb);
         }
 
-        private bool IsMotionBelowThreshold(Rigidbody rb)
+        private static bool IsMotionBelowThreshold(Rigidbody rb)
         {
             return rb.linearVelocity.sqrMagnitude < MaxMotionThreshold &&
                    rb.angularVelocity.sqrMagnitude < MaxMotionThreshold;
         }
 
-        private void ApplyVisualCorrections(List<DicePoseSimulationResultPath> paths, DiceDefinition[] definitions, int[] targetFaceIndices, GameObject[] diceObjects)
+        private static void ApplyVisualCorrections(List<DicePoseSimulationResultPath> paths, DiceDefinition[] definitions, int[] targetFaceIndices, GameObject[] diceObjects)
         {
             for (int i = 0; i < paths.Count; i++)
             {
@@ -139,7 +140,7 @@ namespace _Project.Infrastructure.Services
             }
         }
 
-        private Quaternion CalculateVisualCorrection(DiceDefinition definition, int targetFaceIndex, GameObject diceObject)
+        private static Quaternion CalculateVisualCorrection(DiceDefinition definition, int targetFaceIndex, GameObject diceObject)
         {
             Vector3 exactLandedFace = GetExactLandedFace(diceObject.transform);
             Vector3 targetLocalUp = definition.GetFaceData(targetFaceIndex).localDirection.ToVector3();
@@ -147,13 +148,13 @@ namespace _Project.Infrastructure.Services
             return Quaternion.FromToRotation(targetLocalUp, exactLandedFace);
         }
 
-        private Vector3 GetExactLandedFace(Transform diceTransform)
+        private static Vector3 GetExactLandedFace(Transform diceTransform)
         {
             Vector3 localUpDirection = diceTransform.InverseTransformDirection(Vector3.up);
             return GetClosestExactFace(localUpDirection);
         }
 
-        private Vector3 GetClosestExactFace(Vector3 localDirection)
+        private static Vector3 GetClosestExactFace(Vector3 localDirection)
         {
             DiceFaceDirection bestFaceDirection = ExactFaces[0];
             float maxDot = Vector3.Dot(localDirection, bestFaceDirection.ToVector3());
@@ -173,7 +174,7 @@ namespace _Project.Infrastructure.Services
             return bestFaceDirection.ToVector3();
         }
 
-        private void CleanupDummies(GameObject[] dummies)
+        private static void CleanupDummies(GameObject[] dummies)
         {
             foreach (var dummy in dummies)
             {

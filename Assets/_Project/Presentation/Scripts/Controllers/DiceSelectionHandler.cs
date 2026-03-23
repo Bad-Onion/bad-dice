@@ -3,6 +3,7 @@ using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.MergeEvents;
 using _Project.Domain.Entities.Session;
 using _Project.Infrastructure.Adapters;
+using System;
 using UnityEngine;
 using Zenject;
 
@@ -46,77 +47,105 @@ namespace _Project.Presentation.Scripts.Controllers
 
         private void Update()
         {
-            if (_inputReader == null || _levelCamera == null) return;
+            if (!TryGetPointerRay(out Ray pointerRay)) return;
 
-            // TODO: Move this to a separate function and name it "GetCameraRay"
-            Ray ray = _levelCamera.ScreenPointToRay(_inputReader.GetPointerPosition());
-
-            // TODO: Too much conditionals for an update function, move to a separate function and name it "HandleHover" and if possible find another way to do it
-            // TODO: Reuse code between HandleInteraction and HandleHoldInteraction and Update in a separate function
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, diceLayerMask))
-            {
-                var diceController = hit.collider.GetComponentInParent<DiceController>();
-
-                // TODO: Invert this condition to reduce nesting
-                if (diceController != _hoveredDice)
-                {
-                    // TODO: Find a way to avoid this much expensive null comparison
-                    if (_hoveredDice != null) _hoveredDice.SetHoverVisual(false);
-                    _hoveredDice = diceController;
-                    if (_hoveredDice != null) _hoveredDice.SetHoverVisual(true);
-                }
-            }
-            else if (_hoveredDice != null)
-            {
-                _hoveredDice.SetHoverVisual(false);
-                _hoveredDice = null;
-            }
+            HandleHover(pointerRay);
         }
 
-        // TODO: Move this to a separate class and name it "InputHandler"
-        // TODO: Reuse code between HandleInteraction and HandleHoldInteraction and Update in a separate function
         private void HandleInteraction()
         {
-            if (_diceSessionState.IsRolling) return;
-
-            // TODO: Move this to a separate function and name it "GetCameraRay"
-            Ray ray = _levelCamera.ScreenPointToRay(_inputReader.GetPointerPosition());
-
-            // TODO: Invert this condition to reduce nesting
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, diceLayerMask))
-            {
-                // TODO: Don't use GetComponentInParent, find a way to avoid this
-                var diceController = hit.collider.GetComponentInParent<DiceController>();
-                if (diceController != null)
-                {
-                    Bus<DiceRerollSelectionRequestedEvent>.Raise(new DiceRerollSelectionRequestedEvent
-                    {
-                        DiceId = diceController.DiceId
-                    });
-                }
-            }
+            TryHandleDiceAction(RequestRerollForDice);
         }
 
-        // TODO: Move this to a separate class and name it "InputHandler"
-        // TODO: Reuse code between HandleInteraction and HandleHoldInteraction and Update in a separate function
         private void HandleHoldInteraction()
         {
-            if (_diceSessionState.IsRolling) return;
+            TryHandleDiceAction(RequestAutoMergeForDice);
+        }
 
-            Vector2 pointerPos = _inputReader.GetPointerPosition();
-            Ray ray = _levelCamera.ScreenPointToRay(pointerPos);
-
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, diceLayerMask))
+        private void HandleHover(Ray pointerRay)
+        {
+            if (!TryGetDiceControllerFromRay(pointerRay, out DiceController diceController))
             {
-                var diceController = hit.collider.GetComponentInParent<DiceController>();
-                if (diceController != null)
-                {
-                    Bus<DiceAutoMergeRequestedEvent>.Raise(new DiceAutoMergeRequestedEvent
-                    {
-                        DiceId = diceController.DiceId
-                    });
-                }
+                ClearHoveredDice();
+                return;
             }
+
+            SetHoveredDice(diceController);
+        }
+
+        private void TryHandleDiceAction(Action<DiceController> onDiceSelected)
+        {
+            if (!CanProcessInteraction()) return;
+            if (!TryGetPointedDiceController(out DiceController diceController)) return;
+
+            onDiceSelected?.Invoke(diceController);
+        }
+
+        private bool CanProcessInteraction()
+        {
+            if (_inputReader == null || _levelCamera == null || _diceSessionState == null) return false;
+
+            return !_diceSessionState.IsRolling;
+        }
+
+        private bool TryGetPointedDiceController(out DiceController diceController)
+        {
+            diceController = null;
+
+            if (!TryGetPointerRay(out Ray pointerRay)) return false;
+
+            return TryGetDiceControllerFromRay(pointerRay, out diceController);
+        }
+
+        private bool TryGetPointerRay(out Ray pointerRay)
+        {
+            pointerRay = default;
+            if (_inputReader == null || _levelCamera == null) return false;
+
+            pointerRay = _levelCamera.ScreenPointToRay(_inputReader.GetPointerPosition());
+            return true;
+        }
+
+        private bool TryGetDiceControllerFromRay(Ray pointerRay, out DiceController diceController)
+        {
+            diceController = null;
+            if (!Physics.Raycast(pointerRay, out RaycastHit hit, Mathf.Infinity, diceLayerMask)) return false;
+
+            diceController = hit.collider.GetComponentInParent<DiceController>();
+            return diceController != null;
+        }
+
+        private void SetHoveredDice(DiceController diceController)
+        {
+            if (diceController == _hoveredDice) return;
+
+            ClearHoveredDice();
+            _hoveredDice = diceController;
+            _hoveredDice.SetHoverVisual(true);
+        }
+
+        private void ClearHoveredDice()
+        {
+            if (_hoveredDice == null) return;
+
+            _hoveredDice.SetHoverVisual(false);
+            _hoveredDice = null;
+        }
+
+        private static void RequestRerollForDice(DiceController diceController)
+        {
+            Bus<DiceRerollSelectionRequestedEvent>.Raise(new DiceRerollSelectionRequestedEvent
+            {
+                DiceId = diceController.DiceId
+            });
+        }
+
+        private static void RequestAutoMergeForDice(DiceController diceController)
+        {
+            Bus<DiceAutoMergeRequestedEvent>.Raise(new DiceAutoMergeRequestedEvent
+            {
+                DiceId = diceController.DiceId
+            });
         }
     }
 }

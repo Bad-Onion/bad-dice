@@ -14,6 +14,7 @@ using Zenject;
 
 namespace _Project.Infrastructure.Services
 {
+    // TODO: Check the expensive method invocations
     public class GameFlowService : IGameFlowUseCase, IInitializable, IDisposable
     {
         private readonly IGameStateMachine _gameStateMachine;
@@ -104,25 +105,27 @@ namespace _Project.Infrastructure.Services
         {
             ExecuteWithTransition(onComplete =>
             {
-                Action completeTransition = () =>
-                {
-                    _gameStateMachine.ChangeState<MainMenuState>();
-                    onComplete?.Invoke();
-                };
-
                 if (_gameSession.IsLevelLoaded)
                 {
                     var unloadCommand = _unloadLevelCommandFactory.Create(_gameSession.CurrentLevelData, () =>
                     {
                         _gameSession.IsLevelLoaded = false;
-                        completeTransition();
+                        CompleteTransition();
                     });
 
                     _commandProcessor.ExecuteCommand(unloadCommand);
                 }
                 else
                 {
-                    completeTransition();
+                    CompleteTransition();
+                }
+
+                return;
+
+                void CompleteTransition()
+                {
+                    _gameStateMachine.ChangeState<MainMenuState>();
+                    onComplete?.Invoke();
                 }
             });
         }
