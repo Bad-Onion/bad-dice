@@ -60,6 +60,7 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.BindInstance(gameConfiguration).AsSingle();
             Container.BindInstance(diceDatabase).AsSingle();
             Container.Bind<IRunRepository>().To<PlayerPrefsRunRepository>().AsSingle();
+            Container.Bind<IRunStateBuilder>().To<RunStateBuilder>().AsSingle();
             Container.Bind<IRunInitializationUseCase>().To<RunGameInitializationService>().AsSingle();
 
             // Core Services
