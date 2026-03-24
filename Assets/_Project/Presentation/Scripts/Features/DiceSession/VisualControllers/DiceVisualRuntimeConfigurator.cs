@@ -147,32 +147,25 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
             return anchorMap;
         }
 
-        // TODO: Reuse duplicated code
         private MeshFilter ResolveBaseMeshFilter()
         {
-            if (_spawnedBaseModel == null)
-            {
-                return fallbackBaseMeshFilter;
-            }
-
-            MeshFilter meshFilter = _spawnedBaseModel.GetComponentInChildren<MeshFilter>(true);
-            if (meshFilter != null) return meshFilter;
-
-            return fallbackBaseMeshFilter;
+            return ResolveBaseComponent(fallbackBaseMeshFilter);
         }
 
-        // TODO: Reuse duplicated code
         private MeshRenderer ResolveBaseMeshRenderer()
+        {
+            return ResolveBaseComponent(fallbackBaseMeshRenderer);
+        }
+
+        private T ResolveBaseComponent<T>(T fallbackComponent) where T : Component
         {
             if (_spawnedBaseModel == null)
             {
-                return fallbackBaseMeshRenderer;
+                return fallbackComponent;
             }
 
-            MeshRenderer meshRenderer = _spawnedBaseModel.GetComponentInChildren<MeshRenderer>(true);
-            if (meshRenderer != null) return meshRenderer;
-
-            return fallbackBaseMeshRenderer;
+            T component = _spawnedBaseModel.GetComponentInChildren<T>(true);
+            return component != null ? component : fallbackComponent;
         }
     }
 }
