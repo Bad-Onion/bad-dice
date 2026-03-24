@@ -1,10 +1,13 @@
 ﻿using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities.Session;
-using _Project.Infrastructure.EventCoordinators;
-using _Project.Infrastructure.Services;
-using _Project.Presentation.Scripts.Controllers;
-using _Project.Presentation.Scripts.Views.Components;
+using _Project.Domain.Features.Dice.Session;
+using _Project.Infrastructure.Features.Combat.Damage;
+using _Project.Infrastructure.Features.DiceSession.Orchestration;
+using _Project.Infrastructure.Features.DiceSession.UseCases;
+using _Project.Infrastructure.Features.Inventory;
+using _Project.Infrastructure.Shared;
+using _Project.Presentation.Scripts.Features.DiceSession.Input;
+using _Project.Presentation.Scripts.Features.Inventory.Views;
 using UnityEngine;
 using Zenject;
 

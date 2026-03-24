@@ -1,7 +1,5 @@
-﻿using _Project.Domain.Entities;
-using _Project.Domain.Entities.DiceSimulation;
-using _Project.Domain.ScriptableObjects;
-using _Project.Domain.ScriptableObjects.DiceDefinitions;
+﻿using _Project.Domain.Features.Dice.ScriptableObjects.Definitions;
+using _Project.Domain.Features.Dice.Simulation;
 using UnityEngine;
 
 namespace _Project.Application.Interfaces

@@ -1,4 +1,4 @@
-﻿using _Project.Domain.Entities.Session;
+﻿using _Project.Domain.Features.Run.Session;
 
 namespace _Project.Application.Interfaces
 {

@@ -1,5 +1,4 @@
-﻿using _Project.Domain.Entities;
-using _Project.Domain.Entities.DiceData;
+﻿using _Project.Domain.Features.Dice.Entities;
 
 namespace _Project.Application.Interfaces
 {

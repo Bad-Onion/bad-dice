@@ -1,5 +1,5 @@
-﻿using _Project.Domain.Entities.Session;
-using _Project.Domain.ScriptableObjects.GameSettings;
+﻿using _Project.Domain.Features.Run.ScriptableObjects.Settings;
+using _Project.Domain.Features.Run.Session;
 
 namespace _Project.Application.Interfaces
 {

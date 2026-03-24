@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using _Project.Application.Interfaces;
-using _Project.Domain.Entities;
-using _Project.Domain.Entities.DiceSimulation;
+using _Project.Domain.Features.Dice.Simulation;
 
 namespace _Project.Application.Events.DiceSimulation
 {

@@ -5,12 +5,15 @@ using _Project.Application.Events.EventChannels;
 using _Project.Application.Interfaces;
 using _Project.Application.States.GameState;
 using _Project.Application.UseCases;
-using _Project.Domain.Entities.Session;
-using _Project.Domain.ScriptableObjects.Configuration;
-using _Project.Domain.ScriptableObjects.DiceDefinitions;
-using _Project.Domain.ScriptableObjects.GameSettings;
-using _Project.Infrastructure.Adapters;
-using _Project.Infrastructure.Services;
+using _Project.Domain.Features.Dice.ScriptableObjects.Configuration;
+using _Project.Domain.Features.Dice.ScriptableObjects.Definitions;
+using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
+using _Project.Domain.Features.GameFlow.Session;
+using _Project.Domain.Features.Run.Session;
+using _Project.Infrastructure.Features.GameFlow;
+using _Project.Infrastructure.Features.Run.Persistence;
+using _Project.Infrastructure.Features.Scene.Loading;
+using _Project.Infrastructure.Shared.Adapters;
 
 namespace _Project.Infrastructure.DependencyInjection
 {
