@@ -14,7 +14,6 @@ using Zenject;
 
 namespace _Project.Infrastructure.Features.GameFlow
 {
-    // TODO: Check the expensive method invocations
     public class GameFlowService : IGameFlowUseCase, IInitializable, IDisposable
     {
         private readonly IGameStateMachine _gameStateMachine;

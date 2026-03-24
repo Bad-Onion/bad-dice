@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
 {
-    // TODO: Check the expensive method invocations
     public class DiceVisualRuntimeConfigurator : MonoBehaviour
     {
         [Header("Base Visual Targets")]

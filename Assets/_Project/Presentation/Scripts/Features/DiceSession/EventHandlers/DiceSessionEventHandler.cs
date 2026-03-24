@@ -13,7 +13,6 @@ using Zenject;
 
 namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
 {
-    // TODO: Check the expensive method invocations
     [RequireComponent(typeof(DicePrefabManager))]
     public class DiceSessionEventHandler : MonoBehaviour
     {

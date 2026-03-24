@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace _Project.Infrastructure.Features.DiceSession.UseCases
 {
-    // TODO: Check the expensive method invocations
     public class DiceSimulationService : IDiceSimulationService
     {
         private const int MaxRecordCapacity = 300;
