@@ -1,6 +1,6 @@
 ﻿using _Project.Application.Interfaces;
 
-namespace _Project.Application.Events.EncounterState
+namespace _Project.Application.Events.GameState
 {
     public struct TurnChangedEvent : IEvent
     {

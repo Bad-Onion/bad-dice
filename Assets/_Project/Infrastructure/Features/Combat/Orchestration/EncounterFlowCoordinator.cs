@@ -1,6 +1,7 @@
 ﻿using System;
 using _Project.Application.Events.Core;
 using _Project.Application.Events.EncounterState;
+using _Project.Application.Events.GameState;
 using _Project.Application.Events.Load;
 using _Project.Application.Interfaces;
 using _Project.Application.UseCases;

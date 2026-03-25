@@ -4,6 +4,7 @@ using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.DiceSimulation;
 using _Project.Application.Events.DiceState;
 using _Project.Application.Events.EncounterState;
+using _Project.Application.Events.GameState;
 using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Combat.Session;

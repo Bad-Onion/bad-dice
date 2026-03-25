@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 112}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 121
+  controlID: 63
   draggingID: 0
 --- !u!114 &3
 MonoBehaviour:
@@ -594,7 +594,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Resources
+    - Assets/_Project/Presentation/Visuals/UI
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -604,33 +604,33 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Resources
+  - Assets/_Project/Presentation/Visuals/UI
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\orthm\Documents\Projetos\Unity\bad-dice
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 240}
+    scrollPos: {x: 0, y: 328}
     m_SelectedIDs:
-    - m_Data: 50654
+    - m_Data: 50626
     m_LastClickedID:
-      m_Data: 50654
+      m_Data: 50626
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 50286
-    - m_Data: 50288
-    - m_Data: 50290
-    - m_Data: 50292
-    - m_Data: 50294
-    - m_Data: 50296
-    - m_Data: 50298
-    - m_Data: 50300
-    - m_Data: 50302
-    - m_Data: 50304
-    - m_Data: 50306
-    - m_Data: 50308
-    - m_Data: 50310
+    - m_Data: 50388
+    - m_Data: 50390
+    - m_Data: 50392
+    - m_Data: 50394
+    - m_Data: 50396
+    - m_Data: 50398
+    - m_Data: 50400
+    - m_Data: 50402
+    - m_Data: 50404
+    - m_Data: 50406
+    - m_Data: 50408
+    - m_Data: 50410
+    - m_Data: 50412
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -663,19 +663,19 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 50286
-    - m_Data: 50288
-    - m_Data: 50290
-    - m_Data: 50292
-    - m_Data: 50294
-    - m_Data: 50296
-    - m_Data: 50298
-    - m_Data: 50300
-    - m_Data: 50302
-    - m_Data: 50304
-    - m_Data: 50306
-    - m_Data: 50308
-    - m_Data: 50310
+    - m_Data: 50388
+    - m_Data: 50390
+    - m_Data: 50392
+    - m_Data: 50394
+    - m_Data: 50396
+    - m_Data: 50398
+    - m_Data: 50400
+    - m_Data: 50402
+    - m_Data: 50404
+    - m_Data: 50406
+    - m_Data: 50408
+    - m_Data: 50410
+    - m_Data: 50412
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

@@ -2,6 +2,7 @@
 using System.Linq;
 using _Project.Application.Events.Core;
 using _Project.Application.Events.EncounterState;
+using _Project.Application.Events.GameState;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.Dice.Session;
