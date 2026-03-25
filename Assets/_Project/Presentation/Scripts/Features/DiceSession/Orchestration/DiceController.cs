@@ -1,7 +1,7 @@
 ﻿using _Project.Application.Interfaces;
 using _Project.Domain.Features.Dice.ScriptableObjects.Definitions;
 using _Project.Domain.Features.Dice.Simulation;
-using _Project.Presentation.Scripts.Features.DiceSession.Simulation;
+using _Project.Presentation.Scripts.Features.DiceSession.Physics;
 using _Project.Presentation.Scripts.Features.DiceSession.VisualControllers;
 using UnityEngine;
 

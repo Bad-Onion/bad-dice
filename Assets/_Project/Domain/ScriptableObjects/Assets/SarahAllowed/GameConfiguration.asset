@@ -14,3 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Domain.ScriptableObjects.GameConfiguration
   runDefinitions: {fileID: 11400000, guid: 70689b6fca1cd934694c128d13f8f246, type: 2}
   defaultLevelData: {fileID: 11400000, guid: 76b07db113453414a80c616fbf22744b, type: 2}
+  enemyDatabase: {fileID: 11400000, guid: d9df9fb105e3d2841b8ba91f478009dc, type: 2}
+  enemyProgressionConfiguration: {fileID: 11400000, guid: 09489c66f2668d84e97070ac811217a5, type: 2}

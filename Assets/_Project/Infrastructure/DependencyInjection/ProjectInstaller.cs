@@ -5,11 +5,15 @@ using _Project.Application.Events.EventChannels;
 using _Project.Application.Interfaces;
 using _Project.Application.States.GameState;
 using _Project.Application.UseCases;
+using _Project.Domain.Features.Combat.Session;
 using _Project.Domain.Features.Dice.ScriptableObjects.Configuration;
 using _Project.Domain.Features.Dice.ScriptableObjects.Definitions;
 using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
 using _Project.Domain.Features.GameFlow.Session;
 using _Project.Domain.Features.Run.Session;
+using _Project.Infrastructure.Features.Combat.Health;
+using _Project.Infrastructure.Features.Combat.Orchestration;
+using _Project.Infrastructure.Features.Combat.Progression;
 using _Project.Infrastructure.Features.GameFlow;
 using _Project.Infrastructure.Features.Run.Persistence;
 using _Project.Infrastructure.Features.Scene.Loading;
@@ -52,6 +56,8 @@ namespace _Project.Infrastructure.DependencyInjection
             // Entities
             Container.Bind<PlayerRunState>().AsSingle();
             Container.Bind<GameSession>().AsSingle();
+            Container.Bind<CombatSessionState>().AsSingle();
+            Container.Bind<EnemyEncounterState>().AsSingle();
 
             // Run State & Persistence (Cross-Scene)
             Container.BindInstance(diceRollConfiguration).AsSingle();
@@ -60,6 +66,9 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IRunRepository>().To<PlayerPrefsRunRepository>().AsSingle();
             Container.Bind<IRunStateBuilder>().To<RunStateBuilder>().AsSingle();
             Container.Bind<IRunInitializationUseCase>().To<RunGameInitializationService>().AsSingle();
+            Container.Bind<IEncounterProgressionUseCase>().To<EncounterProgressionService>().AsSingle();
+            Container.Bind<IEnemyHealthUseCase>().To<EnemyHealthService>().AsSingle();
+            Container.BindInterfacesTo<EncounterFlowCoordinator>().AsSingle();
 
             // Core Services
             Container.BindInterfacesTo<GameFlowService>().AsSingle();

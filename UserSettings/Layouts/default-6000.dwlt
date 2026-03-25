@@ -48,7 +48,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 112}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 116
+  controlID: 121
   draggingID: 0
 --- !u!114 &3
 MonoBehaviour:
@@ -594,7 +594,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/_Project/Domain/ScriptableObjects/Assets/SarahAllowed/DiceDefinitions
+    - Assets/Resources
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -604,18 +604,18 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/_Project/Domain/ScriptableObjects/Assets/SarahAllowed/DiceDefinitions
+  - Assets/Resources
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\orthm\Documents\Projetos\Unity\bad-dice
   m_LockTracker:
     m_IsLocked: 0
   m_LastLocalAssetsSearchArea: 1
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 128}
+    scrollPos: {x: 0, y: 240}
     m_SelectedIDs:
-    - m_Data: 50608
+    - m_Data: 50654
     m_LastClickedID:
-      m_Data: 50608
+      m_Data: 50654
     m_ExpandedIDs:
     - m_Data: 0
     - m_Data: 50286
@@ -631,7 +631,6 @@ MonoBehaviour:
     - m_Data: 50306
     - m_Data: 50308
     - m_Data: 50310
-    - m_Data: 50312
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -677,7 +676,6 @@ MonoBehaviour:
     - m_Data: 50306
     - m_Data: 50308
     - m_Data: 50310
-    - m_Data: 50312
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -833,19 +831,7 @@ MonoBehaviour:
       m_LastClickedID:
         m_Data: 0
       m_ExpandedIDs:
-      - m_Data: -42724
-      - m_Data: -42506
-      - m_Data: -41886
       - m_Data: -1302
-      - m_Data: 50066
-      - m_Data: 50094
-      - m_Data: 50110
-      - m_Data: 50114
-      - m_Data: 53794
-      - m_Data: 53872
-      - m_Data: 53876
-      - m_Data: 54512
-      - m_Data: 54528
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 

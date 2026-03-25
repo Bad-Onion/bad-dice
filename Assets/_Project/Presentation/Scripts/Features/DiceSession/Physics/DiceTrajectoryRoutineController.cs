@@ -2,7 +2,7 @@
 using _Project.Domain.Features.Dice.Simulation;
 using UnityEngine;
 
-namespace _Project.Presentation.Scripts.Features.DiceSession.Simulation
+namespace _Project.Presentation.Scripts.Features.DiceSession.Physics
 {
     public class DiceTrajectoryRoutineController : MonoBehaviour
     {

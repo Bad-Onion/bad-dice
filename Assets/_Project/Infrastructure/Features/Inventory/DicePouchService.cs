@@ -36,8 +36,17 @@ namespace _Project.Infrastructure.Features.Inventory
 
             _diceSessionState.ActiveDice.Clear();
             _diceSessionState.RerollsLeft = _runState.RerollsPerTurn;
+            _diceSessionState.CurrentTurn = 1;
+            _diceSessionState.MaxTurns = _runState.TurnsPerFight;
+            _diceSessionState.HasDealtThisTurn = false;
 
             SetActiveDices();
+
+            Bus<TurnChangedEvent>.Raise(new TurnChangedEvent
+            {
+                CurrentTurn = _diceSessionState.CurrentTurn,
+                MaxTurns = _diceSessionState.MaxTurns
+            });
 
             Bus<EncounterStartedEvent>.Raise(new EncounterStartedEvent());
         }
