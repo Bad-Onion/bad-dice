@@ -92,7 +92,6 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             }
         }
 
-        // TODO: Reuse duplicated code between AddMinorEncounters and AddBossEncounter
         private void AddMinorEncounters(IReadOnlyList<MinorEnemyDefinition> minorEnemies, int minorEncountersPerCycle, int cycleNumber)
         {
             if (minorEnemies == null || minorEnemies.Count == 0) return;
@@ -105,19 +104,18 @@ namespace _Project.Infrastructure.Features.Combat.Progression
                     ? PopFirst(shuffledCyclePool)
                     : minorEnemies[Random.Range(0, minorEnemies.Count)];
 
-                _combatSessionState.PlannedEncounters.Add(new EncounterPlanEntry
-                {
-                    EnemyId = selectedEnemy.EnemyId,
-                    EnemyName = selectedEnemy.EnemyName,
-                    MaxHealth = selectedEnemy.MaxHealth,
-                    EncounterType = EnemyEncounterType.Minor,
-                    CycleNumber = cycleNumber,
-                    EncounterIndexInCycle = encounterIndexInCycle
-                });
+                if (selectedEnemy == null) continue;
+
+                AddEncounterPlanEntry(
+                    selectedEnemy.EnemyId,
+                    selectedEnemy.EnemyName,
+                    selectedEnemy.MaxHealth,
+                    EnemyEncounterType.Minor,
+                    cycleNumber,
+                    encounterIndexInCycle);
             }
         }
 
-        // TODO: Reuse duplicated code between AddMinorEncounters and AddBossEncounter
         private void AddBossEncounter(EnemyDatabase enemyDatabase, int totalCycles, int cycleNumber, int encounterIndexInCycle)
         {
             BossEnemyDefinition selectedBoss = cycleNumber == totalCycles
@@ -126,12 +124,29 @@ namespace _Project.Infrastructure.Features.Combat.Progression
 
             if (selectedBoss == null) return;
 
+            AddEncounterPlanEntry(
+                selectedBoss.EnemyId,
+                selectedBoss.EnemyName,
+                selectedBoss.MaxHealth,
+                cycleNumber == totalCycles ? EnemyEncounterType.FinalBoss : EnemyEncounterType.Boss,
+                cycleNumber,
+                encounterIndexInCycle);
+        }
+
+        private void AddEncounterPlanEntry(
+            string enemyId,
+            string enemyName,
+            int maxHealth,
+            EnemyEncounterType encounterType,
+            int cycleNumber,
+            int encounterIndexInCycle)
+        {
             _combatSessionState.PlannedEncounters.Add(new EncounterPlanEntry
             {
-                EnemyId = selectedBoss.EnemyId,
-                EnemyName = selectedBoss.EnemyName,
-                MaxHealth = selectedBoss.MaxHealth,
-                EncounterType = cycleNumber == totalCycles ? EnemyEncounterType.FinalBoss : EnemyEncounterType.Boss,
+                EnemyId = enemyId,
+                EnemyName = enemyName,
+                MaxHealth = maxHealth,
+                EncounterType = encounterType,
                 CycleNumber = cycleNumber,
                 EncounterIndexInCycle = encounterIndexInCycle
             });
