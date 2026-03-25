@@ -30,6 +30,7 @@ namespace _Project.Infrastructure.Features.Inventory
             dice.IsEquipped = !dice.IsEquipped;
         }
 
+        // TODO: DicePouchService should not be responsible for starting encounters, this should be moved to a more appropriate service (EncounterFlowCoordinator)
         public void StartEncounter()
         {
             if (!IsAnyDiceEquipped()) return;

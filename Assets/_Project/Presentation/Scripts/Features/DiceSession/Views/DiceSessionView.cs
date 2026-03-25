@@ -99,6 +99,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         {
             if (_levelContainer != null) _levelContainer.style.display = DisplayStyle.Flex;
             if (_resultLabel != null) _resultLabel.text = "Ready to roll.";
+
             UpdateTurnLabel(_diceSessionState.CurrentTurn, _diceSessionState.MaxTurns);
             UpdateDealButtonInteractable(false);
         }
@@ -107,8 +108,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         {
             if (_enemyNameLabel != null)
             {
-                string encounterType = GetEncounterTypeText(evt.IsBoss, evt.IsFinalBoss);
-                _enemyNameLabel.text = $"Enemy: {evt.EnemyName} ({encounterType})";
+                _enemyNameLabel.text = $"Enemy: {evt.EnemyName} ({GetEncounterTypeText(evt.IsBoss, evt.IsFinalBoss)})";
             }
 
             if (_enemyHealthLabel != null) _enemyHealthLabel.text = $"HP: {evt.CurrentHealth}/{evt.MaxHealth}";
@@ -124,6 +124,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         {
             if (_enemyHealthLabel != null) _enemyHealthLabel.text = "HP: 0/0";
             if (_resultLabel != null) _resultLabel.text = $"{evt.EnemyName} defeated. Preparing next encounter...";
+
             UpdateDealButtonInteractable(false);
         }
 
@@ -164,6 +165,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 
         private void HandleDealClicked()
         {
+            // TODO: Use events to trigger the service instead of directly calling from a different domain
             _dealDamageUseCase.DealCurrentDiceDamage();
             UpdateDealButtonInteractable(false);
         }
@@ -179,7 +181,9 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             {
                 if (die.CurrentFaceIndex < 0) continue;
 
+                // TODO: Use events to trigger the service instead of directly calling from a different domain
                 int damage = _damageService.CalculateDamage(die);
+
                 stringBuilder.Append($"[{die.CurrentValue} (Lv{die.Level})] ");
                 totalEncounterDamage += damage;
             }
@@ -193,10 +197,12 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             if (_enemyEncounterState?.CurrentEncounter == null) return;
 
             var currentEncounter = _enemyEncounterState.CurrentEncounter;
+            // TODO: Avoid using hardcoded values to determine boss encounters, get the isBoss value in a different way
             bool isBoss = currentEncounter.EncounterIndexInCycle == 4;
 
             if (_enemyNameLabel != null)
             {
+                // TODO: Use GetEncounterTypeText to get the encounter type
                 string encounterType = isBoss ? "BOSS" : "MINOR";
                 _enemyNameLabel.text = $"Enemy: {currentEncounter.EnemyName} ({encounterType})";
             }
@@ -208,6 +214,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 
             if (_cycleLabel != null)
             {
+                // TODO: Avoid using hardcoded values, get the max encounters per cycle in a different way
                 _cycleLabel.text = $"Cycle {currentEncounter.CycleNumber} - Encounter {currentEncounter.EncounterIndexInCycle}/4";
             }
 

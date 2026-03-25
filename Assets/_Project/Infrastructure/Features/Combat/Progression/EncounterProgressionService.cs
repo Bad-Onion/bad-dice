@@ -38,12 +38,6 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             EnemyDatabase enemyDatabase = _gameConfiguration.enemyDatabase;
             EnemyProgressionConfiguration progressionConfiguration = _gameConfiguration.enemyProgressionConfiguration;
 
-            if (enemyDatabase == null || progressionConfiguration == null)
-            {
-                Debug.LogError("Enemy progression is not configured in GameConfiguration.");
-                return;
-            }
-
             _combatSessionState.PlannedEncounters.Clear();
             _combatSessionState.CurrentEncounterIndex = 0;
 
@@ -98,6 +92,7 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             }
         }
 
+        // TODO: Reuse duplicated code between AddMinorEncounters and AddBossEncounter
         private void AddMinorEncounters(IReadOnlyList<MinorEnemyDefinition> minorEnemies, int minorEncountersPerCycle, int cycleNumber)
         {
             if (minorEnemies == null || minorEnemies.Count == 0) return;
@@ -122,6 +117,7 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             }
         }
 
+        // TODO: Reuse duplicated code between AddMinorEncounters and AddBossEncounter
         private void AddBossEncounter(EnemyDatabase enemyDatabase, int totalCycles, int cycleNumber, int encounterIndexInCycle)
         {
             BossEnemyDefinition selectedBoss = cycleNumber == totalCycles
