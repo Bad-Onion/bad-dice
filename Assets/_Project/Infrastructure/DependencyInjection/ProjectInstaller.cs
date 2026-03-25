@@ -6,6 +6,7 @@ using _Project.Application.Interfaces;
 using _Project.Application.States.GameState;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Combat.Session;
+using _Project.Domain.Features.Dice.Session;
 using _Project.Domain.Features.Dice.ScriptableObjects.Configuration;
 using _Project.Domain.Features.Dice.ScriptableObjects.Definitions;
 using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
@@ -58,6 +59,7 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<GameSession>().AsSingle();
             Container.Bind<CombatSessionState>().AsSingle();
             Container.Bind<EnemyEncounterState>().AsSingle();
+            Container.Bind<DiceSessionState>().AsSingle();
 
             // Run State & Persistence (Cross-Scene)
             Container.BindInstance(diceRollConfiguration).AsSingle();

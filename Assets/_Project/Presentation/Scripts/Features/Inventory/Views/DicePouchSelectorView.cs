@@ -61,7 +61,7 @@ namespace _Project.Presentation.Scripts.Features.Inventory.Views
             Toggle diceToggle = new Toggle($"{dice.Dice.Definition.name}");
 
             diceToggle.value = dice.IsEquipped;
-            diceToggle.RegisterValueChangedCallback(evt =>
+            diceToggle.RegisterValueChangedCallback(_ =>
             {
                 _dicePouchUseCase.ToggleDiceEquip(dice.Dice.Id);
                 diceToggle.SetValueWithoutNotify(dice.IsEquipped);
@@ -70,9 +70,9 @@ namespace _Project.Presentation.Scripts.Features.Inventory.Views
             _inventoryList.Add(diceToggle);
         }
 
-        private void OnStartClicked()
+        private static void OnStartClicked()
         {
-            _dicePouchUseCase.StartEncounter();
+            Bus<EncounterStartRequestedEvent>.Raise(new EncounterStartRequestedEvent());
         }
 
         private void HideDialog(EncounterStartedEvent evt)

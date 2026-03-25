@@ -3,6 +3,5 @@
     public interface IDicePouchUseCase
     {
         void ToggleDiceEquip(string diceId);
-        void StartEncounter();
     }
 }

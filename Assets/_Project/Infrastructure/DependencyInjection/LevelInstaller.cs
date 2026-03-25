@@ -1,6 +1,5 @@
 ﻿using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
-using _Project.Domain.Features.Dice.Session;
 using _Project.Infrastructure.Features.Combat.Damage;
 using _Project.Infrastructure.Features.DiceSession.Orchestration;
 using _Project.Infrastructure.Features.DiceSession.UseCases;
@@ -23,9 +22,6 @@ namespace _Project.Infrastructure.DependencyInjection
         {
             // Level References
             Container.BindInstance(levelCamera).AsSingle();
-
-            // Domain Entities
-            Container.Bind<DiceSessionState>().AsSingle();
 
             // Services
             Container.Bind<IDiceDamageService>().To<DiceDamageService>().AsSingle();
