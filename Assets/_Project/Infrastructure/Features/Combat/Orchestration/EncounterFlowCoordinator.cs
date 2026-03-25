@@ -6,6 +6,7 @@ using _Project.Application.Events.GameState;
 using _Project.Application.Events.Load;
 using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
+using _Project.Domain.Features.Combat.Session;
 using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.Dice.Session;
 using _Project.Domain.Features.GameFlow.Session;
@@ -18,7 +19,9 @@ namespace _Project.Infrastructure.Features.Combat.Orchestration
     {
         private readonly IEncounterProgressionUseCase _encounterProgressionUseCase;
         private readonly ISceneLoader _sceneLoader;
+        private readonly IRunRepository _runRepository;
         private readonly GameSession _gameSession;
+        private readonly CombatSessionState _combatSessionState;
         private readonly PlayerRunState _runState;
         private readonly DiceSessionState _diceSessionState;
 
@@ -27,13 +30,17 @@ namespace _Project.Infrastructure.Features.Combat.Orchestration
         public EncounterFlowCoordinator(
             IEncounterProgressionUseCase encounterProgressionUseCase,
             ISceneLoader sceneLoader,
+            IRunRepository runRepository,
             GameSession gameSession,
+            CombatSessionState combatSessionState,
             PlayerRunState runState,
             DiceSessionState diceSessionState)
         {
             _encounterProgressionUseCase = encounterProgressionUseCase;
             _sceneLoader = sceneLoader;
+            _runRepository = runRepository;
             _gameSession = gameSession;
+            _combatSessionState = combatSessionState;
             _runState = runState;
             _diceSessionState = diceSessionState;
         }
@@ -114,6 +121,7 @@ namespace _Project.Infrastructure.Features.Combat.Orchestration
             _diceSessionState.MergeableDiceIds.Clear();
 
             SetActiveDiceFromInventory();
+            _runRepository.SaveRun(_runState, _combatSessionState);
 
             Bus<TurnChangedEvent>.Raise(new TurnChangedEvent
             {

@@ -1,7 +1,9 @@
 ﻿using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
+using _Project.Domain.Features.Combat.Session;
 using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
 using _Project.Domain.Features.Run.Session;
+using UnityEngine;
 
 namespace _Project.Infrastructure.Features.Run.Persistence
 {
@@ -11,17 +13,20 @@ namespace _Project.Infrastructure.Features.Run.Persistence
         private readonly IRunStateBuilder _runStateBuilder;
         private readonly GameConfiguration _gameConfiguration;
         private readonly PlayerRunState _runState;
+        private readonly CombatSessionState _combatSessionState;
 
         public RunGameInitializationService(
             IRunRepository repository,
             IRunStateBuilder runStateBuilder,
             GameConfiguration gameConfiguration,
-            PlayerRunState runState)
+            PlayerRunState runState,
+            CombatSessionState combatSessionState)
         {
             _repository = repository;
             _runStateBuilder = runStateBuilder;
             _gameConfiguration = gameConfiguration;
             _runState = runState;
+            _combatSessionState = combatSessionState;
         }
 
         public void EnsureRunInitialized()
@@ -40,14 +45,14 @@ namespace _Project.Infrastructure.Features.Run.Persistence
 
         private void LoadRun()
         {
-            var loadedState = _repository.LoadRun();
+            var loadedState = _repository.LoadRun(_combatSessionState);
             _runStateBuilder.BuildFromExisting(_runState, loadedState, _gameConfiguration.runDefinitions);
         }
 
         private void InitializeRun()
         {
             _runStateBuilder.BuildNew(_runState, _gameConfiguration.runDefinitions);
-            _repository.SaveRun(_runState);
+            _repository.SaveRun(_runState, _combatSessionState);
         }
     }
 }

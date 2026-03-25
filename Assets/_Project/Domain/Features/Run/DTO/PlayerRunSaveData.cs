@@ -10,5 +10,6 @@ namespace _Project.Domain.Features.Run.DTO
         public int maxEquippedDice;
         public int rerollsPerTurn;
         public int turnsPerFight;
+        public CombatProgressionSaveData combatProgression = new();
     }
 }
