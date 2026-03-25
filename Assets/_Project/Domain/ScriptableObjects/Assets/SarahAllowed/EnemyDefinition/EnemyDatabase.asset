@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d97379ed7dc74f1699a56585e9579d2b, type: 3}
+  m_Name: EnemyDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::_Project.Domain.Features.Combat.ScriptableObjects.Definitions.EnemyDatabase
+  minorEnemies:
+  - {fileID: 11400000, guid: 9a46117dd48bfc940b0a8eea0268d933, type: 2}
+  - {fileID: 11400000, guid: 0a2184e65d563354c97af5e39a73b862, type: 2}
+  - {fileID: 11400000, guid: 623b1f9a63c991146b0a88b691d4ce4d, type: 2}
+  - {fileID: 11400000, guid: 8bfc7e075ee0a0a48a9758db9e085a71, type: 2}
+  - {fileID: 11400000, guid: 0f21d005020ca55489a063101e47cc71, type: 2}
+  - {fileID: 11400000, guid: c61350a5026fd1d4e93802ae2478819e, type: 2}
+  bosses:
+  - {fileID: 11400000, guid: 3270ccbdda5b7ea4290b490504c8e836, type: 2}
+  - {fileID: 11400000, guid: d81ae6bb11a55364dadc3ac03ce1c8ec, type: 2}
+  - {fileID: 11400000, guid: fb956792f06fcaf43a457a190f7aaf21, type: 2}
+  finalBoss: {fileID: 11400000, guid: fb956792f06fcaf43a457a190f7aaf21, type: 2}

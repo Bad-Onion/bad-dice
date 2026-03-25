@@ -1,8 +1,10 @@
 ﻿using System;
 using Zenject;
-using _Project.Application.Events;
+using _Project.Application.Events.Core;
+using _Project.Application.Events.Load;
 using _Project.Application.Interfaces;
-using _Project.Domain.ScriptableObjects;
+using _Project.Application.UseCases;
+using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
 
 namespace _Project.Application.Commands
 {
@@ -11,18 +13,22 @@ namespace _Project.Application.Commands
         private readonly ISceneLoader _sceneLoader;
         private readonly LevelData _levelData;
         private readonly Action _onComplete;
+        private readonly IRunInitializationUseCase _runInitializationUseCase;
 
-        public LoadLevelCommand(ISceneLoader sceneLoader, LevelData levelData, Action onComplete)
+        public LoadLevelCommand(ISceneLoader sceneLoader, LevelData levelData, Action onComplete, IRunInitializationUseCase runInitializationUseCase)
         {
             _sceneLoader = sceneLoader;
             _levelData = levelData;
             _onComplete = onComplete;
+            _runInitializationUseCase = runInitializationUseCase;
         }
 
         public bool IsValid() => _levelData != null && !string.IsNullOrEmpty(_levelData.SceneName);
 
         public void Execute()
         {
+            _runInitializationUseCase.EnsureRunInitialized();
+
             _sceneLoader.LoadSceneAdditive(_levelData.SceneName, () =>
             {
                 Bus<LevelLoadedEvent>.Raise(new LevelLoadedEvent(_levelData));

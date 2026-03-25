@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d9d1fccd8064d608507313d75f4cb9c, type: 3}
+  m_Name: DiceConfiguration
+  m_EditorClassIdentifier: Assembly-CSharp::_Project.Domain.ScriptableObjects.DiceConfiguration
+  diceDefinitions:
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  spawnSpacing: 1.2
+  minForce: 3
+  maxForce: 8
+  torqueMultiplier: 50
+  spawnCenter: {x: 0, y: 5, z: 0}
+  physicsPrefab: {fileID: 6105901489569188174, guid: 14b66540260ea334bb42af5580a31799, type: 3}

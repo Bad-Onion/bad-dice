@@ -1,0 +1,21 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="pre-fight-container" picking-mode="Ignore" style="flex-grow: 1; align-items: center; justify-content: center; display: flex;">
+        <ui:Label text="PREPARE YOUR DICE" name="inventory-label" style="color: rgb(255, 255, 255); font-size: 32px; -unity-font-style: bold;"/>
+        <ui:ScrollView name="inventory-list" style="width: 90%; height: 80%; background-color: rgba(40, 40, 40, 0.78); border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px; margin-bottom: 10px;"/>
+        <ui:Button text="SUBMIT" name="start-fight-button" style="justify-content: center; align-self: auto; flex-direction: column;"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="level-container" picking-mode="Ignore" style="flex-grow: 1; visibility: visible; display: none;">
+        <ui:VisualElement name="enemy-panel" style="align-items: flex-start; margin-top: 12px; margin-left: 12px;">
+            <ui:Label text="Enemy: -" name="enemy-name-label" style="font-size: 20px; -unity-font-style: bold; color: rgb(255, 255, 255);"/>
+            <ui:Label text="HP: -" name="enemy-health-label" style="font-size: 18px; color: rgb(255, 255, 255);"/>
+            <ui:Label text="Cycle -" name="cycle-label" style="font-size: 16px; color: rgb(200, 200, 200);"/>
+            <ui:Label text="Turn -" name="turn-label" style="font-size: 16px; color: rgb(200, 200, 200);"/>
+        </ui:VisualElement>
+        <ui:Label text="Label" name="result-label" style="font-size: 32px;"/>
+        <ui:VisualElement name="button-container" style="flex-grow: 1; align-items: flex-end; justify-content: center; flex-direction: row;">
+            <ui:Button text="ROLL" name="roll-button"/>
+            <ui:Button text="RESET" name="reset-button"/>
+            <ui:Button text="DEAL" name="deal-button"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
