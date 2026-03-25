@@ -15,6 +15,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
 
         public event Action<string> OnRerollRequested;
         public event Action<string> OnAutoMergeRequested;
+        public event Action<string, bool> OnDiceHoverChanged;
 
         public DiceSelectionPresenter(
             InputReader inputReader,
@@ -29,6 +30,8 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
 
             _pointerSelectionPresenter.OnClickInteractionRequested += HandleRerollInteraction;
             _pointerSelectionPresenter.OnHoldClickInteractionRequested += HandleAutoMergeInteraction;
+            _pointerSelectionPresenter.OnHoverStarted += HandleHoverStarted;
+            _pointerSelectionPresenter.OnHoverEnded += HandleHoverEnded;
         }
 
         public void Configure(LayerMask diceLayerMask)
@@ -66,6 +69,16 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
             if (_diceSessionState == null) return false;
 
             return !_diceSessionState.IsRolling;
+        }
+
+        private void HandleHoverStarted(DiceController diceController)
+        {
+            OnDiceHoverChanged?.Invoke(diceController.DiceId, true);
+        }
+
+        private void HandleHoverEnded(DiceController diceController)
+        {
+            OnDiceHoverChanged?.Invoke(diceController.DiceId, false);
         }
     }
 }

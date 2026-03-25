@@ -17,6 +17,8 @@ namespace _Project.Presentation.Scripts.Shared.Input
 
         public event Action<TTarget> OnClickInteractionRequested;
         public event Action<TTarget> OnHoldClickInteractionRequested;
+        public event Action<TTarget> OnHoverStarted;
+        public event Action<TTarget> OnHoverEnded;
 
         public PointerSelectionPresenter(
             InputReader inputReader,
@@ -105,12 +107,14 @@ namespace _Project.Presentation.Scripts.Shared.Input
             ClearHoveredTarget();
             _hoveredTarget = target;
             _hoveredTarget.SetHoverVisual(true);
+            OnHoverStarted?.Invoke(_hoveredTarget);
         }
 
         private void ClearHoveredTarget()
         {
             if (_hoveredTarget == null) return;
 
+            OnHoverEnded?.Invoke(_hoveredTarget);
             _hoveredTarget.SetHoverVisual(false);
             _hoveredTarget = null;
         }

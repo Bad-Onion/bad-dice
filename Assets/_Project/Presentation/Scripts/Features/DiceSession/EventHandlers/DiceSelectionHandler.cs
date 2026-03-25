@@ -28,6 +28,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
             _diceSelectionPresenter.Configure(diceLayerMask);
             _diceSelectionPresenter.OnRerollRequested += HandleRerollRequested;
             _diceSelectionPresenter.OnAutoMergeRequested += HandleAutoMergeRequested;
+            _diceSelectionPresenter.OnDiceHoverChanged += HandleDiceHoverChanged;
             _diceSelectionPresenter.Enable();
         }
 
@@ -37,6 +38,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
 
             _diceSelectionPresenter.OnRerollRequested -= HandleRerollRequested;
             _diceSelectionPresenter.OnAutoMergeRequested -= HandleAutoMergeRequested;
+            _diceSelectionPresenter.OnDiceHoverChanged -= HandleDiceHoverChanged;
             _diceSelectionPresenter.Disable();
         }
 
@@ -58,6 +60,15 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
             Bus<DiceAutoMergeRequestedEvent>.Raise(new DiceAutoMergeRequestedEvent
             {
                 DiceId = diceId
+            });
+        }
+
+        private static void HandleDiceHoverChanged(string diceId, bool isHovered)
+        {
+            Bus<DiceHoverChangedEvent>.Raise(new DiceHoverChangedEvent
+            {
+                DiceId = diceId,
+                IsHovered = isHovered
             });
         }
     }

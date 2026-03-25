@@ -1,15 +1,14 @@
-﻿using System.Text;
-using _Project.Application.Events.Core;
+﻿using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.DiceSimulation;
 using _Project.Application.Events.DiceState;
 using _Project.Application.Events.EncounterState;
 using _Project.Application.Events.GameState;
-using _Project.Application.Interfaces;
-using _Project.Application.UseCases;
+using _Project.Domain.Features.Combat.Enums;
 using _Project.Domain.Features.Combat.Session;
 using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.Dice.Session;
+using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
 using _Project.Presentation.Scripts.Shared.AbstractViews;
 using UnityEngine.UIElements;
 using Zenject;
@@ -28,22 +27,19 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         private Label _turnLabel;
         private VisualElement _levelContainer;
 
-        private IDiceDamageService _damageService;
-        private IDealDamageUseCase _dealDamageUseCase;
         private DiceSessionState _diceSessionState;
         private EnemyEncounterState _enemyEncounterState;
+        private GameConfiguration _gameConfiguration;
 
         [Inject]
         public void Construct(
             DiceSessionState diceSessionState,
-            IDiceDamageService damageService,
-            IDealDamageUseCase dealDamageUseCase,
-            EnemyEncounterState enemyEncounterState)
+            EnemyEncounterState enemyEncounterState,
+            GameConfiguration gameConfiguration)
         {
             _diceSessionState = diceSessionState;
-            _damageService = damageService;
-            _dealDamageUseCase = dealDamageUseCase;
             _enemyEncounterState = enemyEncounterState;
+            _gameConfiguration = gameConfiguration;
         }
 
         protected override void BindUIElements()
@@ -74,6 +70,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             Bus<DiceRollFinishedEvent>.OnEvent += OnRollFinished;
             Bus<DiceResetEvent>.OnEvent += OnDiceReset;
             Bus<MergeCompletedEvent>.OnEvent += OnMergeCompleted;
+            Bus<DiceHoverDetailsUpdatedEvent>.OnEvent += OnDiceHoverDetailsUpdated;
 
             RefreshEnemyPanelFromState();
         }
@@ -94,6 +91,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             Bus<DiceRollFinishedEvent>.OnEvent -= OnRollFinished;
             Bus<DiceResetEvent>.OnEvent -= OnDiceReset;
             Bus<MergeCompletedEvent>.OnEvent -= OnMergeCompleted;
+            Bus<DiceHoverDetailsUpdatedEvent>.OnEvent -= OnDiceHoverDetailsUpdated;
         }
 
         private void OnEncounterStarted(EncounterStartedEvent evt)
@@ -109,11 +107,11 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         {
             if (_enemyNameLabel != null)
             {
-                _enemyNameLabel.text = $"Enemy: {evt.EnemyName} ({GetEncounterTypeText(evt.IsBoss, evt.IsFinalBoss)})";
+                _enemyNameLabel.text = $"Enemy: {evt.EnemyName} ({GetEncounterTypeText(GetEncounterType(evt.IsBoss, evt.IsFinalBoss))})";
             }
 
             if (_enemyHealthLabel != null) _enemyHealthLabel.text = $"HP: {evt.CurrentHealth}/{evt.MaxHealth}";
-            if (_cycleLabel != null) _cycleLabel.text = $"Cycle {evt.CycleNumber} - Encounter {evt.EncounterIndexInCycle}/4";
+            if (_cycleLabel != null) _cycleLabel.text = $"Cycle {evt.CycleNumber} - Encounter {evt.EncounterIndexInCycle}/{GetMaxEncountersPerCycle()}";
         }
 
         private void OnEnemyDamaged(EnemyDamagedEvent evt)
@@ -166,8 +164,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 
         private void HandleDealClicked()
         {
-            // TODO: Use events to trigger the service instead of directly calling from a different domain
-            _dealDamageUseCase.DealCurrentDiceDamage();
+            Bus<DealDamageRequestedEvent>.Raise(new DealDamageRequestedEvent());
             UpdateDealButtonInteractable(false);
         }
 
@@ -175,22 +172,24 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         {
             if (_resultLabel == null) return;
 
-            StringBuilder stringBuilder = new StringBuilder($"Rerolls Left: {_diceSessionState.RerollsLeft}\n\nResults: ");
-            int totalEncounterDamage = 0;
+            _resultLabel.text = $"Rerolls Left: {_diceSessionState.RerollsLeft}\nHover a die to inspect Value, Level and Damage.";
+        }
 
-            foreach (DiceState die in _diceSessionState.ActiveDice)
+        private void OnDiceHoverDetailsUpdated(DiceHoverDetailsUpdatedEvent evt)
+        {
+            if (_resultLabel == null) return;
+
+            if (!evt.HasDetails)
             {
-                if (die.CurrentFaceIndex < 0) continue;
-
-                // TODO: Use events to trigger the service instead of directly calling from a different domain
-                int damage = _damageService.CalculateDamage(die);
-
-                stringBuilder.Append($"[{die.CurrentValue} (Lv{die.Level})] ");
-                totalEncounterDamage += damage;
+                UpdateRollResultText();
+                return;
             }
 
-            stringBuilder.Append($"\nTotal Damage: {totalEncounterDamage}");
-            _resultLabel.text = stringBuilder.ToString();
+            _resultLabel.text =
+                $"Dice {evt.DiceId}\n" +
+                $"Value: {evt.CurrentValue}\n" +
+                $"Level: {evt.Level}\n" +
+                $"Damage: {evt.Damage}";
         }
 
         private void RefreshEnemyPanelFromState()
@@ -198,14 +197,11 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             if (_enemyEncounterState?.CurrentEncounter == null) return;
 
             var currentEncounter = _enemyEncounterState.CurrentEncounter;
-            // TODO: Avoid using hardcoded values to determine boss encounters, get the isBoss value in a different way
-            bool isBoss = currentEncounter.EncounterIndexInCycle == 4;
+            int maxEncountersPerCycle = GetMaxEncountersPerCycle();
 
             if (_enemyNameLabel != null)
             {
-                // TODO: Use GetEncounterTypeText to get the encounter type
-                string encounterType = isBoss ? "BOSS" : "MINOR";
-                _enemyNameLabel.text = $"Enemy: {currentEncounter.EnemyName} ({encounterType})";
+                _enemyNameLabel.text = $"Enemy: {currentEncounter.EnemyName} ({GetEncounterTypeText(currentEncounter.EncounterType)})";
             }
 
             if (_enemyHealthLabel != null)
@@ -215,8 +211,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 
             if (_cycleLabel != null)
             {
-                // TODO: Avoid using hardcoded values, get the max encounters per cycle in a different way
-                _cycleLabel.text = $"Cycle {currentEncounter.CycleNumber} - Encounter {currentEncounter.EncounterIndexInCycle}/4";
+                _cycleLabel.text = $"Cycle {currentEncounter.CycleNumber} - Encounter {currentEncounter.EncounterIndexInCycle}/{maxEncountersPerCycle}";
             }
 
             UpdateTurnLabel(_diceSessionState.CurrentTurn, _diceSessionState.MaxTurns);
@@ -248,12 +243,32 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             _dealButton?.SetEnabled(isInteractable);
         }
 
-        private static string GetEncounterTypeText(bool isBoss, bool isFinalBoss)
+        private int GetMaxEncountersPerCycle()
         {
-            if (isFinalBoss) return "FINAL BOSS";
-            if (isBoss) return "BOSS";
+            int minorEncountersPerCycle = _gameConfiguration?.enemyProgressionConfiguration?.MinorEncountersPerCycle ?? 0;
+            return minorEncountersPerCycle + 1;
+        }
 
-            return "MINOR";
+
+        private static EnemyEncounterType GetEncounterType(bool isBoss, bool isFinalBoss)
+        {
+            if (isFinalBoss) return EnemyEncounterType.FinalBoss;
+            if (isBoss) return EnemyEncounterType.Boss;
+
+            return EnemyEncounterType.Minor;
+        }
+
+        private static string GetEncounterTypeText(EnemyEncounterType encounterType)
+        {
+            switch (encounterType)
+            {
+                case EnemyEncounterType.FinalBoss:
+                    return "FINAL BOSS";
+                case EnemyEncounterType.Boss:
+                    return "BOSS";
+                default:
+                    return "MINOR";
+            }
         }
 
         private static void RaiseRollRequested()
