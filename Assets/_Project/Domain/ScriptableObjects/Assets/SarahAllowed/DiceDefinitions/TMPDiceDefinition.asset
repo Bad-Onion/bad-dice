@@ -17,33 +17,47 @@ MonoBehaviour:
   visualConfiguration:
     baseModelPrefab: {fileID: 7434077839032862170, guid: fa0052dbbbf1a0245be80e86350a0890, type: 3}
     baseMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-    diceMaterial: {fileID: 2100000, guid: 1a03f8c5e2e0b564fbd7768efbecff37, type: 2}
-    applyDiceMaterialToFaceModels: 0
+    baseMaterial: {fileID: 2100000, guid: 1a03f8c5e2e0b564fbd7768efbecff37, type: 2}
+    faceMaterials: []
+    defaultFaceValueMaterial: {fileID: 0}
+    applyBaseMaterialToFaceModels: 0
     faceModels:
     - localDirection: 0
       faceValuePrefab: {fileID: 8944686199829855051, guid: b23f5de8ccaedb74a860fac3eae2c273, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 1
+      customFaceValueText: 
     - localDirection: 4
       faceValuePrefab: {fileID: 6195772185772791875, guid: 78cf23163fe832d4da9e153343bb68d5, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 1
+      customFaceValueText: 
     - localDirection: 3
       faceValuePrefab: {fileID: 3506828153163077715, guid: 3213bf36f915f4a4ba272ed4ea34ef1b, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 1
+      customFaceValueText: 
     - localDirection: 2
       faceValuePrefab: {fileID: 1167162275342074345, guid: 7a9a70033cc0a404e95f554183ebeb63, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 1
+      customFaceValueText: 
     - localDirection: 5
       faceValuePrefab: {fileID: 5626752265960390618, guid: a5c234cfa7938e74a811ace2ce90e045, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 1
+      customFaceValueText: 
     - localDirection: 1
       faceValuePrefab: {fileID: 6028764715146836537, guid: 077942b0af0f36140859f293fc96b242, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 1
+      customFaceValueText: 
   faces:
   - value: 1
     localDirection: 0

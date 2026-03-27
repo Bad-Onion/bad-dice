@@ -2,12 +2,16 @@
 using _Project.Domain.Features.Dice.DTO;
 using _Project.Domain.Features.Dice.Enums;
 using _Project.Domain.Features.Dice.ScriptableObjects.Definitions;
+using TMPro;
 using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
 {
     public class DiceVisualRuntimeConfigurator : MonoBehaviour
     {
+        private const string BodyBaseSlotName = "Body_Base";
+        private const string ValueDefaultSlotName = "Value_Default";
+
         [Header("Base Visual Targets")]
         [Tooltip("Parent transform used to spawn the optional base model prefab.")]
         [SerializeField] private Transform baseModelRoot;
@@ -29,19 +33,28 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
         {
             if (diceDefinition == null) return;
 
-            ApplyVisualConfiguration(diceDefinition.visualConfiguration);
+            ApplyVisualConfiguration(diceDefinition.visualConfiguration, diceDefinition.faces);
         }
 
-        private void ApplyVisualConfiguration(DiceVisualConfigurationData visualConfiguration)
+        private void ApplyVisualConfiguration(DiceVisualConfigurationData visualConfiguration, DiceFaceData[] gameplayFaces)
         {
             SetupBaseModel(visualConfiguration.baseModelPrefab);
             UpdateFallbackBaseVisibility();
             ApplyBaseMesh(visualConfiguration.baseMesh);
-            ApplyMaterial(visualConfiguration.diceMaterial);
+
+            var faceMaterialsByDirection = BuildFaceModelMaterialByDirectionMap(visualConfiguration.faceModels);
+            ApplyBaseMaterials(
+                visualConfiguration.baseMaterial,
+                faceMaterialsByDirection,
+                visualConfiguration.defaultFaceValueMaterial);
+
             SetupFaceModels(
                 visualConfiguration.faceModels,
-                visualConfiguration.diceMaterial,
-                visualConfiguration.applyDiceMaterialToFaceModels);
+                gameplayFaces,
+                visualConfiguration.baseMaterial,
+                visualConfiguration.defaultFaceValueMaterial,
+                visualConfiguration.applyBaseMaterialToFaceModels,
+                faceMaterialsByDirection);
         }
 
         private void SetupBaseModel(GameObject baseModelPrefab)
@@ -81,34 +94,52 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
             targetMeshFilter.sharedMesh = baseMesh;
         }
 
-        private void ApplyMaterial(Material diceMaterial)
+        private void ApplyBaseMaterials(
+            Material baseMaterial,
+            Dictionary<DiceFaceDirection, Material> faceMaterialsByDirection,
+            Material defaultFaceValueMaterial)
         {
-            if (diceMaterial == null) return;
-
             MeshRenderer targetRenderer = ResolveBaseMeshRenderer();
-            if (targetRenderer != null)
+            if (targetRenderer == null) return;
+
+            Material resolvedValueDefaultMaterial = defaultFaceValueMaterial != null
+                ? defaultFaceValueMaterial
+                : baseMaterial;
+
+            bool updatedAnySlot = false;
+            updatedAnySlot |= TrySetMaterialBySlotName(targetRenderer, BodyBaseSlotName, baseMaterial);
+            updatedAnySlot |= TrySetMaterialBySlotName(targetRenderer, ValueDefaultSlotName, resolvedValueDefaultMaterial);
+
+            foreach (DiceFaceDirection direction in System.Enum.GetValues(typeof(DiceFaceDirection)))
             {
-                targetRenderer.sharedMaterial = diceMaterial;
+                string slotName = GetBodyFaceSlotName(direction);
+                if (string.IsNullOrEmpty(slotName)) continue;
+
+                Material resolvedFaceMaterial = faceMaterialsByDirection.TryGetValue(direction, out Material directionalMaterial) && directionalMaterial != null
+                    ? directionalMaterial
+                    : baseMaterial;
+                updatedAnySlot |= TrySetMaterialBySlotName(targetRenderer, slotName, resolvedFaceMaterial);
             }
 
-            foreach (GameObject faceModel in _spawnedFaceModels)
+            if (!updatedAnySlot && baseMaterial != null)
             {
-                MeshRenderer[] renderers = faceModel.GetComponentsInChildren<MeshRenderer>(true);
-
-                foreach (MeshRenderer meshRenderer in renderers)
-                {
-                    meshRenderer.sharedMaterial = diceMaterial;
-                }
+                targetRenderer.sharedMaterial = baseMaterial;
             }
         }
 
-        private void SetupFaceModels(DiceFaceVisualModelData[] faceModels, Material overrideMaterial,
-            bool applyMaterialOverrideToFaceModels)
+        private void SetupFaceModels(
+            DiceFaceVisualModelData[] faceModels,
+            DiceFaceData[] gameplayFaces,
+            Material baseMaterial,
+            Material defaultFaceValueMaterial,
+            bool applyBaseMaterialToFaceModels,
+            Dictionary<DiceFaceDirection, Material> bodyFaceMaterials)
         {
             ClearSpawnedFaceModels();
             if (faceModels == null || faceModels.Length == 0) return;
 
             Dictionary<DiceFaceDirection, Transform> anchorsByDirection = GetAnchorsByDirection();
+            Dictionary<DiceFaceDirection, int> gameplayFaceValues = BuildFaceValueByDirectionMap(gameplayFaces);
 
             for (int index = 0; index < faceModels.Length; index++)
             {
@@ -122,11 +153,280 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
                 spawnedFaceModel.transform.localRotation = Quaternion.identity;
                 spawnedFaceModel.transform.localScale = Vector3.one;
                 _spawnedFaceModels.Add(spawnedFaceModel);
+
+                ConfigureSpawnedFaceModel(
+                    spawnedFaceModel,
+                    faceModel,
+                    gameplayFaceValues,
+                    bodyFaceMaterials,
+                    baseMaterial,
+                    defaultFaceValueMaterial,
+                    applyBaseMaterialToFaceModels);
+            }
+        }
+
+        private static void ConfigureSpawnedFaceModel(
+            GameObject spawnedFaceModel,
+            DiceFaceVisualModelData faceModel,
+            Dictionary<DiceFaceDirection, int> gameplayFaceValues,
+            Dictionary<DiceFaceDirection, Material> bodyFaceMaterials,
+            Material baseMaterial,
+            Material defaultFaceValueMaterial,
+            bool applyBaseMaterialToFaceModels)
+        {
+            Material fallbackFaceModelMaterial = ResolveFaceBodyMaterial(
+                faceModel.localDirection,
+                bodyFaceMaterials,
+                baseMaterial,
+                applyBaseMaterialToFaceModels);
+
+            Material resolvedFaceModelMaterial = faceModel.faceModelMaterial != null
+                ? faceModel.faceModelMaterial
+                : fallbackFaceModelMaterial;
+            Material resolvedFaceValueMaterial = ResolveFaceValueMaterial(
+                faceModel.faceValueMaterial,
+                defaultFaceValueMaterial,
+                resolvedFaceModelMaterial);
+
+            ApplyFaceModelMaterials(spawnedFaceModel, resolvedFaceModelMaterial, resolvedFaceValueMaterial);
+
+            gameplayFaceValues.TryGetValue(faceModel.localDirection, out int gameplayFaceValue);
+            int? faceValue = gameplayFaceValues.ContainsKey(faceModel.localDirection)
+                ? gameplayFaceValue
+                : null;
+            ApplyFaceTexts(spawnedFaceModel, faceModel, faceValue, resolvedFaceValueMaterial);
+        }
+
+        private static Material ResolveFaceValueMaterial(
+            Material explicitFaceValueMaterial,
+            Material defaultFaceValueMaterial,
+            Material resolvedFaceModelMaterial)
+        {
+            if (explicitFaceValueMaterial != null)
+            {
+                return explicitFaceValueMaterial;
             }
 
-            if (applyMaterialOverrideToFaceModels && overrideMaterial != null)
+            if (defaultFaceValueMaterial != null)
             {
-                ApplyMaterial(overrideMaterial);
+                return defaultFaceValueMaterial;
+            }
+
+            return resolvedFaceModelMaterial;
+        }
+
+        private static string GetBodyFaceSlotName(DiceFaceDirection direction)
+        {
+            return direction switch
+            {
+                DiceFaceDirection.Up => "Body_Face_Up",
+                DiceFaceDirection.Down => "Body_Face_Down",
+                DiceFaceDirection.Forward => "Body_Face_Forward",
+                DiceFaceDirection.Back => "Body_Face_Back",
+                DiceFaceDirection.Right => "Body_Face_Right",
+                DiceFaceDirection.Left => "Body_Face_Left",
+                _ => string.Empty
+            };
+        }
+
+        private static Dictionary<DiceFaceDirection, Material> BuildFaceModelMaterialByDirectionMap(DiceFaceVisualModelData[] faceModels)
+        {
+            var materialsByDirection = new Dictionary<DiceFaceDirection, Material>();
+            if (faceModels == null) return materialsByDirection;
+
+            for (int index = 0; index < faceModels.Length; index++)
+            {
+                DiceFaceVisualModelData faceModel = faceModels[index];
+                if (faceModel.faceModelMaterial == null) continue;
+
+                materialsByDirection[faceModel.localDirection] = faceModel.faceModelMaterial;
+            }
+
+            return materialsByDirection;
+        }
+
+        private static Dictionary<DiceFaceDirection, int> BuildFaceValueByDirectionMap(DiceFaceData[] gameplayFaces)
+        {
+            var valuesByDirection = new Dictionary<DiceFaceDirection, int>();
+            if (gameplayFaces == null) return valuesByDirection;
+
+            for (int index = 0; index < gameplayFaces.Length; index++)
+            {
+                valuesByDirection[gameplayFaces[index].localDirection] = gameplayFaces[index].value;
+            }
+
+            return valuesByDirection;
+        }
+
+        private static Material ResolveFaceBodyMaterial(
+            DiceFaceDirection faceDirection,
+            Dictionary<DiceFaceDirection, Material> bodyFaceMaterials,
+            Material baseMaterial,
+            bool allowBaseMaterialFallback)
+        {
+            if (bodyFaceMaterials != null && bodyFaceMaterials.TryGetValue(faceDirection, out Material faceMaterial) && faceMaterial != null)
+            {
+                return faceMaterial;
+            }
+
+            return allowBaseMaterialFallback ? baseMaterial : null;
+        }
+
+        private static bool TrySetMaterialBySlotName(MeshRenderer meshRenderer, string slotName, Material material)
+        {
+            if (meshRenderer == null || string.IsNullOrWhiteSpace(slotName) || material == null) return false;
+
+            Material[] sharedMaterials = meshRenderer.sharedMaterials;
+            bool updatedSlot = false;
+
+            for (int index = 0; index < sharedMaterials.Length; index++)
+            {
+                string currentMaterialName = sharedMaterials[index] != null
+                    ? sharedMaterials[index].name.Replace(" (Instance)", string.Empty)
+                    : string.Empty;
+
+                if (!string.Equals(currentMaterialName, slotName, System.StringComparison.OrdinalIgnoreCase)) continue;
+
+                sharedMaterials[index] = material;
+                updatedSlot = true;
+            }
+
+            if (updatedSlot)
+            {
+                meshRenderer.sharedMaterials = sharedMaterials;
+            }
+
+            return updatedSlot;
+        }
+
+        private static void ApplyFaceModelMaterials(GameObject spawnedFaceModel, Material faceModelMaterial, Material faceValueMaterial)
+        {
+            if (spawnedFaceModel == null) return;
+
+            MeshRenderer[] renderers = spawnedFaceModel.GetComponentsInChildren<MeshRenderer>(true);
+            for (int rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+            {
+                Material[] sharedMaterials = renderers[rendererIndex].sharedMaterials;
+                bool isValueRenderer = IsValueRenderer(renderers[rendererIndex]);
+
+                if (isValueRenderer && TryFillAllSlotsWithMaterial(sharedMaterials, faceValueMaterial))
+                {
+                    renderers[rendererIndex].sharedMaterials = sharedMaterials;
+                    continue;
+                }
+
+                bool updatedByNamedSlots = TryApplyMaterialsBySlotNames(sharedMaterials, faceModelMaterial, faceValueMaterial);
+                bool updatedBySingleSlotFallback = !updatedByNamedSlots && TryApplySingleSlotFallback(sharedMaterials, faceModelMaterial, faceValueMaterial);
+
+                if (updatedByNamedSlots || updatedBySingleSlotFallback)
+                {
+                    renderers[rendererIndex].sharedMaterials = sharedMaterials;
+                }
+            }
+        }
+
+        private static bool IsValueRenderer(MeshRenderer meshRenderer)
+        {
+            return meshRenderer != null && meshRenderer.transform.name
+                .IndexOf("Value", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool TryFillAllSlotsWithMaterial(Material[] sharedMaterials, Material material)
+        {
+            if (sharedMaterials == null || sharedMaterials.Length == 0 || material == null) return false;
+
+            for (int index = 0; index < sharedMaterials.Length; index++)
+            {
+                sharedMaterials[index] = material;
+            }
+
+            return true;
+        }
+
+        private static bool TryApplyMaterialsBySlotNames(
+            Material[] sharedMaterials,
+            Material faceModelMaterial,
+            Material faceValueMaterial)
+        {
+            if (sharedMaterials == null || sharedMaterials.Length == 0) return false;
+
+            bool updatedRenderer = false;
+            for (int materialIndex = 0; materialIndex < sharedMaterials.Length; materialIndex++)
+            {
+                string materialName = sharedMaterials[materialIndex] != null
+                    ? sharedMaterials[materialIndex].name.Replace(" (Instance)", string.Empty)
+                    : string.Empty;
+                bool isValueSlot = materialName.IndexOf("Value", System.StringComparison.OrdinalIgnoreCase) >= 0;
+
+                if (isValueSlot && faceValueMaterial != null)
+                {
+                    sharedMaterials[materialIndex] = faceValueMaterial;
+                    updatedRenderer = true;
+                    continue;
+                }
+
+                if (!isValueSlot && faceModelMaterial != null)
+                {
+                    sharedMaterials[materialIndex] = faceModelMaterial;
+                    updatedRenderer = true;
+                }
+            }
+
+            return updatedRenderer;
+        }
+
+        private static bool TryApplySingleSlotFallback(
+            Material[] sharedMaterials,
+            Material faceModelMaterial,
+            Material faceValueMaterial)
+        {
+            if (sharedMaterials == null || sharedMaterials.Length != 1) return false;
+
+            if (faceValueMaterial != null)
+            {
+                sharedMaterials[0] = faceValueMaterial;
+                return true;
+            }
+
+            if (faceModelMaterial != null)
+            {
+                sharedMaterials[0] = faceModelMaterial;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static void ApplyFaceTexts(
+            GameObject spawnedFaceModel,
+            DiceFaceVisualModelData faceModel,
+            int? gameplayFaceValue,
+            Material faceValueMaterial)
+        {
+            TMP_Text[] texts = spawnedFaceModel.GetComponentsInChildren<TMP_Text>(true);
+            if (texts.Length == 0) return;
+
+            string resolvedText = null;
+            if (faceModel.useGameplayFaceValueAsText && gameplayFaceValue.HasValue)
+            {
+                resolvedText = gameplayFaceValue.Value.ToString();
+            }
+            else if (!string.IsNullOrWhiteSpace(faceModel.customFaceValueText))
+            {
+                resolvedText = faceModel.customFaceValueText;
+            }
+
+            for (int index = 0; index < texts.Length; index++)
+            {
+                if (resolvedText != null)
+                {
+                    texts[index].text = resolvedText;
+                }
+
+                if (faceValueMaterial != null)
+                {
+                    texts[index].fontSharedMaterial = faceValueMaterial;
+                }
             }
         }
 

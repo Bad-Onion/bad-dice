@@ -17,33 +17,46 @@ MonoBehaviour:
   visualConfiguration:
     baseModelPrefab: {fileID: 919132149155446097, guid: d0a2701be8a63cb4d8c832823a7ac096, type: 3}
     baseMesh: {fileID: 0}
-    diceMaterial: {fileID: 2100000, guid: c852e081ca0baff43904a665be4c173f, type: 2}
-    applyDiceMaterialToFaceModels: 0
+    baseMaterial: {fileID: 2100000, guid: c852e081ca0baff43904a665be4c173f, type: 2}
+    defaultFaceValueMaterial: {fileID: 2100000, guid: e6ea2195b41ee2a4786d388cf6348ab3, type: 2}
+    applyBaseMaterialToFaceModels: 0
     faceModels:
     - localDirection: 0
       faceValuePrefab: {fileID: 1711839333272817823, guid: e8f5b5050ca13eb48a6c252d2467ea0c, type: 3}
       faceModelMaterial: {fileID: 0}
-      faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
+      faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 0
+      customFaceValueText: 
     - localDirection: 4
       faceValuePrefab: {fileID: 2258109415769431913, guid: 327450bca8a8a0a4eb3ef1f146a2561b, type: 3}
       faceModelMaterial: {fileID: 0}
-      faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
+      faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 0
+      customFaceValueText: 
     - localDirection: 3
       faceValuePrefab: {fileID: 5566914152413278422, guid: 57c5fe7135e060145879e19cb5b29f3a, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
+      useGameplayFaceValueAsText: 0
+      customFaceValueText: 
     - localDirection: 2
       faceValuePrefab: {fileID: 4327463666898621604, guid: e842476e7a34e214abfecc0c9e07e795, type: 3}
-      faceModelMaterial: {fileID: 2100000, guid: 1a03f8c5e2e0b564fbd7768efbecff37, type: 2}
+      faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
+      useGameplayFaceValueAsText: 0
+      customFaceValueText: 
     - localDirection: 5
       faceValuePrefab: {fileID: 846061452257467573, guid: dcc67baf9ec9b5a458b0537f54d21e79, type: 3}
       faceModelMaterial: {fileID: 2100000, guid: 1a03f8c5e2e0b564fbd7768efbecff37, type: 2}
       faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
+      useGameplayFaceValueAsText: 0
+      customFaceValueText: 
     - localDirection: 1
       faceValuePrefab: {fileID: 329445932584841870, guid: 2bed39ce255ab5c4893dab757d883b15, type: 3}
-      faceModelMaterial: {fileID: 0}
-      faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
+      faceModelMaterial: {fileID: 2100000, guid: 1a03f8c5e2e0b564fbd7768efbecff37, type: 2}
+      faceValueMaterial: {fileID: 0}
+      useGameplayFaceValueAsText: 0
+      customFaceValueText: 
   faces:
   - value: 1
     localDirection: 0

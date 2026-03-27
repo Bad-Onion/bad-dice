@@ -22,5 +22,11 @@ namespace _Project.Domain.Features.Dice.DTO
 
         [Tooltip("Material applied to the value channel (number/symbol) of this face visual.")]
         public Material faceValueMaterial;
+
+        [Tooltip("If enabled and the prefab contains TMP text components, runtime uses the gameplay face value as text.")]
+        public bool useGameplayFaceValueAsText;
+
+        [Tooltip("Optional text override used only when Use Gameplay Face Value As Text is disabled.")]
+        public string customFaceValueText;
     }
 }
