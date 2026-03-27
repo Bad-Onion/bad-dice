@@ -35,6 +35,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
         private void ApplyVisualConfiguration(DiceVisualConfigurationData visualConfiguration)
         {
             SetupBaseModel(visualConfiguration.baseModelPrefab);
+            UpdateFallbackBaseVisibility();
             ApplyBaseMesh(visualConfiguration.baseMesh);
             ApplyMaterial(visualConfiguration.diceMaterial);
             SetupFaceModels(
@@ -57,6 +58,17 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
             _spawnedBaseModel.transform.localPosition = Vector3.zero;
             _spawnedBaseModel.transform.localRotation = Quaternion.identity;
             _spawnedBaseModel.transform.localScale = Vector3.one;
+        }
+
+        private void UpdateFallbackBaseVisibility()
+        {
+            if (fallbackBaseMeshRenderer == null)
+            {
+                return;
+            }
+
+            bool shouldShowFallback = _spawnedBaseModel == null;
+            fallbackBaseMeshRenderer.enabled = shouldShowFallback;
         }
 
         private void ApplyBaseMesh(Mesh baseMesh)
@@ -101,11 +113,11 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
             for (int index = 0; index < faceModels.Length; index++)
             {
                 DiceFaceVisualModelData faceModel = faceModels[index];
-                if (faceModel.modelPrefab == null) continue;
+                if (faceModel.faceValuePrefab == null) continue;
                 if (!anchorsByDirection.TryGetValue(faceModel.localDirection, out Transform anchor) ||
                     anchor == null) continue;
 
-                GameObject spawnedFaceModel = Instantiate(faceModel.modelPrefab, anchor);
+                GameObject spawnedFaceModel = Instantiate(faceModel.faceValuePrefab, anchor);
                 spawnedFaceModel.transform.localPosition = Vector3.zero;
                 spawnedFaceModel.transform.localRotation = Quaternion.identity;
                 spawnedFaceModel.transform.localScale = Vector3.one;

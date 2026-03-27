@@ -13,7 +13,7 @@ namespace _Project.Domain.Features.Dice.DTO
         [Tooltip("Optional mesh override for the base model MeshFilter.")]
         public Mesh baseMesh;
 
-        [Tooltip("Optional shared material override used by the base model and face models.")]
+        [Tooltip("Optional shared material override used by the base model.")]
         public Material diceMaterial;
 
         [Tooltip("If enabled, the dice material override is also applied to spawned face models. Keep disabled for TMP/text-based face prefabs.")]

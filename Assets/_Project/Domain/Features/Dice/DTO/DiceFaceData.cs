@@ -7,6 +7,7 @@ namespace _Project.Domain.Features.Dice.DTO
     [Serializable]
     public struct DiceFaceData
     {
+        [Header("Gameplay")]
         [Tooltip("The numerical value or effect ID of this face.")]
         public int value;
 

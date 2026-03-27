@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Domain.ScriptableObjects.DiceDatabase
   allDefinitions:
   - {fileID: 11400000, guid: 2bb906e5eebcac14bb04df2aad9743e3, type: 2}
+  - {fileID: 11400000, guid: eb2869a9a1e0fe24c8efd10dbd2dae70, type: 2}
