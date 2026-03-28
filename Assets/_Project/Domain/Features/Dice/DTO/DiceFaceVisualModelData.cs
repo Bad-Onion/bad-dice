@@ -24,17 +24,11 @@ namespace _Project.Domain.Features.Dice.DTO
         public Material faceValueMaterial;
 
         [Header("Transform Customization")]
-        [Tooltip("If disabled, uses default zero position. If enabled, applies a custom local position offset to this face model.")]
-        public bool useCustomLocalPosition;
+        [Tooltip("Local position offset for this face model. Leave at (0,0,0) for default anchor position.")]
+        public Vector3 localPositionOffset;
 
-        [Tooltip("Custom local position offset for this face model. Only applied if Use Custom Local Position is enabled.")]
-        public Vector3 customLocalPosition;
-
-        [Tooltip("If disabled, uses default identity rotation. If enabled, applies a custom local rotation to this face model.")]
-        public bool useCustomLocalRotation;
-
-        [Tooltip("Custom local rotation (Euler angles) for this face model. Only applied if Use Custom Local Rotation is enabled.")]
-        public Vector3 customLocalRotationEuler;
+        [Tooltip("Local rotation (Euler angles) for this face model. Leave at (0,0,0) for identity rotation.")]
+        public Vector3 localRotationEuler;
 
         [Header("Text Configuration")]
         [Tooltip("If enabled and the prefab contains TMP text components, runtime uses the gameplay face value as text.")]

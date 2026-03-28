@@ -10,11 +10,12 @@ namespace _Project.Infrastructure.Features.DiceSession.VisualServices
     /// Manages spawning and configuration of face value models for a dice.
     /// 
     /// Key design principles:
-    /// 1. Each face model is placed at anchor positions without embedded guide dependencies
-    /// 2. Transform positioning is fully configurable per face model in DiceFaceVisualModelData
-    /// 3. Face models can use custom position/rotation or default (zero) values
-    /// 4. Gameplay face values and visual model selection don't interfere with positioning
-    /// 5. The Value_X GameObjects in the base model are hidden to prevent visual duplication
+    /// 1. Each face model is placed at its corresponding anchor position
+    /// 2. Prefab origin transforms are stripped and replaced with configured transforms
+    /// 3. localPositionOffset and localRotationEuler apply directly (zero = anchor position/identity)
+    /// 4. This ensures all prefabs (even identical ones like Five dice) are positioned correctly
+    /// 5. Gameplay face values and visual model selection don't interfere with positioning
+    /// 6. The Value_X GameObjects in the base model are hidden to prevent visual duplication
     /// 
     /// This ensures consistency across all dice definitions while allowing maximum flexibility
     /// for custom positioning requirements (e.g., TMP text needing offset from faces).
@@ -68,8 +69,11 @@ namespace _Project.Infrastructure.Features.DiceSession.VisualServices
                 if (anchor == null) continue;
 
                 GameObject spawnedFaceModel = Object.Instantiate(faceModel.faceValuePrefab, anchor);
-                ApplyCustomTransform(spawnedFaceModel.transform, faceModel);
+
+                spawnedFaceModel.transform.localPosition = faceModel.localPositionOffset;
+                spawnedFaceModel.transform.localRotation = Quaternion.Euler(faceModel.localRotationEuler);
                 spawnedFaceModel.transform.localScale = Vector3.one;
+                
                 _spawnedFaceModels.Add(spawnedFaceModel);
 
                 ConfigureSpawnedFaceModel(
@@ -142,28 +146,6 @@ namespace _Project.Infrastructure.Features.DiceSession.VisualServices
             return valuesByDirection;
         }
 
-        private static void ApplyCustomTransform(Transform targetTransform, DiceFaceVisualModelData faceModel)
-        {
-            // Apply custom position if configured, otherwise use zero
-            if (faceModel.useCustomLocalPosition)
-            {
-                targetTransform.localPosition = faceModel.customLocalPosition;
-            }
-            else
-            {
-                targetTransform.localPosition = Vector3.zero;
-            }
-
-            // Apply custom rotation if configured, otherwise use identity
-            if (faceModel.useCustomLocalRotation)
-            {
-                targetTransform.localRotation = Quaternion.Euler(faceModel.customLocalRotationEuler);
-            }
-            else
-            {
-                targetTransform.localRotation = Quaternion.identity;
-            }
-        }
 
         private void ClearSpawnedFaceModels()
         {

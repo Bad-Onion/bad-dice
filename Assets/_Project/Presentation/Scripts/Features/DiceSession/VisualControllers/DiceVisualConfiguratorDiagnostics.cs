@@ -240,22 +240,22 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
         public void PrintExpectedAnchors()
         {
             Debug.Log(@"
-=== Expected Face Anchors Configuration ===
+                    === Expected Face Anchors Configuration ===
 
-Face anchors should be empty GameObjects positioned at:
+                    Face anchors should be empty GameObjects positioned at:
 
-Up       → Position: (0,  0.51,  0)
-Down     → Position: (0, -0.51,  0)
-Forward  → Position: (0,  0,    0.51)
-Back     → Position: (0,  0,   -0.51)
-Right    → Position: (0.51, 0,  0)
-Left     → Position: (-0.51, 0, 0)
+                    Up       → Position: (0,  0.51,  0)
+                    Down     → Position: (0, -0.51,  0)
+                    Forward  → Position: (0,  0,    0.51)
+                    Back     → Position: (0,  0,   -0.51)
+                    Right    → Position: (0.51, 0,  0)
+                    Left     → Position: (-0.51, 0, 0)
 
-All rotations should be identity (0, 0, 0).
-All scales should be (1, 1, 1).
+                    All rotations should be identity (0, 0, 0).
+                    All scales should be (1, 1, 1).
 
-Configure these in DiceVisualRuntimeConfigurator's Face Anchors array.
-==="
+                    Configure these in DiceVisualRuntimeConfigurator's Face Anchors array.
+                    ==="
             );
         }
     }
