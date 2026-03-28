@@ -25,36 +25,60 @@ MonoBehaviour:
       faceValuePrefab: {fileID: 3523492880069668714, guid: 78815b744dda78f47b4632934d7247c1, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useCustomLocalPosition: 0
+      customLocalPosition: {x: 0, y: 0, z: 0}
+      useCustomLocalRotation: 0
+      customLocalRotationEuler: {x: 0, y: 0, z: 0}
       useGameplayFaceValueAsText: 0
       customFaceValueText: 
     - localDirection: 4
       faceValuePrefab: {fileID: 162784123787115450, guid: 839ebb1bc2d489942aeb35d7fcab88b7, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useCustomLocalPosition: 0
+      customLocalPosition: {x: 0, y: 0, z: 0}
+      useCustomLocalRotation: 0
+      customLocalRotationEuler: {x: 0, y: 0, z: 0}
       useGameplayFaceValueAsText: 0
       customFaceValueText: 
     - localDirection: 3
       faceValuePrefab: {fileID: 6145807143456761826, guid: 35906f467d1f16242b35343a2a5c7a1f, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useCustomLocalPosition: 0
+      customLocalPosition: {x: 0, y: 0, z: 0}
+      useCustomLocalRotation: 0
+      customLocalRotationEuler: {x: 0, y: 0, z: 0}
       useGameplayFaceValueAsText: 0
       customFaceValueText: 
     - localDirection: 2
       faceValuePrefab: {fileID: 7037597411840691870, guid: 415abea87f50402499a312f748e00068, type: 3}
       faceModelMaterial: {fileID: 0}
       faceValueMaterial: {fileID: 0}
+      useCustomLocalPosition: 0
+      customLocalPosition: {x: 0, y: 0, z: 0}
+      useCustomLocalRotation: 0
+      customLocalRotationEuler: {x: 0, y: 0, z: 0}
       useGameplayFaceValueAsText: 0
       customFaceValueText: 
     - localDirection: 5
       faceValuePrefab: {fileID: 4710123244627257299, guid: 326c4a9cfdf474f4a93db8bc3382e2c3, type: 3}
       faceModelMaterial: {fileID: 0}
-      faceValueMaterial: {fileID: 0}
+      faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
+      useCustomLocalPosition: 0
+      customLocalPosition: {x: 0, y: 0, z: 0}
+      useCustomLocalRotation: 0
+      customLocalRotationEuler: {x: 0, y: 0, z: 0}
       useGameplayFaceValueAsText: 0
       customFaceValueText: 
     - localDirection: 1
       faceValuePrefab: {fileID: 2356741781111071447, guid: a4f957a51c651c7489346bcbfb299cec, type: 3}
       faceModelMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
       faceValueMaterial: {fileID: 2100000, guid: e6ea2195b41ee2a4786d388cf6348ab3, type: 2}
+      useCustomLocalPosition: 0
+      customLocalPosition: {x: 0, y: 0, z: 0}
+      useCustomLocalRotation: 0
+      customLocalRotationEuler: {x: 0, y: 0, z: 0}
       useGameplayFaceValueAsText: 0
       customFaceValueText: 
   faces:
