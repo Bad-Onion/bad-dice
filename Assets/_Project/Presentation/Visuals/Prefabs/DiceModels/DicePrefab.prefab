@@ -471,10 +471,6 @@ MonoBehaviour:
     anchor: {fileID: 424231497404730876}
   - localDirection: 5
     anchor: {fileID: 2848481459062352763}
-  alignAnchorsFromEmbeddedValueGuides: 1
-  embeddedGuideFaceValueRemap: 000000000000000004000000030000000000000000000000
-  swapLeftRightForEmbeddedGuides: 1
-  disableEmbeddedValueGuides: 1
 --- !u!1 &8087397561269779652
 GameObject:
   m_ObjectHideFlags: 0
