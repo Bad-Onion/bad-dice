@@ -41,6 +41,8 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
             SetupBaseModel(visualConfiguration.baseModelPrefab);
             UpdateFallbackBaseVisibility();
             ApplyBaseMesh(visualConfiguration.baseMesh);
+            SyncAnchorsFromEmbeddedValueGuides(gameplayFaces);
+            DisableEmbeddedValueGuideObjects();
 
             var faceMaterialsByDirection = BuildFaceModelMaterialByDirectionMap(visualConfiguration.faceModels);
             ApplyBaseMaterials(
@@ -140,11 +142,13 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
 
             Dictionary<DiceFaceDirection, Transform> anchorsByDirection = GetAnchorsByDirection();
             Dictionary<DiceFaceDirection, int> gameplayFaceValues = BuildFaceValueByDirectionMap(gameplayFaces);
+            var spawnedDirections = new HashSet<DiceFaceDirection>();
 
             for (int index = 0; index < faceModels.Length; index++)
             {
                 DiceFaceVisualModelData faceModel = faceModels[index];
                 if (faceModel.faceValuePrefab == null) continue;
+                if (!spawnedDirections.Add(faceModel.localDirection)) continue;
                 if (!anchorsByDirection.TryGetValue(faceModel.localDirection, out Transform anchor) ||
                     anchor == null) continue;
 
@@ -256,6 +260,93 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
             }
 
             return valuesByDirection;
+        }
+
+        private static Dictionary<int, DiceFaceDirection> BuildDirectionByFaceValueMap(DiceFaceData[] gameplayFaces)
+        {
+            var directionByValue = new Dictionary<int, DiceFaceDirection>();
+            if (gameplayFaces == null) return directionByValue;
+
+            for (int index = 0; index < gameplayFaces.Length; index++)
+            {
+                int faceValue = gameplayFaces[index].value;
+                if (faceValue < 1 || faceValue > 6) continue;
+
+                directionByValue[faceValue] = gameplayFaces[index].localDirection;
+            }
+
+            return directionByValue;
+        }
+
+        private void SyncAnchorsFromEmbeddedValueGuides(DiceFaceData[] gameplayFaces)
+        {
+            if (_spawnedBaseModel == null) return;
+
+            Dictionary<DiceFaceDirection, Transform> anchorsByDirection = GetAnchorsByDirection();
+            if (anchorsByDirection.Count == 0) return;
+
+            Dictionary<int, DiceFaceDirection> directionByValue = BuildDirectionByFaceValueMap(gameplayFaces);
+            if (directionByValue.Count == 0) return;
+
+            for (int faceValue = 1; faceValue <= 6; faceValue++)
+            {
+                if (!directionByValue.TryGetValue(faceValue, out DiceFaceDirection direction)) continue;
+                if (!anchorsByDirection.TryGetValue(direction, out Transform anchor) || anchor == null) continue;
+
+                Transform guide = FindTransformByName(_spawnedBaseModel.transform, $"Value_{faceValue}");
+                if (guide == null) continue;
+
+                Transform anchorParent = anchor.parent;
+                if (anchorParent == null)
+                {
+                    anchor.position = guide.position;
+                    anchor.rotation = guide.rotation;
+                    continue;
+                }
+
+                anchor.localPosition = anchorParent.InverseTransformPoint(guide.position);
+                anchor.localRotation = Quaternion.Inverse(anchorParent.rotation) * guide.rotation;
+            }
+        }
+
+        private void DisableEmbeddedValueGuideObjects()
+        {
+            if (_spawnedBaseModel == null) return;
+
+            Transform[] transforms = _spawnedBaseModel.GetComponentsInChildren<Transform>(true);
+            for (int index = 0; index < transforms.Length; index++)
+            {
+                Transform current = transforms[index];
+                if (current == _spawnedBaseModel.transform) continue;
+                if (!IsEmbeddedValueObjectName(current.name)) continue;
+
+                current.gameObject.SetActive(false);
+            }
+        }
+
+        private static bool IsEmbeddedValueObjectName(string objectName)
+        {
+            if (string.IsNullOrWhiteSpace(objectName)) return false;
+            if (!objectName.StartsWith("Value_", System.StringComparison.OrdinalIgnoreCase)) return false;
+
+            string suffix = objectName.Substring("Value_".Length);
+            return int.TryParse(suffix, out int parsedValue) && parsedValue >= 1 && parsedValue <= 6;
+        }
+
+        private static Transform FindTransformByName(Transform root, string targetName)
+        {
+            if (root == null || string.IsNullOrWhiteSpace(targetName)) return null;
+
+            Transform[] transforms = root.GetComponentsInChildren<Transform>(true);
+            for (int index = 0; index < transforms.Length; index++)
+            {
+                if (string.Equals(transforms[index].name, targetName, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return transforms[index];
+                }
+            }
+
+            return null;
         }
 
         private static Material ResolveFaceBodyMaterial(
