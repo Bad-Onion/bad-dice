@@ -10,11 +10,12 @@ namespace _Project.Application.Interfaces
     public interface IDiceMaterialManager
     {
         /// <summary>
-        /// Applies base material and per-face materials to the dice body based on face directions and material slots.
+        /// Instantiates the base shader material per face and injects the corresponding textures.
         /// </summary>
         void ApplyMaterials(
-            Material baseMaterial,
-            DiceFaceMaterialData[] faceMaterials);
+            Material shaderMaterial,
+            Texture2D baseTexture,
+            DiceFaceTextureData[] faceTextures);
     }
 }
 

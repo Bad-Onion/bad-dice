@@ -13,12 +13,16 @@ namespace _Project.Domain.Features.Dice.DTO
         [Tooltip("Optional mesh override for the base model MeshFilter.")]
         public Mesh baseMesh;
 
-        [Tooltip("Optional shared material override used as the default material for the base body.")]
-        public Material baseMaterial;
+        [Header("Shader & Base Layer")]
+        [Tooltip("The master material using the custom Shader Graph (e.g., Mat_DiceMaster).")]
+        public Material shaderMaterial;
 
-        [Header("Face Materials")]
-        [Tooltip("Material applied to each face. Maps local direction to material.")]
-        public DiceFaceMaterialData[] faceMaterials;
+        [Tooltip("The base texture applied to all faces as the absolute background.")]
+        public Texture2D baseTexture;
+
+        [Header("Face Layers")]
+        [Tooltip("Per-face texture definitions for direction and value.")]
+        public DiceFaceTextureData[] faceTextures;
     }
 }
 

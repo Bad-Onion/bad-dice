@@ -14,7 +14,6 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualServices
     public class DiceMaterialManager : IDiceMaterialManager
     {
         // Material Slot Names
-        private const string BodyBaseSlotName = "Body_Base";
         private const string DiceFaceSlotNameUp = "Body_Face_Up";
         private const string DiceFaceSlotNameDown = "Body_Face_Down";
         private const string DiceFaceSlotNameForward = "Body_Face_Forward";
@@ -22,7 +21,27 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualServices
         private const string DiceFaceSlotNameRight = "Body_Face_Right";
         private const string DiceFaceSlotNameLeft = "Body_Face_Left";
 
+        // Shader Property IDs
+        private static readonly int BaseTexId = Shader.PropertyToID("_BaseTexture");
+        private static readonly int FaceTexId = Shader.PropertyToID("_FaceTexture");
+        private static readonly int ValueTexId = Shader.PropertyToID("_ValueTexture");
+
         private readonly IDiceBaseModelManager _baseModelManager;
+
+        private static Texture2D _transparentFallbackTexture;
+        private static Texture2D TransparentFallbackTexture
+        {
+            get
+            {
+                if (_transparentFallbackTexture == null)
+                {
+                    _transparentFallbackTexture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+                    _transparentFallbackTexture.SetPixel(0, 0, Color.clear);
+                    _transparentFallbackTexture.Apply();
+                }
+                return _transparentFallbackTexture;
+            }
+        }
 
         public DiceMaterialManager(IDiceBaseModelManager baseModelManager)
         {
@@ -30,97 +49,83 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualServices
         }
 
         public void ApplyMaterials(
-            Material baseMaterial,
-            DiceFaceMaterialData[] faceMaterials)
+            Material shaderMaterial,
+            Texture2D baseTexture,
+            DiceFaceTextureData[] faceTextures)
         {
             MeshRenderer meshRenderer = _baseModelManager.GetMeshRenderer();
-            if (meshRenderer == null) return;
+            if (meshRenderer == null || shaderMaterial == null) return;
 
-            bool updatedAnySlot = false;
-            updatedAnySlot |= TrySetMaterialBySlotName(meshRenderer, BodyBaseSlotName, baseMaterial);
+            Dictionary<DiceFaceDirection, DiceFaceTextureData> faceDataMap = BuildFaceDataMap(faceTextures);
+            Material[] currentMaterials = meshRenderer.sharedMaterials;
+            bool materialsUpdated = false;
 
-            Dictionary<DiceFaceDirection, Material> faceMaterialsByDirection = BuildFaceMaterialByDirectionMap(faceMaterials);
-
-            foreach (DiceFaceDirection direction in Enum.GetValues(typeof(DiceFaceDirection)))
+            for (int i = 0; i < currentMaterials.Length; i++)
             {
-                string slotName = GetBodyFaceSlotName(direction);
-                if (string.IsNullOrEmpty(slotName)) continue;
+                DiceFaceDirection? mappedDirection = GetDirectionFromSlotName(currentMaterials[i]);
 
-                Material resolvedFaceMaterial = faceMaterialsByDirection.TryGetValue(direction, out Material directionalMaterial) && directionalMaterial != null
-                    ? directionalMaterial
-                    : baseMaterial;
-                updatedAnySlot |= TrySetMaterialBySlotName(meshRenderer, slotName, resolvedFaceMaterial);
+                if (mappedDirection.HasValue)
+                {
+                    Material faceMaterialInstance = new Material(shaderMaterial);
+
+                    Texture2D appliedBaseTex = baseTexture != null ? baseTexture : TransparentFallbackTexture;
+                    faceMaterialInstance.SetTexture(BaseTexId, appliedBaseTex);
+
+                    Texture2D appliedFaceTex = TransparentFallbackTexture;
+                    Texture2D appliedValueTex = TransparentFallbackTexture;
+
+                    if (faceDataMap.TryGetValue(mappedDirection.Value, out DiceFaceTextureData specificFaceData))
+                    {
+                        if (specificFaceData.faceTexture != null) appliedFaceTex = specificFaceData.faceTexture;
+                        if (specificFaceData.valueTexture != null) appliedValueTex = specificFaceData.valueTexture;
+                    }
+
+                    faceMaterialInstance.SetTexture(FaceTexId, appliedFaceTex);
+                    faceMaterialInstance.SetTexture(ValueTexId, appliedValueTex);
+
+                    currentMaterials[i] = faceMaterialInstance;
+                    materialsUpdated = true;
+                }
             }
 
-            if (!updatedAnySlot && baseMaterial != null)
+            if (materialsUpdated)
             {
-                meshRenderer.sharedMaterial = baseMaterial;
+                meshRenderer.sharedMaterials = currentMaterials;
             }
         }
 
-        private static string GetBodyFaceSlotName(DiceFaceDirection direction)
+        private static Dictionary<DiceFaceDirection, DiceFaceTextureData> BuildFaceDataMap(DiceFaceTextureData[] faceTextures)
         {
-            return direction switch
+            var map = new Dictionary<DiceFaceDirection, DiceFaceTextureData>();
+            if (faceTextures == null) return map;
+
+            foreach (var faceTexture in faceTextures)
             {
-                DiceFaceDirection.Up => DiceFaceSlotNameUp,
-                DiceFaceDirection.Down => DiceFaceSlotNameDown,
-                DiceFaceDirection.Forward => DiceFaceSlotNameForward,
-                DiceFaceDirection.Back => DiceFaceSlotNameBack,
-                DiceFaceDirection.Right => DiceFaceSlotNameRight,
-                DiceFaceDirection.Left => DiceFaceSlotNameLeft,
-                _ => string.Empty
-            };
-        }
-
-        private static Dictionary<DiceFaceDirection, Material> BuildFaceMaterialByDirectionMap(DiceFaceMaterialData[] faceMaterials)
-        {
-            var materialsByDirection = new Dictionary<DiceFaceDirection, Material>();
-            if (faceMaterials == null) return materialsByDirection;
-
-            foreach (DiceFaceMaterialData faceMaterial in faceMaterials)
-            {
-                if (faceMaterial.faceMaterial == null) continue;
-
-                materialsByDirection[faceMaterial.localDirection] = faceMaterial.faceMaterial;
+                map[faceTexture.localDirection] = faceTexture;
             }
 
-            return materialsByDirection;
+            return map;
         }
 
-        private static bool TrySetMaterialBySlotName(MeshRenderer meshRenderer, string slotName, Material material)
+        private static DiceFaceDirection? GetDirectionFromSlotName(Material material)
         {
-            if (meshRenderer == null || string.IsNullOrWhiteSpace(slotName) || material == null) return false;
+            string slotName = RemovePrefabInstanceSuffix(material);
 
-            Material[] sharedMaterials = meshRenderer.sharedMaterials;
-            bool updatedSlot = false;
+            if (string.Equals(slotName, DiceFaceSlotNameUp, StringComparison.OrdinalIgnoreCase)) return DiceFaceDirection.Up;
+            if (string.Equals(slotName, DiceFaceSlotNameDown, StringComparison.OrdinalIgnoreCase)) return DiceFaceDirection.Down;
+            if (string.Equals(slotName, DiceFaceSlotNameForward, StringComparison.OrdinalIgnoreCase)) return DiceFaceDirection.Forward;
+            if (string.Equals(slotName, DiceFaceSlotNameBack, StringComparison.OrdinalIgnoreCase)) return DiceFaceDirection.Back;
 
-            for (int index = 0; index < sharedMaterials.Length; index++)
-            {
-                if (!DoesMaterialSlotNameMatch(sharedMaterials[index], slotName)) continue;
+            // Inverted mapping to correct Blender to Unity axis translation
+            if (string.Equals(slotName, DiceFaceSlotNameRight, StringComparison.OrdinalIgnoreCase)) return DiceFaceDirection.Left;
+            if (string.Equals(slotName, DiceFaceSlotNameLeft, StringComparison.OrdinalIgnoreCase)) return DiceFaceDirection.Right;
 
-                sharedMaterials[index] = material;
-                updatedSlot = true;
-            }
-
-            if (updatedSlot)
-            {
-                meshRenderer.sharedMaterials = sharedMaterials;
-            }
-
-            return updatedSlot;
-        }
-
-        private static bool DoesMaterialSlotNameMatch(Material material, string slotName)
-        {
-            string currentMaterialName = RemovePrefabInstanceSuffix(material);
-            return string.Equals(currentMaterialName, slotName, StringComparison.OrdinalIgnoreCase);
+            return null;
         }
 
         private static string RemovePrefabInstanceSuffix(Material material)
         {
-            return material != null
-                ? material.name.Replace(" (Instance)", string.Empty)
-                : string.Empty;
+            return material != null ? material.name.Replace(" (Instance)", string.Empty) : string.Empty;
         }
     }
 }

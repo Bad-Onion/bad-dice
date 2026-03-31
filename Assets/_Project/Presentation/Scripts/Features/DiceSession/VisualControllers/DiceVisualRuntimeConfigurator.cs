@@ -42,8 +42,9 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
             _baseModelManager.ApplyMesh(visualConfiguration.baseMesh);
 
             _materialManager.ApplyMaterials(
-                visualConfiguration.baseMaterial,
-                visualConfiguration.faceMaterials);
+                visualConfiguration.shaderMaterial,
+                visualConfiguration.baseTexture,
+                visualConfiguration.faceTextures);
         }
 
         private void InitializeServices()
