@@ -4,6 +4,7 @@ using _Project.Application.Interfaces;
 using _Project.Domain.Features.Dice.Enums;
 using _Project.Domain.Features.Dice.ScriptableObjects.Definitions;
 using _Project.Domain.Features.Dice.Simulation;
+using _Project.Infrastructure.Features.DiceSession.Utility;
 using UnityEngine;
 
 namespace _Project.Infrastructure.Features.DiceSession.UseCases
@@ -12,15 +13,6 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
     {
         private const int MaxRecordCapacity = 300;
         private const float MaxMotionThreshold = 0.001f;
-        private static readonly DiceFaceDirection[] ExactFaces =
-        {
-            DiceFaceDirection.Up,
-            DiceFaceDirection.Down,
-            DiceFaceDirection.Left,
-            DiceFaceDirection.Right,
-            DiceFaceDirection.Forward,
-            DiceFaceDirection.Back
-        };
 
         public DiceSimulationResult SimulateTrajectory(
             DiceDefinition[] definitions,
@@ -141,36 +133,10 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
         private static Quaternion CalculateVisualCorrection(DiceDefinition definition, int targetFaceIndex, GameObject diceObject)
         {
-            Vector3 exactLandedFace = GetExactLandedFace(diceObject.transform);
+            Vector3 exactLandedFace = DiceFacesService.GetExactLandedFace(diceObject.transform);
             Vector3 targetLocalUp = definition.GetFaceData(targetFaceIndex).localDirection.ToVector3();
 
             return Quaternion.FromToRotation(targetLocalUp, exactLandedFace);
-        }
-
-        private static Vector3 GetExactLandedFace(Transform diceTransform)
-        {
-            Vector3 localUpDirection = diceTransform.InverseTransformDirection(Vector3.up);
-            return GetClosestExactFace(localUpDirection);
-        }
-
-        private static Vector3 GetClosestExactFace(Vector3 localDirection)
-        {
-            DiceFaceDirection bestFaceDirection = ExactFaces[0];
-            float maxDot = Vector3.Dot(localDirection, bestFaceDirection.ToVector3());
-
-            for (int i = 1; i < ExactFaces.Length; i++)
-            {
-                DiceFaceDirection currentFaceDirection = ExactFaces[i];
-                float dot = Vector3.Dot(localDirection, currentFaceDirection.ToVector3());
-
-                if (dot <= maxDot)
-                    continue;
-
-                maxDot = dot;
-                bestFaceDirection = currentFaceDirection;
-            }
-
-            return bestFaceDirection.ToVector3();
         }
 
         private static void CleanupDummies(GameObject[] dummies)
