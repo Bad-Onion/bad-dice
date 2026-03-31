@@ -20,17 +20,17 @@ MonoBehaviour:
     baseMaterial: {fileID: 2100000, guid: c852e081ca0baff43904a665be4c173f, type: 2}
     faceMaterials:
     - localDirection: 0
-      faceMaterial: {fileID: 2100000, guid: 95cb120a85181d4439b68129da63f326, type: 2}
+      faceMaterial: {fileID: 2100000, guid: 5a707b576d554d1449778bac795e1143, type: 2}
     - localDirection: 4
-      faceMaterial: {fileID: 2100000, guid: c4d2389fb62b0eb4e8409f2c072260c9, type: 2}
+      faceMaterial: {fileID: 2100000, guid: 07e51514cc26c0849b8e4c099984e5b3, type: 2}
     - localDirection: 3
-      faceMaterial: {fileID: 2100000, guid: ac17208594a27d448a535caa8369c8ca, type: 2}
+      faceMaterial: {fileID: 2100000, guid: 9654bd89d25e6b240bd2a8463b140fd1, type: 2}
     - localDirection: 2
-      faceMaterial: {fileID: 2100000, guid: 367db4edff930c046ad8273b1414d424, type: 2}
+      faceMaterial: {fileID: 2100000, guid: b99e6683a8b8fcd4faba981f953d2f6d, type: 2}
     - localDirection: 5
-      faceMaterial: {fileID: 2100000, guid: 42dd33978e1eed5499e0247ce57eea77, type: 2}
+      faceMaterial: {fileID: 2100000, guid: bf428ee5c80f715459fe2f8be7fde3b8, type: 2}
     - localDirection: 1
-      faceMaterial: {fileID: 2100000, guid: 62c7af5610b0e584b93110d8e68a21a4, type: 2}
+      faceMaterial: {fileID: 2100000, guid: da7a3a1cbadfe004d9b0daca2765e132, type: 2}
   faces:
   - value: 1
     localDirection: 0
