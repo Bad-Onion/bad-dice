@@ -1,32 +1,20 @@
 ﻿using _Project.Domain.Features.Dice.DTO;
-using _Project.Domain.Features.Dice.Enums;
 using UnityEngine;
 
 namespace _Project.Application.Interfaces
 {
     /// <summary>
-    /// Manages material assignment for both the base model and face models.
+    /// Manages material assignment for the dice body model.
+    /// Handles base material and per-face materials with proper fallback logic.
     /// </summary>
     public interface IDiceMaterialManager
     {
         /// <summary>
-        /// Applies materials to the base model's MeshRenderer based on face directions and slots.
+        /// Applies base material and per-face materials to the dice body based on face directions and material slots.
         /// </summary>
-        void ApplyBaseMaterials(
+        void ApplyMaterials(
             Material baseMaterial,
-            Material defaultFaceValueMaterial,
-            DiceFaceVisualModelData[] faceModels);
-
-        /// <summary>
-        /// Applies materials to a spawned face model.
-        /// </summary>
-        void ApplyFaceModelMaterials(
-            GameObject spawnedFaceModel,
-            DiceFaceDirection faceDirection,
-            DiceFaceVisualModelData faceModel,
-            Material baseMaterial,
-            Material defaultFaceValueMaterial,
-            bool applyBaseMaterialToFaceModels);
+            DiceFaceMaterialData[] faceMaterials);
     }
 }
 

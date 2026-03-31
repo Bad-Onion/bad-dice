@@ -15,72 +15,22 @@ MonoBehaviour:
   visualPrefab: {fileID: 7710947953943999187, guid: f90bbb3782cfffd41a437b2e41a6024b, type: 3}
   physicsPrefab: {fileID: 6105901489569188174, guid: 14b66540260ea334bb42af5580a31799, type: 3}
   visualConfiguration:
-    baseModelPrefab: {fileID: 919132149155446097, guid: d0a2701be8a63cb4d8c832823a7ac096, type: 3}
+    baseModelPrefab: {fileID: 919132149155446097, guid: 35e85277de30b78468bda0bc82d16a6c, type: 3}
     baseMesh: {fileID: 0}
     baseMaterial: {fileID: 2100000, guid: c852e081ca0baff43904a665be4c173f, type: 2}
-    defaultFaceValueMaterial: {fileID: 2100000, guid: e6ea2195b41ee2a4786d388cf6348ab3, type: 2}
-    applyBaseMaterialToFaceModels: 0
-    faceModels:
+    faceMaterials:
     - localDirection: 0
-      faceValuePrefab: {fileID: 4710123244627257299, guid: 326c4a9cfdf474f4a93db8bc3382e2c3, type: 3}
-      faceModelMaterial: {fileID: 0}
-      faceValueMaterial: {fileID: 0}
-      useCustomLocalPosition: 0
-      customLocalPosition: {x: 0, y: 0, z: 0}
-      useCustomLocalRotation: 0
-      customLocalRotationEuler: {x: 0, y: 0, z: 0}
-      useGameplayFaceValueAsText: 0
-      customFaceValueText: 
+      faceMaterial: {fileID: 2100000, guid: 42dd33978e1eed5499e0247ce57eea77, type: 2}
     - localDirection: 4
-      faceValuePrefab: {fileID: 4710123244627257299, guid: 326c4a9cfdf474f4a93db8bc3382e2c3, type: 3}
-      faceModelMaterial: {fileID: 0}
-      faceValueMaterial: {fileID: 0}
-      useCustomLocalPosition: 0
-      customLocalPosition: {x: 0, y: 0, z: 0}
-      useCustomLocalRotation: 0
-      customLocalRotationEuler: {x: 0, y: 0, z: 0}
-      useGameplayFaceValueAsText: 0
-      customFaceValueText: 
+      faceMaterial: {fileID: 2100000, guid: 42dd33978e1eed5499e0247ce57eea77, type: 2}
     - localDirection: 3
-      faceValuePrefab: {fileID: 4710123244627257299, guid: 326c4a9cfdf474f4a93db8bc3382e2c3, type: 3}
-      faceModelMaterial: {fileID: 0}
-      faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
-      useCustomLocalPosition: 0
-      customLocalPosition: {x: 0, y: 0, z: 0}
-      useCustomLocalRotation: 0
-      customLocalRotationEuler: {x: 0, y: 0, z: 0}
-      useGameplayFaceValueAsText: 0
-      customFaceValueText: 
+      faceMaterial: {fileID: 2100000, guid: 42dd33978e1eed5499e0247ce57eea77, type: 2}
     - localDirection: 2
-      faceValuePrefab: {fileID: 4710123244627257299, guid: 326c4a9cfdf474f4a93db8bc3382e2c3, type: 3}
-      faceModelMaterial: {fileID: 0}
-      faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
-      useCustomLocalPosition: 0
-      customLocalPosition: {x: 0, y: 0, z: 0}
-      useCustomLocalRotation: 0
-      customLocalRotationEuler: {x: 0, y: 0, z: 0}
-      useGameplayFaceValueAsText: 0
-      customFaceValueText: 
+      faceMaterial: {fileID: 2100000, guid: 42dd33978e1eed5499e0247ce57eea77, type: 2}
     - localDirection: 5
-      faceValuePrefab: {fileID: 4710123244627257299, guid: 326c4a9cfdf474f4a93db8bc3382e2c3, type: 3}
-      faceModelMaterial: {fileID: 2100000, guid: 1a03f8c5e2e0b564fbd7768efbecff37, type: 2}
-      faceValueMaterial: {fileID: 2100000, guid: 13c11a5b6d908ba47a45d809c27afe32, type: 2}
-      useCustomLocalPosition: 0
-      customLocalPosition: {x: 0, y: 0, z: 0}
-      useCustomLocalRotation: 0
-      customLocalRotationEuler: {x: 0, y: 0, z: 0}
-      useGameplayFaceValueAsText: 0
-      customFaceValueText: 
+      faceMaterial: {fileID: 2100000, guid: 42dd33978e1eed5499e0247ce57eea77, type: 2}
     - localDirection: 1
-      faceValuePrefab: {fileID: 4710123244627257299, guid: 326c4a9cfdf474f4a93db8bc3382e2c3, type: 3}
-      faceModelMaterial: {fileID: 2100000, guid: 1a03f8c5e2e0b564fbd7768efbecff37, type: 2}
-      faceValueMaterial: {fileID: 0}
-      useCustomLocalPosition: 0
-      customLocalPosition: {x: 0, y: 0, z: 0}
-      useCustomLocalRotation: 0
-      customLocalRotationEuler: {x: 0, y: 0, z: 0}
-      useGameplayFaceValueAsText: 0
-      customFaceValueText: 
+      faceMaterial: {fileID: 2100000, guid: 42dd33978e1eed5499e0247ce57eea77, type: 2}
   faces:
   - value: 5
     localDirection: 0

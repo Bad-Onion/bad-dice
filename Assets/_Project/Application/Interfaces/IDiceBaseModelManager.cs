@@ -27,10 +27,6 @@ namespace _Project.Application.Interfaces
         /// </summary>
         void ApplyMesh(Mesh baseMesh);
 
-        /// <summary>
-        /// Hides all Value_X GameObjects in the base model to prevent duplicate face value visuals at runtime.
-        /// </summary>
-        void HideBaseModelFaceValueObjects();
 
         /// <summary>
         /// Cleans up the spawned base model.
