@@ -3,7 +3,8 @@
 namespace _Project.Application.Interfaces
 {
     /// <summary>
-    /// Applies visual configuration from a DiceDefinition to a dice prefab instance.
+    /// Orchestrates visual configuration of a die prefab instance
+    /// Applies visual configuration from a DiceDefinition to a die prefab instance.
     /// </summary>
     public interface IDiceVisualConfigurator
     {

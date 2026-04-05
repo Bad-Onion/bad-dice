@@ -21,7 +21,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
         [Tooltip("Fallback MeshFilter used when no base model prefab is assigned.")]
         [SerializeField] private MeshFilter fallbackBaseMeshFilter;
 
-        [Tooltip("Fallback MeshRenderer used when no base model prefab is assigned.")]
+        [Tooltip("Fallback MeshRenderer used when no base model is assigned (eg. a simple cube).")]
         [SerializeField] private MeshRenderer fallbackBaseMeshRenderer;
 
         private IDiceBaseModelManager _baseModelManager;
@@ -38,7 +38,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
         {
             InitializeServices();
 
-            _baseModelManager.SetupBaseModel(visualConfiguration.baseModelPrefab);
+            _baseModelManager.SetupBaseModel(visualConfiguration.baseModel);
             _baseModelManager.ApplyMesh(visualConfiguration.baseMesh);
 
             _materialManager.ApplyMaterials(

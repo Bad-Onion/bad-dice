@@ -6,6 +6,7 @@ namespace _Project.Application.Interfaces
     /// <summary>
     /// Manages material assignment for the dice body model.
     /// Handles base material and per-face materials with proper fallback logic.
+    /// Applies shader properties to ensure correct rendering of textures visibility on the dice faces.
     /// </summary>
     public interface IDiceMaterialManager
     {

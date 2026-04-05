@@ -31,9 +31,9 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
             });
         }
 
-        public void ExecuteAutoMerge(string targetDiceId)
+        public void ExecuteMerge(string targetDieId)
         {
-            if (!CanMergeDice(targetDiceId, out var targetDie)) return;
+            if (!CanMergeDice(targetDieId, out var targetDie)) return;
 
             List<DiceState> diceToAbsorb = GetDicesToAbsorb(targetDie);
 

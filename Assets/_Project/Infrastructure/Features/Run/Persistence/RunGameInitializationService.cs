@@ -45,8 +45,9 @@ namespace _Project.Infrastructure.Features.Run.Persistence
 
         private void LoadRun()
         {
-            var loadedState = _repository.LoadRun(_combatSessionState);
+            var loadedState = _repository.LoadRun();
             _runStateBuilder.BuildFromExisting(_runState, loadedState, _gameConfiguration.runDefinitions);
+            _repository.RestoreCombatProgression(_combatSessionState);
         }
 
         private void InitializeRun()

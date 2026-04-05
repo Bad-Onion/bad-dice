@@ -70,11 +70,11 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
             Bus<DiceResetEvent>.Raise(new DiceResetEvent());
         }
 
-        public void ToggleDiceRerollSelection(string diceId)
+        public void ToggleDiceRerollSelection(string dieId)
         {
             if (_diceSessionState.IsRolling) return;
 
-            var die = GetDiceToReroll(diceId);
+            var die = GetDiceToReroll(dieId);
 
             if (die == null || !HasBeenRolled(die)) return;
 
@@ -82,7 +82,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
             Bus<DiceRerollToggledEvent>.Raise(new DiceRerollToggledEvent
             {
-                DiceId = diceId,
+                DiceId = dieId,
                 IsSelected = die.IsSelectedForReroll
             });
         }

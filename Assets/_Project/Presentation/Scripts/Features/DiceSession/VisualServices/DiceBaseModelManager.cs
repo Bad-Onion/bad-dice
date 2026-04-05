@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Features.DiceSession.VisualServices
 {
-    /// <summary>
-    /// Manages the base model (body) of a die, handling mesh and visibility.
-    /// </summary>
     public class DiceBaseModelManager : IDiceBaseModelManager
     {
         private readonly Transform _baseModelRoot;

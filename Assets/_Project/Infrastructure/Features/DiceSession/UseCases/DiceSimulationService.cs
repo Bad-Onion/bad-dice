@@ -17,8 +17,8 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
         public DiceSimulationResult SimulateTrajectory(
             DiceDefinition[] definitions,
             int[] targetFaceIndices,
-            Vector3[] startPos,
-            Quaternion[] startRot,
+            Vector3[] startPositions,
+            Quaternion[] startRotations,
             Vector3[] forces,
             Vector3[] torques)
         {
@@ -28,7 +28,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
             {
                 Physics.simulationMode = SimulationMode.Script;
 
-                GameObject[] dummyPhysicsObjects = CreateAndInitializeDiceArray(definitions, startPos, startRot, forces, torques);
+                GameObject[] dummyPhysicsObjects = CreateAndInitializeDiceArray(definitions, startPositions, startRotations, forces, torques);
                 Rigidbody[] rigidBodies = GetRigidbodies(dummyPhysicsObjects);
 
                 List<DicePoseSimulationResultPath> dicePaths = SimulateUntilAllSettled(rigidBodies);

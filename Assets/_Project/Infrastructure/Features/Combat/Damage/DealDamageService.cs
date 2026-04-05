@@ -26,7 +26,7 @@ namespace _Project.Infrastructure.Features.Combat.Damage
             _diceRollUseCase = diceRollUseCase;
         }
 
-        public void DealCurrentDiceDamage()
+        public void DealCurrentDamage()
         {
             if (_diceSessionState.HasDealtThisTurn) return;
             if (_diceSessionState.CurrentTurn > _diceSessionState.MaxTurns) return;

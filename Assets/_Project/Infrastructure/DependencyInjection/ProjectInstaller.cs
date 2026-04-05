@@ -22,6 +22,9 @@ using _Project.Infrastructure.Shared.Adapters;
 
 namespace _Project.Infrastructure.DependencyInjection
 {
+    /// <summary>
+    /// The ProjectInstaller is responsible for setting up all dependency bindings for the project scope.
+    /// </summary>
     public class ProjectInstaller : MonoInstaller
     {
         [Header("Event Channels")]

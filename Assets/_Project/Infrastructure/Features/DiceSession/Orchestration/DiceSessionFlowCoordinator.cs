@@ -62,7 +62,7 @@ namespace _Project.Infrastructure.Features.DiceSession.Orchestration
 
         private void HandleDealDamageRequested(DealDamageRequestedEvent evt)
         {
-            _dealDamageUseCase.DealCurrentDiceDamage();
+            _dealDamageUseCase.DealCurrentDamage();
         }
 
         private void HandleDiceHoverChanged(DiceHoverChangedEvent evt)
@@ -121,7 +121,7 @@ namespace _Project.Infrastructure.Features.DiceSession.Orchestration
 
         private void HandleDiceAutoMergeRequested(DiceAutoMergeRequestedEvent evt)
         {
-            _diceMergeUseCase.ExecuteAutoMerge(evt.DiceId);
+            _diceMergeUseCase.ExecuteMerge(evt.DiceId);
         }
 
         private void HandleDicePlaybackCompleted(DicePlaybackCompletedEvent evt)

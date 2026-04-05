@@ -5,6 +5,9 @@ using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
 
 namespace _Project.Application.Commands
 {
+    /// <summary>
+    /// Command to unload a level based on the provided LevelData. It uses an ISceneLoader to unload the scene and invokes a callback upon completion.
+    /// </summary>
     public class UnloadLevelCommand : ICommand
     {
         private readonly ISceneLoader _sceneLoader;

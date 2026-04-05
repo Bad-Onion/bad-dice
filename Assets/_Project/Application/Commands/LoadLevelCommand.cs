@@ -8,6 +8,10 @@ using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
 
 namespace _Project.Application.Commands
 {
+    /// <summary>
+    /// Command to load a level based on the provided LevelData. It uses an ISceneLoader to load the scene additively and raises
+    /// a LevelLoadedEvent upon completion. It also ensures that the initialization use case has been run before loading the level.
+    /// </summary>
     public class LoadLevelCommand : ICommand
     {
         private readonly ISceneLoader _sceneLoader;

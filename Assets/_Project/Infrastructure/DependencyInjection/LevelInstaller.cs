@@ -12,6 +12,10 @@ using Zenject;
 
 namespace _Project.Infrastructure.DependencyInjection
 {
+    /// <summary>
+    /// The LevelInstaller is responsible for setting up all dependency bindings specific to a level or scene in game. This
+    /// includes services, use cases, and any references that are unique to the level's functionality.
+    /// </summary>
     public class LevelInstaller : MonoInstaller
     {
         [Header("Level References")]

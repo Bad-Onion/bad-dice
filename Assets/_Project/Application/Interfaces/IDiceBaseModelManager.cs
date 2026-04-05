@@ -3,7 +3,7 @@
 namespace _Project.Application.Interfaces
 {
     /// <summary>
-    /// Manages the base model (body) of a dice, including mesh and material setup.
+    /// Manages the base model (body) of a die, handling mesh and visibility.
     /// </summary>
     public interface IDiceBaseModelManager
     {
