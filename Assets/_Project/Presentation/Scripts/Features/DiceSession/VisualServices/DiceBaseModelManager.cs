@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace _Project.Presentation.Scripts.Features.DiceSession.VisualServices
 {
+    /// <summary>
+    /// Manages the base model of a die, allowing for dynamic setup and mesh application at runtime.
+    /// </summary>
     public class DiceBaseModelManager : IDiceBaseModelManager
     {
         private readonly Transform _baseModelRoot;

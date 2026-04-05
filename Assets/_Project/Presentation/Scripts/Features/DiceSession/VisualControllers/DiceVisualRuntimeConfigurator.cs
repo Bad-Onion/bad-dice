@@ -47,6 +47,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.VisualControllers
                 visualConfiguration.faceTextures);
         }
 
+        // TODO: If services ever scale to require more parameters or more services, implement Dependency Injection to manage dependencies and lifecycle more cleanly.
         private void InitializeServices()
         {
             _baseModelManager ??= new DiceBaseModelManager(
