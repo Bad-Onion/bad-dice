@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using _Project.Application.Events.DiceInput;
+using _Project.Application.Interfaces;
 using _Project.Application.States.DiceSession;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Dice.Entities;
@@ -13,20 +15,28 @@ using Zenject;
 namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
 {
     [RequireComponent(typeof(DicePrefabManager))]
-    public class DiceSessionEventHandler : MonoBehaviour
+    public class DiceSessionEventHandler : MonoBehaviour, IDicePlaybackCompletionInputSource
     {
         private DiceSessionState _diceSessionState;
+        private DiceRollState _diceRollState;
+        private DiceMergeState _diceMergeState;
         private DicePrefabManager _dicePrefabManager;
         private IDiceRollUseCase _diceRollUseCase;
         private IDiceMergeUseCase _diceMergeUseCase;
 
+        public event Action DicePlaybackCompleted;
+
         [Inject]
         public void Construct(
             DiceSessionState diceSessionState,
+            DiceRollState diceRollState,
+            DiceMergeState diceMergeState,
             IDiceRollUseCase diceRollUseCase,
             IDiceMergeUseCase diceMergeUseCase)
         {
             _diceSessionState = diceSessionState;
+            _diceRollState = diceRollState;
+            _diceMergeState = diceMergeState;
             _diceRollUseCase = diceRollUseCase;
             _diceMergeUseCase = diceMergeUseCase;
         }
@@ -64,13 +74,13 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
 
         private float GetLongestPlaybackTime()
         {
-            if (_diceSessionState.CurrentSimulationResult.DicePaths == null) return 0f;
+            if (_diceRollState.CurrentSimulationResult.DicePaths == null) return 0f;
 
             float longestPlaybackTime = 0f;
 
-            for (int i = 0; i < _diceSessionState.CurrentRolledDiceIds.Count; i++)
+            for (int i = 0; i < _diceRollState.CurrentRolledDiceIds.Count; i++)
             {
-                string diceId = _diceSessionState.CurrentRolledDiceIds[i];
+                string diceId = _diceRollState.CurrentRolledDiceIds[i];
                 DiceState diceState = _diceSessionState.ActiveDice.Find(activeDice => activeDice.Dice.Id == diceId);
 
                 if (diceState == null || diceState.Dice.Definition.visualPrefab == null) continue;
@@ -79,7 +89,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
                 if (diceController == null) continue;
                 diceController.SetSelectionVisual(false);
 
-                DicePoseSimulationResultPath path = _diceSessionState.CurrentSimulationResult.DicePaths[i];
+                DicePoseSimulationResultPath path = _diceRollState.CurrentSimulationResult.DicePaths[i];
                 diceController.PlayTrajectory(path);
 
                 float duration = GetDieAnimationDuration(path);
@@ -100,8 +110,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
         private IEnumerator UnlockSessionAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
-            // TODO: This shouldn't be calling a service method directly from a presentation layer
-            _diceRollUseCase.EndRoll();
+            DicePlaybackCompleted?.Invoke();
         }
 
         private void HandleReset(DiceResetEvent evt)
@@ -122,7 +131,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
         {
             foreach (var activeDiceEntry in _dicePrefabManager.ActiveControllers)
             {
-                bool isMergeable = _diceSessionState.MergeableDiceIds.Contains(activeDiceEntry.Key);
+                bool isMergeable = _diceMergeState.MergeableDiceIds.Contains(activeDiceEntry.Key);
                 activeDiceEntry.Value.SetMergeableOutline(isMergeable);
             }
         }

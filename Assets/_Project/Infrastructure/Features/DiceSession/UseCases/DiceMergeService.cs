@@ -11,21 +11,29 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
     public class DiceMergeService : IDiceMergeUseCase
     {
         private readonly DiceSessionState _diceSessionState;
+        private readonly DiceRollState _diceRollState;
+        private readonly DiceMergeState _diceMergeState;
 
         public event Action<MergeState> MergeStateChanged;
 
-        public DiceMergeService(DiceSessionState diceSessionState)
+        public DiceMergeService(
+            DiceSessionState diceSessionState,
+            DiceRollState diceRollState,
+            DiceMergeState diceMergeState)
         {
             _diceSessionState = diceSessionState;
+            _diceRollState = diceRollState;
+            _diceMergeState = diceMergeState;
         }
 
         public void EvaluateMergePossibilities()
         {
             List<string> mergeableIds = GetMergeableDiceIds();
 
-            _diceSessionState.MergeableDiceIds = mergeableIds;
-            _diceSessionState.MergeState = mergeableIds.Count > 0 ? MergeState.Available : MergeState.None;
-            MergeStateChanged?.Invoke(_diceSessionState.MergeState);
+            _diceMergeState.MergeableDiceIds = mergeableIds;
+            _diceMergeState.MergeState = mergeableIds.Count > 0 ? MergeState.Available : MergeState.None;
+
+            MergeStateChanged?.Invoke(_diceMergeState.MergeState);
         }
 
         public void ExecuteMerge(string targetDieId)
@@ -37,9 +45,9 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
             if (diceToAbsorb.Count == 0) return;
 
             AbsorbDice(targetDie, diceToAbsorb);
+            _diceMergeState.MergeState = MergeState.Applied;
 
-            _diceSessionState.MergeState = MergeState.Applied;
-            MergeStateChanged?.Invoke(_diceSessionState.MergeState);
+            MergeStateChanged?.Invoke(_diceMergeState.MergeState);
         }
 
         private List<string> GetMergeableDiceIds()
@@ -56,12 +64,12 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
         {
             targetDie = null;
 
-            if (_diceSessionState.IsRolling) return false;
+            if (_diceRollState.IsRolling) return false;
 
             targetDie = _diceSessionState.ActiveDice.FirstOrDefault(diceState => diceState.Dice.Id == targetDiceId);
             if (targetDie == null || !WasDiceRolled(targetDie) || targetDie.Level == 0) return false;
 
-            return _diceSessionState.MergeableDiceIds.Contains(targetDie.Dice.Id);
+            return _diceMergeState.MergeableDiceIds.Contains(targetDie.Dice.Id);
         }
 
         private static bool WasDiceRolled(DiceState diceState)

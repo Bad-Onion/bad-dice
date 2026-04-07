@@ -37,6 +37,7 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IDiceRollUseCase>().To<DiceRollService>().AsSingle();
             Container.Bind<IDiceMergeUseCase>().To<DiceMergeService>().AsSingle();
             Container.Bind<IDiceHoverInputSource>().To<DiceSelectionHandler>().FromComponentInHierarchy().AsSingle();
+            Container.Bind<IDicePlaybackCompletionInputSource>().To<DiceSessionEventHandler>().FromComponentInHierarchy().AsSingle();
             Container.BindInterfacesAndSelfTo<DiceHoverService>().AsSingle();
             Container.Bind<IDicePouchUseCase>().To<DicePouchService>().AsSingle();
             Container.Bind<IPointerTargetingService>().To<PointerTargetingService>().AsSingle();

@@ -30,6 +30,8 @@ namespace _Project.Infrastructure.Features.Combat.Progression
         private readonly IRunRepository _runRepository;
         private readonly PlayerRunState _runState;
         private readonly DiceSessionState _diceSessionState;
+        private readonly DiceRollState _diceRollState;
+        private readonly DiceMergeState _diceMergeState;
 
         public EncounterProgressionService(
             CombatSessionState combatSessionState,
@@ -37,7 +39,9 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             GameConfiguration gameConfiguration,
             IRunRepository runRepository,
             PlayerRunState runState,
-            DiceSessionState diceSessionState)
+            DiceSessionState diceSessionState,
+            DiceRollState diceRollState,
+            DiceMergeState diceMergeState)
         {
             _combatSessionState = combatSessionState;
             _enemyEncounterState = enemyEncounterState;
@@ -45,6 +49,8 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             _runRepository = runRepository;
             _runState = runState;
             _diceSessionState = diceSessionState;
+            _diceRollState = diceRollState;
+            _diceMergeState = diceMergeState;
         }
 
         public bool IsInitialized => _combatSessionState.IsInitialized;
@@ -58,9 +64,13 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             _diceSessionState.CurrentTurn = 1;
             _diceSessionState.MaxTurns = _runState.TurnsPerFight;
             _diceSessionState.HasDealtThisTurn = false;
-            _diceSessionState.RollPhase = DiceRollPhase.Idle;
-            _diceSessionState.MergeableDiceIds.Clear();
-            _diceSessionState.MergeState = MergeState.None;
+            _diceRollState.IsRolling = false;
+            _diceRollState.RollPhase = DiceRollPhase.Idle;
+            _diceRollState.CurrentTargetFaceIndices = Array.Empty<int>();
+            _diceRollState.CurrentSimulationResult = default;
+            _diceRollState.CurrentRolledDiceIds.Clear();
+            _diceMergeState.MergeableDiceIds.Clear();
+            _diceMergeState.MergeState = MergeState.None;
 
             var equippedDice = _runState.DiceInventory.Where(diceData => diceData.IsEquipped);
             foreach (var ownedDice in equippedDice)
@@ -83,12 +93,9 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             });
 
             _enemyEncounterState.Phase = EncounterPhase.Active;
-            if (_enemyEncounterState.Snapshot == null)
-            {
-                _enemyEncounterState.Snapshot = new EncounterSnapshot();
-            }
-
+            _enemyEncounterState.Snapshot ??= new EncounterSnapshot();
             _enemyEncounterState.Snapshot.Phase = EncounterPhase.Active;
+
             EncounterSnapshotUpdated?.Invoke(_enemyEncounterState.Snapshot);
         }
 

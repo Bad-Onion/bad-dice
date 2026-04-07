@@ -63,6 +63,8 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<CombatSessionState>().AsSingle();
             Container.Bind<EnemyEncounterState>().AsSingle();
             Container.Bind<DiceSessionState>().AsSingle();
+            Container.Bind<DiceRollState>().AsSingle();
+            Container.Bind<DiceMergeState>().AsSingle();
 
             // Run State & Persistence (Cross-Scene)
             Container.BindInstance(diceRollConfiguration).AsSingle();

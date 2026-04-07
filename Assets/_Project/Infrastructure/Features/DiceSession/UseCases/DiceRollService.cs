@@ -19,6 +19,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
     public class DiceRollService : IDiceRollUseCase
     {
         private readonly DiceSessionState _diceSessionState;
+        private readonly DiceRollState _diceRollState;
         private readonly PlayerRunState _runState;
         private readonly DiceRollConfiguration _diceRollConfiguration;
         private readonly IDiceSimulationService _simulationService;
@@ -29,11 +30,13 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
         public DiceRollService(
             DiceSessionState diceSessionState,
+            DiceRollState diceRollState,
             PlayerRunState runState,
             DiceRollConfiguration diceRollConfiguration,
             IDiceSimulationService simulationService)
         {
             _diceSessionState = diceSessionState;
+            _diceRollState = diceRollState;
             _runState = runState;
             _diceRollConfiguration = diceRollConfiguration;
             _simulationService = simulationService;
@@ -44,7 +47,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
             var diceToRoll = GetDiceToRoll();
             if (!CanRollDice(diceToRoll)) return;
 
-            _diceSessionState.IsRolling = true;
+            _diceRollState.IsRolling = true;
 
             if (!IsFirstRoll())
             {
@@ -57,20 +60,18 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
         public void EndRoll()
         {
-            _diceSessionState.IsRolling = false;
+            _diceRollState.IsRolling = false;
             SetRollPhase(DiceRollPhase.Completed);
         }
 
         public void ResetDice()
         {
-            _diceSessionState.IsRolling = false;
-            _diceSessionState.RollPhase = DiceRollPhase.Idle;
+            _diceRollState.IsRolling = false;
+            _diceRollState.RollPhase = DiceRollPhase.Idle;
             _diceSessionState.RerollsLeft = _runState.RerollsPerTurn;
-            _diceSessionState.MergeableDiceIds.Clear();
-            _diceSessionState.MergeState = MergeState.None;
-            _diceSessionState.CurrentTargetFaceIndices = Array.Empty<int>();
-            _diceSessionState.CurrentSimulationResult = default;
-            _diceSessionState.CurrentRolledDiceIds.Clear();
+            _diceRollState.CurrentTargetFaceIndices = Array.Empty<int>();
+            _diceRollState.CurrentSimulationResult = default;
+            _diceRollState.CurrentRolledDiceIds.Clear();
 
             foreach (var die in _diceSessionState.ActiveDice)
             {
@@ -83,7 +84,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
         public void ToggleDiceRerollSelection(string dieId)
         {
-            if (_diceSessionState.IsRolling) return;
+            if (_diceRollState.IsRolling) return;
 
             var die = GetDiceToReroll(dieId);
 
@@ -100,7 +101,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
         private bool CanRollDice(List<DiceState> diceToRoll)
         {
-            if (_diceSessionState.IsRolling) return false;
+            if (_diceRollState.IsRolling) return false;
             if (!IsFirstRoll() && _diceSessionState.RerollsLeft <= 0) return false;
             if (diceToRoll.Count == 0) return false;
 
@@ -132,16 +133,16 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
                 definitions[i] = die.Dice.Definition;
             }
 
-            _diceSessionState.CurrentTargetFaceIndices = targetFaceIndices;
-            _diceSessionState.CurrentSimulationResult = SimulateRoll(definitions, targetFaceIndices);
-            _diceSessionState.CurrentRolledDiceIds = diceToRoll.Select(diceState => diceState.Dice.Id).ToList();
+            _diceRollState.CurrentTargetFaceIndices = targetFaceIndices;
+            _diceRollState.CurrentSimulationResult = SimulateRoll(definitions, targetFaceIndices);
+            _diceRollState.CurrentRolledDiceIds = diceToRoll.Select(diceState => diceState.Dice.Id).ToList();
 
             SetRollPhase(DiceRollPhase.PlayingAnimation);
         }
 
         private void SetRollPhase(DiceRollPhase phase)
         {
-            _diceSessionState.RollPhase = phase;
+            _diceRollState.RollPhase = phase;
             DiceRollPhaseChanged?.Invoke(phase);
         }
 

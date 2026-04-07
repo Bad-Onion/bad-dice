@@ -10,7 +10,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
 {
     public class DiceSelectionPresenter
     {
-        private readonly DiceSessionState _diceSessionState;
+        private readonly DiceRollState _diceRollState;
         private readonly PointerSelectionPresenter<DiceController> _pointerSelectionPresenter;
 
         public event Action<string> OnRerollRequested;
@@ -19,10 +19,10 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
 
         public DiceSelectionPresenter(
             InputReader inputReader,
-            DiceSessionState diceSessionState,
+            DiceRollState diceRollState,
             IPointerTargetingService pointerTargetingService)
         {
-            _diceSessionState = diceSessionState;
+            _diceRollState = diceRollState;
             _pointerSelectionPresenter = new PointerSelectionPresenter<DiceController>(
                 inputReader,
                 pointerTargetingService,
@@ -66,9 +66,9 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
 
         private bool CanProcessInteraction()
         {
-            if (_diceSessionState == null) return false;
+            if (_diceRollState == null) return false;
 
-            return !_diceSessionState.IsRolling;
+            return !_diceRollState.IsRolling;
         }
 
         private void HandleHoverStarted(DiceController diceController)
