@@ -1,5 +1,8 @@
-﻿namespace _Project.Application.Interfaces
+﻿namespace _Project.Application.Commands
 {
+    /// <summary>
+    /// Represents the result of validating a command. It indicates whether the command is valid and provides error information if it is not.
+    /// </summary>
     public readonly struct ValidationResult
     {
         public bool IsValid { get; }

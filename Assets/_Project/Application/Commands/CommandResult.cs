@@ -1,5 +1,10 @@
-﻿namespace _Project.Application.Interfaces
+﻿namespace _Project.Application.Commands
 {
+    /// <summary>
+    /// The CommandResult struct represents the outcome of executing a command. It indicates whether the command was successful,
+    /// and if not, it provides an error code and message to describe the failure. This struct is used throughout the command processing
+    /// pipeline to standardize how results are communicated back to the caller and any middleware that may be involved in handling the command execution.
+    /// </summary>
     public readonly struct CommandResult
     {
         public bool IsSuccess { get; }

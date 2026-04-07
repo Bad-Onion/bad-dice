@@ -1,4 +1,6 @@
-﻿namespace _Project.Application.Interfaces
+﻿using _Project.Application.Commands;
+
+namespace _Project.Application.Interfaces
 {
     /// <summary>
     /// Interface for commands that can be executed. This is part of the Command pattern.
