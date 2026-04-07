@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using _Project.Application.Events.Core;
-using _Project.Application.Events.EncounterState;
 using _Project.Application.Events.GameState;
 using _Project.Application.Interfaces;
+using _Project.Application.States.DiceSession;
+using _Project.Application.States.Encounter;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Combat.Entities;
 using _Project.Domain.Features.Combat.Enums;
@@ -14,12 +16,14 @@ using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
 using _Project.Domain.Features.Dice.Session;
 using _Project.Domain.Features.Run.Session;
-using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace _Project.Infrastructure.Features.Combat.Progression
 {
     public class EncounterProgressionService : IEncounterProgressionUseCase
     {
+        public event Action<EncounterSnapshot> EncounterSnapshotUpdated;
+
         private readonly CombatSessionState _combatSessionState;
         private readonly EnemyEncounterState _enemyEncounterState;
         private readonly GameConfiguration _gameConfiguration;
@@ -54,7 +58,9 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             _diceSessionState.CurrentTurn = 1;
             _diceSessionState.MaxTurns = _runState.TurnsPerFight;
             _diceSessionState.HasDealtThisTurn = false;
+            _diceSessionState.RollPhase = DiceRollPhase.Idle;
             _diceSessionState.MergeableDiceIds.Clear();
+            _diceSessionState.MergeState = MergeState.None;
 
             var equippedDice = _runState.DiceInventory.Where(diceData => diceData.IsEquipped);
             foreach (var ownedDice in equippedDice)
@@ -76,7 +82,14 @@ namespace _Project.Infrastructure.Features.Combat.Progression
                 MaxTurns = _diceSessionState.MaxTurns
             });
 
-            Bus<EncounterStartedEvent>.Raise(new EncounterStartedEvent());
+            _enemyEncounterState.Phase = EncounterPhase.Active;
+            if (_enemyEncounterState.Snapshot == null)
+            {
+                _enemyEncounterState.Snapshot = new EncounterSnapshot();
+            }
+
+            _enemyEncounterState.Snapshot.Phase = EncounterPhase.Active;
+            EncounterSnapshotUpdated?.Invoke(_enemyEncounterState.Snapshot);
         }
 
         public void InitializeRunProgression()
@@ -104,8 +117,10 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             _enemyEncounterState.IsPrepared = true;
             _enemyEncounterState.IsDefeated = false;
 
-            Bus<EncounterPreparedEvent>.Raise(new EncounterPreparedEvent
+            _enemyEncounterState.Phase = EncounterPhase.Prepared;
+            _enemyEncounterState.Snapshot = new EncounterSnapshot
             {
+                Phase = EncounterPhase.Prepared,
                 EnemyId = encounterPlanEntry.EnemyId,
                 EnemyName = encounterPlanEntry.EnemyName,
                 CurrentHealth = _enemyEncounterState.CurrentHealth,
@@ -114,7 +129,9 @@ namespace _Project.Infrastructure.Features.Combat.Progression
                 EncounterIndexInCycle = encounterPlanEntry.EncounterIndexInCycle,
                 IsBoss = encounterPlanEntry.EncounterType == EnemyEncounterType.Boss || encounterPlanEntry.EncounterType == EnemyEncounterType.FinalBoss,
                 IsFinalBoss = encounterPlanEntry.EncounterType == EnemyEncounterType.FinalBoss
-            });
+            };
+
+            EncounterSnapshotUpdated?.Invoke(_enemyEncounterState.Snapshot);
         }
 
         public bool TryAdvanceEncounter()

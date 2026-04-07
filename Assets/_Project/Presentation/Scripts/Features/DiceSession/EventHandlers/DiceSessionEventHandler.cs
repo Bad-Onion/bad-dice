@@ -1,8 +1,6 @@
 ﻿using System.Collections;
-using _Project.Application.Events.Core;
-using _Project.Application.Events.DiceSimulation;
 using _Project.Application.Events.DiceInput;
-using _Project.Application.Events.MergeEvents;
+using _Project.Application.States.DiceSession;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.Dice.Session;
@@ -40,37 +38,39 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
 
         private void OnEnable()
         {
-            Bus<DicePlaybackRequestedEvent>.OnEvent += HandlePlaybackRequested;
-
             _diceRollUseCase.DiceReset += HandleReset;
             _diceRollUseCase.DiceRerollToggled += HandleDiceSelected;
-            _diceMergeUseCase.MergePossibilitiesEvaluated += HandleMergePossibilities;
+            _diceRollUseCase.DiceRollPhaseChanged += HandleDiceRollPhaseChanged;
+            _diceMergeUseCase.MergeStateChanged += HandleMergeStateChanged;
         }
 
         private void OnDisable()
         {
-            Bus<DicePlaybackRequestedEvent>.OnEvent -= HandlePlaybackRequested;
-
             _diceRollUseCase.DiceReset -= HandleReset;
             _diceRollUseCase.DiceRerollToggled -= HandleDiceSelected;
-            _diceMergeUseCase.MergePossibilitiesEvaluated -= HandleMergePossibilities;
+            _diceRollUseCase.DiceRollPhaseChanged -= HandleDiceRollPhaseChanged;
+            _diceMergeUseCase.MergeStateChanged -= HandleMergeStateChanged;
         }
 
-        private void HandlePlaybackRequested(DicePlaybackRequestedEvent evt)
+        private void HandleDiceRollPhaseChanged(DiceRollPhase phase)
         {
-            float longestPlaybackTime = GetLongestPlaybackTime(evt);
+            if (phase != DiceRollPhase.PlayingAnimation) return;
+
+            float longestPlaybackTime = GetLongestPlaybackTime();
 
             // Unlock the session interactions after the dice finish moving
             StartCoroutine(UnlockSessionAfterDelay(longestPlaybackTime));
         }
 
-        private float GetLongestPlaybackTime(DicePlaybackRequestedEvent evt)
+        private float GetLongestPlaybackTime()
         {
+            if (_diceSessionState.CurrentSimulationResult.DicePaths == null) return 0f;
+
             float longestPlaybackTime = 0f;
 
-            for (int i = 0; i < evt.RolledDiceIds.Count; i++)
+            for (int i = 0; i < _diceSessionState.CurrentRolledDiceIds.Count; i++)
             {
-                string diceId = evt.RolledDiceIds[i];
+                string diceId = _diceSessionState.CurrentRolledDiceIds[i];
                 DiceState diceState = _diceSessionState.ActiveDice.Find(activeDice => activeDice.Dice.Id == diceId);
 
                 if (diceState == null || diceState.Dice.Definition.visualPrefab == null) continue;
@@ -79,7 +79,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
                 if (diceController == null) continue;
                 diceController.SetSelectionVisual(false);
 
-                DicePoseSimulationResultPath path = evt.SimulationResult.DicePaths[i];
+                DicePoseSimulationResultPath path = _diceSessionState.CurrentSimulationResult.DicePaths[i];
                 diceController.PlayTrajectory(path);
 
                 float duration = GetDieAnimationDuration(path);
@@ -97,10 +97,11 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
             return path.Frames.Count * Time.fixedDeltaTime;
         }
 
-        private static IEnumerator UnlockSessionAfterDelay(float delay)
+        private IEnumerator UnlockSessionAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
-            Bus<DicePlaybackCompletedEvent>.Raise(new DicePlaybackCompletedEvent());
+            // TODO: This shouldn't be calling a service method directly from a presentation layer
+            _diceRollUseCase.EndRoll();
         }
 
         private void HandleReset(DiceResetEvent evt)
@@ -117,11 +118,11 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
             }
         }
 
-        private void HandleMergePossibilities(MergePossibilitiesEvaluatedEvent evt)
+        private void HandleMergeStateChanged(MergeState mergeState)
         {
             foreach (var activeDiceEntry in _dicePrefabManager.ActiveControllers)
             {
-                bool isMergeable = evt.MergeableDiceIds.Contains(activeDiceEntry.Key);
+                bool isMergeable = _diceSessionState.MergeableDiceIds.Contains(activeDiceEntry.Key);
                 activeDiceEntry.Value.SetMergeableOutline(isMergeable);
             }
         }

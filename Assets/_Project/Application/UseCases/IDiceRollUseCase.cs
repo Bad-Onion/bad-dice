@@ -1,7 +1,6 @@
 ﻿using System;
 using _Project.Application.Events.DiceInput;
-using _Project.Application.Events.DiceSimulation;
-using _Project.Application.Events.DiceState;
+using _Project.Application.States.DiceSession;
 
 namespace _Project.Application.UseCases
 {
@@ -11,8 +10,7 @@ namespace _Project.Application.UseCases
     /// </summary>
     public interface IDiceRollUseCase
     {
-        event Action<DiceResultDecidedEvent> DiceResultDecided;
-        event Action<DiceRollFinishedEvent> DiceRollFinished;
+        event Action<DiceRollPhase> DiceRollPhaseChanged;
         event Action<DiceResetEvent> DiceReset;
         event Action<DiceRerollToggledEvent> DiceRerollToggled;
 

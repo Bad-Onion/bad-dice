@@ -35,6 +35,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         private IDiceRollUseCase _diceRollUseCase;
         private IDiceMergeUseCase _diceMergeUseCase;
         private IDiceHoverUseCase _diceHoverUseCase;
+        private IEncounterProgressionUseCase _encounterProgressionUseCase;
         private bool _isUiInitialized;
 
         [Inject]
@@ -48,7 +49,8 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             DealDamageCommand dealDamageCommand,
             IDiceRollUseCase diceRollUseCase,
             IDiceMergeUseCase diceMergeUseCase,
-            IDiceHoverUseCase diceHoverUseCase)
+            IDiceHoverUseCase diceHoverUseCase,
+            IEncounterProgressionUseCase encounterProgressionUseCase)
         {
             _diceSessionState = diceSessionState;
             _enemyEncounterState = enemyEncounterState;
@@ -60,6 +62,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             _diceRollUseCase = diceRollUseCase;
             _diceMergeUseCase = diceMergeUseCase;
             _diceHoverUseCase = diceHoverUseCase;
+            _encounterProgressionUseCase = encounterProgressionUseCase;
         }
 
         protected override void BindUIElements()
@@ -126,33 +129,29 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 
         private void SubscribeEvents()
         {
-            Bus<EncounterStartedEvent>.OnEvent += OnEncounterStarted;
-            Bus<EncounterPreparedEvent>.OnEvent += OnEncounterPrepared;
             Bus<EnemyDamagedEvent>.OnEvent += OnEnemyDamaged;
             Bus<EnemyDefeatedEvent>.OnEvent += OnEnemyDefeated;
             Bus<RunCompletedEvent>.OnEvent += OnRunCompleted;
             Bus<TurnChangedEvent>.OnEvent += OnTurnChanged;
 
-            _diceRollUseCase.DiceResultDecided += OnResultDecided;
-            _diceRollUseCase.DiceRollFinished += OnRollFinished;
+            _encounterProgressionUseCase.EncounterSnapshotUpdated += OnEncounterSnapshotUpdated;
+            _diceRollUseCase.DiceRollPhaseChanged += OnDiceRollPhaseChanged;
             _diceRollUseCase.DiceReset += OnDiceReset;
-            _diceMergeUseCase.MergeCompleted += OnMergeCompleted;
+            _diceMergeUseCase.MergeStateChanged += OnMergeStateChanged;
             _diceHoverUseCase.DiceHoverDetailsUpdated += OnDiceHoverDetailsUpdated;
         }
 
         private void UnsubscribeEvents()
         {
-            Bus<EncounterStartedEvent>.OnEvent -= OnEncounterStarted;
-            Bus<EncounterPreparedEvent>.OnEvent -= OnEncounterPrepared;
             Bus<EnemyDamagedEvent>.OnEvent -= OnEnemyDamaged;
             Bus<EnemyDefeatedEvent>.OnEvent -= OnEnemyDefeated;
             Bus<RunCompletedEvent>.OnEvent -= OnRunCompleted;
             Bus<TurnChangedEvent>.OnEvent -= OnTurnChanged;
 
-            _diceRollUseCase.DiceResultDecided -= OnResultDecided;
-            _diceRollUseCase.DiceRollFinished -= OnRollFinished;
+            _encounterProgressionUseCase.EncounterSnapshotUpdated -= OnEncounterSnapshotUpdated;
+            _diceRollUseCase.DiceRollPhaseChanged -= OnDiceRollPhaseChanged;
             _diceRollUseCase.DiceReset -= OnDiceReset;
-            _diceMergeUseCase.MergeCompleted -= OnMergeCompleted;
+            _diceMergeUseCase.MergeStateChanged -= OnMergeStateChanged;
             _diceHoverUseCase.DiceHoverDetailsUpdated -= OnDiceHoverDetailsUpdated;
         }
     }

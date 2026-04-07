@@ -1,7 +1,5 @@
 ﻿using System;
-using _Project.Application.Events.Core;
-using _Project.Application.Events.DiceSimulation;
-using _Project.Application.Events.DiceState;
+using _Project.Application.States.DiceSession;
 using _Project.Application.UseCases;
 using Zenject;
 
@@ -22,33 +20,25 @@ namespace _Project.Infrastructure.Features.DiceSession.Orchestration
 
         public void Initialize()
         {
-            Bus<DicePlaybackCompletedEvent>.OnEvent += HandleDicePlaybackCompleted;
-
-            _diceRollUseCase.DiceRollFinished += HandleDiceRollFinished;
-            _diceMergeUseCase.MergeCompleted += HandleMergeCompleted;
+            _diceRollUseCase.DiceRollPhaseChanged += HandleDiceRollPhaseChanged;
+            _diceMergeUseCase.MergeStateChanged += HandleMergeStateChanged;
         }
 
         public void Dispose()
         {
-            Bus<DicePlaybackCompletedEvent>.OnEvent -= HandleDicePlaybackCompleted;
-
-            _diceRollUseCase.DiceRollFinished -= HandleDiceRollFinished;
-            _diceMergeUseCase.MergeCompleted -= HandleMergeCompleted;
+            _diceRollUseCase.DiceRollPhaseChanged -= HandleDiceRollPhaseChanged;
+            _diceMergeUseCase.MergeStateChanged -= HandleMergeStateChanged;
         }
 
-
-        private void HandleDicePlaybackCompleted(DicePlaybackCompletedEvent evt)
+        private void HandleDiceRollPhaseChanged(DiceRollPhase phase)
         {
-            _diceRollUseCase.EndRoll();
-        }
-
-        private void HandleDiceRollFinished(DiceRollFinishedEvent evt)
-        {
+            if (phase != DiceRollPhase.Completed) return;
             _diceMergeUseCase.EvaluateMergePossibilities();
         }
 
-        private void HandleMergeCompleted(MergeCompletedEvent evt)
+        private void HandleMergeStateChanged(MergeState mergeState)
         {
+            if (mergeState != MergeState.Applied) return;
             _diceMergeUseCase.EvaluateMergePossibilities();
         }
     }

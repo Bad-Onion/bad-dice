@@ -1,27 +1,29 @@
 ﻿using _Project.Application.Events.DiceInput;
-using _Project.Application.Events.DiceSimulation;
-using _Project.Application.Events.DiceState;
 using _Project.Application.Events.EncounterState;
 using _Project.Application.Events.GameState;
+using _Project.Application.Events.DiceState;
+using _Project.Application.States.DiceSession;
+using _Project.Application.States.Encounter;
+using _Project.Domain.Features.Combat.Session;
 
 namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 {
     public partial class DiceSessionView
     {
-        private void OnEncounterStarted(EncounterStartedEvent evt)
+        private void OnEncounterSnapshotUpdated(EncounterSnapshot snapshot)
         {
+            if (snapshot == null) return;
+
+            _enemyNameLabel.text = $"Enemy: {snapshot.EnemyName} ({GetEncounterTypeText(GetEncounterType(snapshot.IsBoss, snapshot.IsFinalBoss))})";
+            _enemyHealthLabel.text = $"HP: {snapshot.CurrentHealth}/{snapshot.MaxHealth}";
+            _cycleLabel.text = $"Cycle {snapshot.CycleNumber} - Encounter {snapshot.EncounterIndexInCycle}/{GetMaxEncountersPerCycle()}";
+
+            if (snapshot.Phase != EncounterPhase.Active) return;
+
             _levelContainer.style.display = UnityEngine.UIElements.DisplayStyle.Flex;
             _resultLabel.text = "Ready to roll.";
-
             UpdateTurnLabel(_diceSessionState.CurrentTurn, _diceSessionState.MaxTurns);
             UpdateDealButtonInteractable(false);
-        }
-
-        private void OnEncounterPrepared(EncounterPreparedEvent evt)
-        {
-            _enemyNameLabel.text = $"Enemy: {evt.EnemyName} ({GetEncounterTypeText(GetEncounterType(evt.IsBoss, evt.IsFinalBoss))})";
-            _enemyHealthLabel.text = $"HP: {evt.CurrentHealth}/{evt.MaxHealth}";
-            _cycleLabel.text = $"Cycle {evt.CycleNumber} - Encounter {evt.EncounterIndexInCycle}/{GetMaxEncountersPerCycle()}";
         }
 
         private void OnEnemyDamaged(EnemyDamagedEvent evt)
@@ -49,16 +51,19 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             UpdateDealButtonInteractable(false);
         }
 
-        private void OnRollFinished(DiceRollFinishedEvent evt)
+        private void OnDiceRollPhaseChanged(DiceRollPhase phase)
         {
+            if (phase == DiceRollPhase.ResolvingResult)
+            {
+                UpdateRollResultText();
+                UpdateDealButtonInteractable(false);
+                return;
+            }
+
+            if (phase != DiceRollPhase.Completed) return;
+
             UpdateRollResultText();
             UpdateDealButtonInteractable(CanDealThisTurn());
-        }
-
-        private void OnResultDecided(DiceResultDecidedEvent evt)
-        {
-            UpdateRollResultText();
-            UpdateDealButtonInteractable(false);
         }
 
         private void OnDiceReset(DiceResetEvent evt)
@@ -67,9 +72,12 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             UpdateDealButtonInteractable(false);
         }
 
-        private void OnMergeCompleted(MergeCompletedEvent evt)
+        private void OnMergeStateChanged(MergeState mergeState)
         {
-            OnRollFinished(new DiceRollFinishedEvent());
+            if (mergeState != MergeState.Applied) return;
+
+            UpdateRollResultText();
+            UpdateDealButtonInteractable(CanDealThisTurn());
         }
 
         private void HandleDealClicked()

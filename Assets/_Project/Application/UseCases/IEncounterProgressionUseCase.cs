@@ -1,4 +1,7 @@
-﻿namespace _Project.Application.UseCases
+﻿using System;
+using _Project.Domain.Features.Combat.Session;
+
+namespace _Project.Application.UseCases
 {
     /// <summary>
     /// Use case interface for managing encounter progression throughout a run.
@@ -6,6 +9,8 @@
     /// </summary>
     public interface IEncounterProgressionUseCase
     {
+        event Action<EncounterSnapshot> EncounterSnapshotUpdated;
+
         /// <summary>
         /// Gets a value indicating whether the run progression has been initialized.
         /// </summary>

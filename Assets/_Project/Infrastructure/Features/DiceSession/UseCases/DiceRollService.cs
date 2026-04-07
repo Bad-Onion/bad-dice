@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceInput;
-using _Project.Application.Events.DiceSimulation;
-using _Project.Application.Events.DiceState;
 using _Project.Application.Interfaces;
+using _Project.Application.States.DiceSession;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.Dice.ScriptableObjects.Configuration;
@@ -25,8 +23,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
         private readonly DiceRollConfiguration _diceRollConfiguration;
         private readonly IDiceSimulationService _simulationService;
 
-        public event Action<DiceResultDecidedEvent> DiceResultDecided;
-        public event Action<DiceRollFinishedEvent> DiceRollFinished;
+        public event Action<DiceRollPhase> DiceRollPhaseChanged;
         public event Action<DiceResetEvent> DiceReset;
         public event Action<DiceRerollToggledEvent> DiceRerollToggled;
 
@@ -54,19 +51,26 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
                 _diceSessionState.RerollsLeft--;
             }
 
+            SetRollPhase(DiceRollPhase.ResolvingResult);
             PerformRoll(diceToRoll);
         }
 
         public void EndRoll()
         {
             _diceSessionState.IsRolling = false;
-            DiceRollFinished?.Invoke(new DiceRollFinishedEvent());
+            SetRollPhase(DiceRollPhase.Completed);
         }
 
         public void ResetDice()
         {
             _diceSessionState.IsRolling = false;
+            _diceSessionState.RollPhase = DiceRollPhase.Idle;
             _diceSessionState.RerollsLeft = _runState.RerollsPerTurn;
+            _diceSessionState.MergeableDiceIds.Clear();
+            _diceSessionState.MergeState = MergeState.None;
+            _diceSessionState.CurrentTargetFaceIndices = Array.Empty<int>();
+            _diceSessionState.CurrentSimulationResult = default;
+            _diceSessionState.CurrentRolledDiceIds.Clear();
 
             foreach (var die in _diceSessionState.ActiveDice)
             {
@@ -128,15 +132,17 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
                 definitions[i] = die.Dice.Definition;
             }
 
-            DiceResultDecided?.Invoke(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
+            _diceSessionState.CurrentTargetFaceIndices = targetFaceIndices;
+            _diceSessionState.CurrentSimulationResult = SimulateRoll(definitions, targetFaceIndices);
+            _diceSessionState.CurrentRolledDiceIds = diceToRoll.Select(diceState => diceState.Dice.Id).ToList();
 
-            DiceSimulationResult simulationResult = SimulateRoll(definitions, targetFaceIndices);
+            SetRollPhase(DiceRollPhase.PlayingAnimation);
+        }
 
-            Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent
-            {
-                SimulationResult = simulationResult,
-                RolledDiceIds = diceToRoll.Select(diceState => diceState.Dice.Id).ToList()
-            });
+        private void SetRollPhase(DiceRollPhase phase)
+        {
+            _diceSessionState.RollPhase = phase;
+            DiceRollPhaseChanged?.Invoke(phase);
         }
 
         private static bool HasBeenRolled(DiceState die)
@@ -207,7 +213,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
             return BuildArray(count, _ => Random.rotation);
         }
 
-        private static T[] BuildArray<T>(int count, System.Func<int, T> elementFactory)
+        private static T[] BuildArray<T>(int count, Func<int, T> elementFactory)
         {
             T[] elements = new T[count];
 

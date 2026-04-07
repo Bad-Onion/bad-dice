@@ -1,6 +1,5 @@
 ﻿using System;
-using _Project.Application.Events.DiceState;
-using _Project.Application.Events.MergeEvents;
+using _Project.Application.States.DiceSession;
 
 namespace _Project.Application.UseCases
 {
@@ -10,8 +9,7 @@ namespace _Project.Application.UseCases
     /// </summary>
     public interface IDiceMergeUseCase
     {
-        event Action<MergePossibilitiesEvaluatedEvent> MergePossibilitiesEvaluated;
-        event Action<MergeCompletedEvent> MergeCompleted;
+        event Action<MergeState> MergeStateChanged;
 
         /// <summary>
         /// Executes merge operation on the specified target dice.
