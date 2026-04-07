@@ -12,14 +12,17 @@ namespace _Project.Application.Commands
             _dealDamageUseCase = dealDamageUseCase;
         }
 
-        public bool IsValid()
+        public ValidationResult Validate()
         {
-            return _dealDamageUseCase != null;
+            return _dealDamageUseCase != null
+                ? ValidationResult.Success()
+                : ValidationResult.Failure("DealDamageUseCaseMissing", "Deal damage use case is not available.");
         }
 
-        public void Execute()
+        public CommandResult Execute()
         {
             _dealDamageUseCase.DealCurrentDamage();
+            return CommandResult.Success();
         }
     }
 }

@@ -12,14 +12,17 @@ namespace _Project.Application.Commands
             _encounterProgressionUseCase = encounterProgressionUseCase;
         }
 
-        public bool IsValid()
+        public ValidationResult Validate()
         {
-            return _encounterProgressionUseCase != null;
+            return _encounterProgressionUseCase != null
+                ? ValidationResult.Success()
+                : ValidationResult.Failure("EncounterProgressionUseCaseMissing", "Encounter progression use case is not available.");
         }
 
-        public void Execute()
+        public CommandResult Execute()
         {
             _encounterProgressionUseCase.StartEncounter();
+            return CommandResult.Success();
         }
     }
 }

@@ -92,7 +92,11 @@ namespace _Project.Infrastructure.Features.GameFlow
                     onComplete?.Invoke();
                 });
 
-                _commandProcessor.ExecuteCommand(loadCommand);
+                CommandResult loadResult = _commandProcessor.ExecuteCommand(loadCommand);
+                if (!loadResult.IsSuccess)
+                {
+                    onComplete?.Invoke();
+                }
             });
         }
 
@@ -112,7 +116,11 @@ namespace _Project.Infrastructure.Features.GameFlow
                         CompleteTransition();
                     });
 
-                    _commandProcessor.ExecuteCommand(unloadCommand);
+                    CommandResult unloadResult = _commandProcessor.ExecuteCommand(unloadCommand);
+                    if (!unloadResult.IsSuccess)
+                    {
+                        CompleteTransition();
+                    }
                 }
                 else
                 {

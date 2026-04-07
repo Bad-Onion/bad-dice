@@ -5,7 +5,7 @@
     /// </summary>
     public interface ICommand
     {
-        bool IsValid();
-        void Execute();
+        ValidationResult Validate();
+        CommandResult Execute();
     }
 }

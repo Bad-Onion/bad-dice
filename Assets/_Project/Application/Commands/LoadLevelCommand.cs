@@ -27,17 +27,36 @@ namespace _Project.Application.Commands
             _runInitializationUseCase = runInitializationUseCase;
         }
 
-        public bool IsValid() => _levelData != null && !string.IsNullOrEmpty(_levelData.SceneName);
-
-        public void Execute()
+        public ValidationResult Validate()
         {
-            _runInitializationUseCase.EnsureRunInitialized();
-
-            _sceneLoader.LoadSceneAdditive(_levelData.SceneName, () =>
+            if (_levelData == null)
             {
-                Bus<LevelLoadedEvent>.Raise(new LevelLoadedEvent(_levelData));
-                _onComplete?.Invoke();
-            });
+                return ValidationResult.Failure("LevelDataMissing", "Cannot load a level without LevelData.");
+            }
+
+            return !string.IsNullOrEmpty(_levelData.SceneName)
+                ? ValidationResult.Success()
+                : ValidationResult.Failure("SceneNameMissing", "Cannot load a level with an empty scene name.");
+        }
+
+        public CommandResult Execute()
+        {
+            try
+            {
+                _runInitializationUseCase.EnsureRunInitialized();
+
+                _sceneLoader.LoadSceneAdditive(_levelData.SceneName, () =>
+                {
+                    Bus<LevelLoadedEvent>.Raise(new LevelLoadedEvent(_levelData));
+                    _onComplete?.Invoke();
+                });
+
+                return CommandResult.Success();
+            }
+            catch (Exception exception)
+            {
+                return CommandResult.Failure("LoadLevelFailed", exception.Message);
+            }
         }
 
         public class Factory : PlaceholderFactory<LevelData, Action, LoadLevelCommand> { }

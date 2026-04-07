@@ -15,14 +15,22 @@ namespace _Project.Application.Commands
             _diceId = diceId;
         }
 
-        public bool IsValid()
+        public ValidationResult Validate()
         {
-            return _diceRollUseCase != null && !string.IsNullOrWhiteSpace(_diceId);
+            if (_diceRollUseCase == null)
+            {
+                return ValidationResult.Failure("DiceRollUseCaseMissing", "Dice roll use case is not available.");
+            }
+
+            return !string.IsNullOrWhiteSpace(_diceId)
+                ? ValidationResult.Success()
+                : ValidationResult.Failure("DiceIdMissing", "Dice id is required to toggle reroll selection.");
         }
 
-        public void Execute()
+        public CommandResult Execute()
         {
             _diceRollUseCase.ToggleDiceRerollSelection(_diceId);
+            return CommandResult.Success();
         }
 
         public class Factory : PlaceholderFactory<string, ToggleDiceRerollSelectionCommand>

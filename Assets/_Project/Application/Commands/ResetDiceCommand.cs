@@ -12,14 +12,17 @@ namespace _Project.Application.Commands
             _diceRollUseCase = diceRollUseCase;
         }
 
-        public bool IsValid()
+        public ValidationResult Validate()
         {
-            return _diceRollUseCase != null;
+            return _diceRollUseCase != null
+                ? ValidationResult.Success()
+                : ValidationResult.Failure("DiceRollUseCaseMissing", "Dice roll use case is not available.");
         }
 
-        public void Execute()
+        public CommandResult Execute()
         {
             _diceRollUseCase.ResetDice();
+            return CommandResult.Success();
         }
     }
 }

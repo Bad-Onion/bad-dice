@@ -21,11 +21,29 @@ namespace _Project.Application.Commands
             _onComplete = onComplete;
         }
 
-        public bool IsValid() => _levelData != null && !string.IsNullOrEmpty(_levelData.SceneName);
-
-        public void Execute()
+        public ValidationResult Validate()
         {
-            _sceneLoader.UnloadScene(_levelData.SceneName, _onComplete);
+            if (_levelData == null)
+            {
+                return ValidationResult.Failure("LevelDataMissing", "Cannot unload a level without LevelData.");
+            }
+
+            return !string.IsNullOrEmpty(_levelData.SceneName)
+                ? ValidationResult.Success()
+                : ValidationResult.Failure("SceneNameMissing", "Cannot unload a level with an empty scene name.");
+        }
+
+        public CommandResult Execute()
+        {
+            try
+            {
+                _sceneLoader.UnloadScene(_levelData.SceneName, _onComplete);
+                return CommandResult.Success();
+            }
+            catch (Exception exception)
+            {
+                return CommandResult.Failure("UnloadLevelFailed", exception.Message);
+            }
         }
 
         public class Factory : PlaceholderFactory<LevelData, Action, UnloadLevelCommand> { }

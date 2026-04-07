@@ -8,13 +8,20 @@ namespace _Project.Application.Commands
     /// </summary>
     public class CommandProcessor
     {
-        public void ExecuteCommand(ICommand command)
+        public CommandResult ExecuteCommand(ICommand command)
         {
-            if (command.IsValid())
+            if (command == null)
             {
-                command.Execute();
+                return CommandResult.Failure("NullCommand", "Cannot execute a null command instance.");
             }
-            // Add 'else' in the future for logging failed commands
+
+            ValidationResult validationResult = command.Validate();
+            if (!validationResult.IsValid)
+            {
+                return CommandResult.Invalid(validationResult);
+            }
+
+            return command.Execute();
         }
     }
 }
