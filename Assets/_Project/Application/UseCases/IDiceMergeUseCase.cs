@@ -1,4 +1,8 @@
-﻿namespace _Project.Application.UseCases
+﻿using System;
+using _Project.Application.Events.DiceState;
+using _Project.Application.Events.MergeEvents;
+
+namespace _Project.Application.UseCases
 {
     /// <summary>
     /// Use case interface for managing dice merge mechanics.
@@ -6,6 +10,9 @@
     /// </summary>
     public interface IDiceMergeUseCase
     {
+        event Action<MergePossibilitiesEvaluatedEvent> MergePossibilitiesEvaluated;
+        event Action<MergeCompletedEvent> MergeCompleted;
+
         /// <summary>
         /// Executes merge operation on the specified target dice.
         /// Combines the target dice with compatible dice to create higher-value results.

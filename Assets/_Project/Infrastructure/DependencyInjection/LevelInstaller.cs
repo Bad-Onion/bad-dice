@@ -5,6 +5,7 @@ using _Project.Infrastructure.Features.DiceSession.Orchestration;
 using _Project.Infrastructure.Features.DiceSession.UseCases;
 using _Project.Infrastructure.Features.Inventory;
 using _Project.Infrastructure.Shared;
+using _Project.Presentation.Scripts.Features.DiceSession.EventHandlers;
 using _Project.Presentation.Scripts.Features.DiceSession.Input;
 using _Project.Presentation.Scripts.Features.Inventory.Views;
 using UnityEngine;
@@ -34,6 +35,8 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IDiceSimulationService>().To<DiceSimulationService>().AsSingle();
             Container.Bind<IDiceRollUseCase>().To<DiceRollService>().AsSingle();
             Container.Bind<IDiceMergeUseCase>().To<DiceMergeService>().AsSingle();
+            Container.Bind<IDiceHoverInputSource>().To<DiceSelectionHandler>().FromComponentInHierarchy().AsSingle();
+            Container.BindInterfacesAndSelfTo<DiceHoverService>().AsSingle();
             Container.Bind<IDicePouchUseCase>().To<DicePouchService>().AsSingle();
             Container.Bind<IPointerTargetingService>().To<PointerTargetingService>().AsSingle();
             Container.Bind<DiceSelectionPresenter>().AsSingle();

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceInput;
@@ -13,6 +14,7 @@ using _Project.Domain.Features.Dice.Session;
 using _Project.Domain.Features.Dice.Simulation;
 using _Project.Domain.Features.Run.Session;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace _Project.Infrastructure.Features.DiceSession.UseCases
 {
@@ -22,6 +24,11 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
         private readonly PlayerRunState _runState;
         private readonly DiceRollConfiguration _diceRollConfiguration;
         private readonly IDiceSimulationService _simulationService;
+
+        public event Action<DiceResultDecidedEvent> DiceResultDecided;
+        public event Action<DiceRollFinishedEvent> DiceRollFinished;
+        public event Action<DiceResetEvent> DiceReset;
+        public event Action<DiceRerollToggledEvent> DiceRerollToggled;
 
         public DiceRollService(
             DiceSessionState diceSessionState,
@@ -53,7 +60,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
         public void EndRoll()
         {
             _diceSessionState.IsRolling = false;
-            Bus<DiceRollFinishedEvent>.Raise(new DiceRollFinishedEvent());
+            DiceRollFinished?.Invoke(new DiceRollFinishedEvent());
         }
 
         public void ResetDice()
@@ -67,7 +74,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
                 die.IsSelectedForReroll = false;
             }
 
-            Bus<DiceResetEvent>.Raise(new DiceResetEvent());
+            DiceReset?.Invoke(new DiceResetEvent());
         }
 
         public void ToggleDiceRerollSelection(string dieId)
@@ -80,7 +87,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
             die.IsSelectedForReroll = !die.IsSelectedForReroll;
 
-            Bus<DiceRerollToggledEvent>.Raise(new DiceRerollToggledEvent
+            DiceRerollToggled?.Invoke(new DiceRerollToggledEvent
             {
                 DiceId = dieId,
                 IsSelected = die.IsSelectedForReroll
@@ -121,7 +128,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
                 definitions[i] = die.Dice.Definition;
             }
 
-            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
+            DiceResultDecided?.Invoke(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
 
             DiceSimulationResult simulationResult = SimulateRoll(definitions, targetFaceIndices);
 

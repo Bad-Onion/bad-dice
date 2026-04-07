@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceState;
 using _Project.Application.Events.MergeEvents;
 using _Project.Application.UseCases;
@@ -13,6 +13,9 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
     {
         private readonly DiceSessionState _diceSessionState;
 
+        public event Action<MergePossibilitiesEvaluatedEvent> MergePossibilitiesEvaluated;
+        public event Action<MergeCompletedEvent> MergeCompleted;
+
         public DiceMergeService(DiceSessionState diceSessionState)
         {
             _diceSessionState = diceSessionState;
@@ -24,7 +27,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
             _diceSessionState.MergeableDiceIds = mergeableIds;
 
-            Bus<MergePossibilitiesEvaluatedEvent>.Raise(new MergePossibilitiesEvaluatedEvent
+            MergePossibilitiesEvaluated?.Invoke(new MergePossibilitiesEvaluatedEvent
             {
                 CanMerge = mergeableIds.Count > 0,
                 MergeableDiceIds = mergeableIds
@@ -41,7 +44,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
 
             AbsorbDice(targetDie, diceToAbsorb);
 
-            Bus<MergeCompletedEvent>.Raise(new MergeCompletedEvent());
+            MergeCompleted?.Invoke(new MergeCompletedEvent());
         }
 
         private List<string> GetMergeableDiceIds()

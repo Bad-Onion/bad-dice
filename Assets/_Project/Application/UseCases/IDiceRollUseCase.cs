@@ -1,4 +1,9 @@
-﻿namespace _Project.Application.UseCases
+﻿using System;
+using _Project.Application.Events.DiceInput;
+using _Project.Application.Events.DiceSimulation;
+using _Project.Application.Events.DiceState;
+
+namespace _Project.Application.UseCases
 {
     /// <summary>
     /// Use case interface for managing dice rolling mechanics.
@@ -6,6 +11,11 @@
     /// </summary>
     public interface IDiceRollUseCase
     {
+        event Action<DiceResultDecidedEvent> DiceResultDecided;
+        event Action<DiceRollFinishedEvent> DiceRollFinished;
+        event Action<DiceResetEvent> DiceReset;
+        event Action<DiceRerollToggledEvent> DiceRerollToggled;
+
         /// <summary>
         /// Requests a new dice roll for the equipped dice.
         /// </summary>

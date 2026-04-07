@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using _Project.Application.Events.Core;
-using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.DiceSimulation;
+using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.MergeEvents;
+using _Project.Application.UseCases;
 using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.Dice.Session;
 using _Project.Domain.Features.Dice.Simulation;
@@ -18,11 +19,18 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
     {
         private DiceSessionState _diceSessionState;
         private DicePrefabManager _dicePrefabManager;
+        private IDiceRollUseCase _diceRollUseCase;
+        private IDiceMergeUseCase _diceMergeUseCase;
 
         [Inject]
-        public void Construct(DiceSessionState diceSessionState)
+        public void Construct(
+            DiceSessionState diceSessionState,
+            IDiceRollUseCase diceRollUseCase,
+            IDiceMergeUseCase diceMergeUseCase)
         {
             _diceSessionState = diceSessionState;
+            _diceRollUseCase = diceRollUseCase;
+            _diceMergeUseCase = diceMergeUseCase;
         }
 
         private void Awake()
@@ -33,17 +41,19 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
         private void OnEnable()
         {
             Bus<DicePlaybackRequestedEvent>.OnEvent += HandlePlaybackRequested;
-            Bus<DiceResetEvent>.OnEvent += HandleReset;
-            Bus<DiceRerollToggledEvent>.OnEvent += HandleDiceSelected;
-            Bus<MergePossibilitiesEvaluatedEvent>.OnEvent += HandleMergePossibilities;
+
+            _diceRollUseCase.DiceReset += HandleReset;
+            _diceRollUseCase.DiceRerollToggled += HandleDiceSelected;
+            _diceMergeUseCase.MergePossibilitiesEvaluated += HandleMergePossibilities;
         }
 
         private void OnDisable()
         {
             Bus<DicePlaybackRequestedEvent>.OnEvent -= HandlePlaybackRequested;
-            Bus<DiceResetEvent>.OnEvent -= HandleReset;
-            Bus<DiceRerollToggledEvent>.OnEvent -= HandleDiceSelected;
-            Bus<MergePossibilitiesEvaluatedEvent>.OnEvent -= HandleMergePossibilities;
+
+            _diceRollUseCase.DiceReset -= HandleReset;
+            _diceRollUseCase.DiceRerollToggled -= HandleDiceSelected;
+            _diceMergeUseCase.MergePossibilitiesEvaluated -= HandleMergePossibilities;
         }
 
         private void HandlePlaybackRequested(DicePlaybackRequestedEvent evt)

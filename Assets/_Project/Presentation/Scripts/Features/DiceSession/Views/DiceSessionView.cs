@@ -1,9 +1,7 @@
 ﻿using _Project.Application.Events.Core;
-using _Project.Application.Events.DiceInput;
-using _Project.Application.Events.DiceSimulation;
-using _Project.Application.Events.DiceState;
 using _Project.Application.Events.EncounterState;
 using _Project.Application.Events.GameState;
+using _Project.Application.UseCases;
 using _Project.Domain.Features.Combat.Session;
 using _Project.Domain.Features.Dice.Session;
 using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
@@ -29,17 +27,26 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         private DiceSessionState _diceSessionState;
         private EnemyEncounterState _enemyEncounterState;
         private GameConfiguration _gameConfiguration;
+        private IDiceRollUseCase _diceRollUseCase;
+        private IDiceMergeUseCase _diceMergeUseCase;
+        private IDiceHoverUseCase _diceHoverUseCase;
         private bool _isUiInitialized;
 
         [Inject]
         public void Construct(
             DiceSessionState diceSessionState,
             EnemyEncounterState enemyEncounterState,
-            GameConfiguration gameConfiguration)
+            GameConfiguration gameConfiguration,
+            IDiceRollUseCase diceRollUseCase,
+            IDiceMergeUseCase diceMergeUseCase,
+            IDiceHoverUseCase diceHoverUseCase)
         {
             _diceSessionState = diceSessionState;
             _enemyEncounterState = enemyEncounterState;
             _gameConfiguration = gameConfiguration;
+            _diceRollUseCase = diceRollUseCase;
+            _diceMergeUseCase = diceMergeUseCase;
+            _diceHoverUseCase = diceHoverUseCase;
         }
 
         protected override void BindUIElements()
@@ -112,11 +119,12 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             Bus<EnemyDefeatedEvent>.OnEvent += OnEnemyDefeated;
             Bus<RunCompletedEvent>.OnEvent += OnRunCompleted;
             Bus<TurnChangedEvent>.OnEvent += OnTurnChanged;
-            Bus<DiceResultDecidedEvent>.OnEvent += OnResultDecided;
-            Bus<DiceRollFinishedEvent>.OnEvent += OnRollFinished;
-            Bus<DiceResetEvent>.OnEvent += OnDiceReset;
-            Bus<MergeCompletedEvent>.OnEvent += OnMergeCompleted;
-            Bus<DiceHoverDetailsUpdatedEvent>.OnEvent += OnDiceHoverDetailsUpdated;
+
+            _diceRollUseCase.DiceResultDecided += OnResultDecided;
+            _diceRollUseCase.DiceRollFinished += OnRollFinished;
+            _diceRollUseCase.DiceReset += OnDiceReset;
+            _diceMergeUseCase.MergeCompleted += OnMergeCompleted;
+            _diceHoverUseCase.DiceHoverDetailsUpdated += OnDiceHoverDetailsUpdated;
         }
 
         private void UnsubscribeEvents()
@@ -127,11 +135,12 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             Bus<EnemyDefeatedEvent>.OnEvent -= OnEnemyDefeated;
             Bus<RunCompletedEvent>.OnEvent -= OnRunCompleted;
             Bus<TurnChangedEvent>.OnEvent -= OnTurnChanged;
-            Bus<DiceResultDecidedEvent>.OnEvent -= OnResultDecided;
-            Bus<DiceRollFinishedEvent>.OnEvent -= OnRollFinished;
-            Bus<DiceResetEvent>.OnEvent -= OnDiceReset;
-            Bus<MergeCompletedEvent>.OnEvent -= OnMergeCompleted;
-            Bus<DiceHoverDetailsUpdatedEvent>.OnEvent -= OnDiceHoverDetailsUpdated;
+
+            _diceRollUseCase.DiceResultDecided -= OnResultDecided;
+            _diceRollUseCase.DiceRollFinished -= OnRollFinished;
+            _diceRollUseCase.DiceReset -= OnDiceReset;
+            _diceMergeUseCase.MergeCompleted -= OnMergeCompleted;
+            _diceHoverUseCase.DiceHoverDetailsUpdated -= OnDiceHoverDetailsUpdated;
         }
     }
 }
