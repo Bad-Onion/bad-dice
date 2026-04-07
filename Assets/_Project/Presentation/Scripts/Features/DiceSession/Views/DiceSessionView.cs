@@ -1,6 +1,7 @@
 ﻿using _Project.Application.Events.Core;
 using _Project.Application.Events.EncounterState;
 using _Project.Application.Events.GameState;
+using _Project.Application.Commands;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Combat.Session;
 using _Project.Domain.Features.Dice.Session;
@@ -27,6 +28,10 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         private DiceSessionState _diceSessionState;
         private EnemyEncounterState _enemyEncounterState;
         private GameConfiguration _gameConfiguration;
+        private CommandProcessor _commandProcessor;
+        private RequestDiceRollCommand _requestDiceRollCommand;
+        private ResetDiceCommand _resetDiceCommand;
+        private DealDamageCommand _dealDamageCommand;
         private IDiceRollUseCase _diceRollUseCase;
         private IDiceMergeUseCase _diceMergeUseCase;
         private IDiceHoverUseCase _diceHoverUseCase;
@@ -37,6 +42,10 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             DiceSessionState diceSessionState,
             EnemyEncounterState enemyEncounterState,
             GameConfiguration gameConfiguration,
+            CommandProcessor commandProcessor,
+            RequestDiceRollCommand requestDiceRollCommand,
+            ResetDiceCommand resetDiceCommand,
+            DealDamageCommand dealDamageCommand,
             IDiceRollUseCase diceRollUseCase,
             IDiceMergeUseCase diceMergeUseCase,
             IDiceHoverUseCase diceHoverUseCase)
@@ -44,6 +53,10 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             _diceSessionState = diceSessionState;
             _enemyEncounterState = enemyEncounterState;
             _gameConfiguration = gameConfiguration;
+            _commandProcessor = commandProcessor;
+            _requestDiceRollCommand = requestDiceRollCommand;
+            _resetDiceCommand = resetDiceCommand;
+            _dealDamageCommand = dealDamageCommand;
             _diceRollUseCase = diceRollUseCase;
             _diceMergeUseCase = diceMergeUseCase;
             _diceHoverUseCase = diceHoverUseCase;

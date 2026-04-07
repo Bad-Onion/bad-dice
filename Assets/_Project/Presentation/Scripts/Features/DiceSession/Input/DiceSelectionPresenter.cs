@@ -14,7 +14,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
         private readonly PointerSelectionPresenter<DiceController> _pointerSelectionPresenter;
 
         public event Action<string> OnRerollRequested;
-        public event Action<string> OnAutoMergeRequested;
+        public event Action<string> OnMergeRequested;
         public event Action<string, bool> OnDiceHoverChanged;
 
         public DiceSelectionPresenter(
@@ -29,7 +29,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
                 CanProcessInteraction);
 
             _pointerSelectionPresenter.OnClickInteractionRequested += HandleRerollInteraction;
-            _pointerSelectionPresenter.OnHoldClickInteractionRequested += HandleAutoMergeInteraction;
+            _pointerSelectionPresenter.OnHoldClickInteractionRequested += HandleMergeInteraction;
             _pointerSelectionPresenter.OnHoverStarted += HandleHoverStarted;
             _pointerSelectionPresenter.OnHoverEnded += HandleHoverEnded;
         }
@@ -59,9 +59,9 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Input
             OnRerollRequested?.Invoke(diceController.DiceId);
         }
 
-        private void HandleAutoMergeInteraction(DiceController diceController)
+        private void HandleMergeInteraction(DiceController diceController)
         {
-            OnAutoMergeRequested?.Invoke(diceController.DiceId);
+            OnMergeRequested?.Invoke(diceController.DiceId);
         }
 
         private bool CanProcessInteraction()

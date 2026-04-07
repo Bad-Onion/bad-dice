@@ -17,6 +17,11 @@
         void InitializeRunProgression();
 
         /// <summary>
+        /// Starts the prepared encounter flow for combat by initializing dice-session turn state.
+        /// </summary>
+        void StartEncounter();
+
+        /// <summary>
         /// Prepares the current encounter for combat, setting up enemy and encounter-specific data.
         /// </summary>
         void PrepareCurrentEncounter();

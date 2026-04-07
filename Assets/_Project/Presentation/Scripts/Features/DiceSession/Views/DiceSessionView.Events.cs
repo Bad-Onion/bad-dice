@@ -1,5 +1,4 @@
-﻿using _Project.Application.Events.Core;
-using _Project.Application.Events.DiceInput;
+﻿using _Project.Application.Events.DiceInput;
 using _Project.Application.Events.DiceSimulation;
 using _Project.Application.Events.DiceState;
 using _Project.Application.Events.EncounterState;
@@ -75,7 +74,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 
         private void HandleDealClicked()
         {
-            Bus<DealDamageRequestedEvent>.Raise(new DealDamageRequestedEvent());
+            _commandProcessor.ExecuteCommand(_dealDamageCommand);
             UpdateDealButtonInteractable(false);
         }
 
@@ -94,14 +93,14 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
                 $"Damage: {evt.Damage}";
         }
 
-        private static void RaiseRollRequested()
+        private void RaiseRollRequested()
         {
-            Bus<DiceRollRequestedEvent>.Raise(new DiceRollRequestedEvent());
+            _commandProcessor.ExecuteCommand(_requestDiceRollCommand);
         }
 
-        private static void RaiseResetRequested()
+        private void RaiseResetRequested()
         {
-            Bus<DiceResetRequestedEvent>.Raise(new DiceResetRequestedEvent());
+            _commandProcessor.ExecuteCommand(_resetDiceCommand);
         }
     }
 }

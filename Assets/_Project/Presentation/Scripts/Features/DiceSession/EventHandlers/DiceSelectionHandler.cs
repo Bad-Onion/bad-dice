@@ -1,7 +1,6 @@
 ﻿using System;
-using _Project.Application.Events.Core;
+using _Project.Application.Commands;
 using _Project.Application.Events.DiceInput;
-using _Project.Application.Events.MergeEvents;
 using _Project.Application.Interfaces;
 using _Project.Presentation.Scripts.Features.DiceSession.Input;
 using UnityEngine;
@@ -16,13 +15,23 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
         [SerializeField] private LayerMask diceLayerMask;
 
         private DiceSelectionPresenter _diceSelectionPresenter;
+        private CommandProcessor _commandProcessor;
+        private ToggleDiceRerollSelectionCommand.Factory _toggleDiceRerollSelectionCommandFactory;
+        private ExecuteDiceMergeCommand.Factory _executeDiceMergeCommandFactory;
 
         public event Action<DiceHoverChangedEvent> DiceHoverChanged;
 
         [Inject]
-        public void Construct(DiceSelectionPresenter diceSelectionPresenter)
+        public void Construct(
+            DiceSelectionPresenter diceSelectionPresenter,
+            CommandProcessor commandProcessor,
+            ToggleDiceRerollSelectionCommand.Factory toggleDiceRerollSelectionCommandFactory,
+            ExecuteDiceMergeCommand.Factory executeDiceMergeCommandFactory)
         {
             _diceSelectionPresenter = diceSelectionPresenter;
+            _commandProcessor = commandProcessor;
+            _toggleDiceRerollSelectionCommandFactory = toggleDiceRerollSelectionCommandFactory;
+            _executeDiceMergeCommandFactory = executeDiceMergeCommandFactory;
         }
 
         private void OnEnable()
@@ -31,7 +40,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
 
             _diceSelectionPresenter.Configure(diceLayerMask);
             _diceSelectionPresenter.OnRerollRequested += HandleRerollRequested;
-            _diceSelectionPresenter.OnAutoMergeRequested += HandleAutoMergeRequested;
+            _diceSelectionPresenter.OnMergeRequested += HandleMergeRequested;
             _diceSelectionPresenter.OnDiceHoverChanged += HandleDiceHoverChanged;
             _diceSelectionPresenter.Enable();
         }
@@ -41,7 +50,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
             if (_diceSelectionPresenter == null) return;
 
             _diceSelectionPresenter.OnRerollRequested -= HandleRerollRequested;
-            _diceSelectionPresenter.OnAutoMergeRequested -= HandleAutoMergeRequested;
+            _diceSelectionPresenter.OnMergeRequested -= HandleMergeRequested;
             _diceSelectionPresenter.OnDiceHoverChanged -= HandleDiceHoverChanged;
             _diceSelectionPresenter.Disable();
         }
@@ -51,20 +60,14 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.EventHandlers
             _diceSelectionPresenter?.Tick();
         }
 
-        private static void HandleRerollRequested(string diceId)
+        private void HandleRerollRequested(string diceId)
         {
-            Bus<DiceRerollSelectionRequestedEvent>.Raise(new DiceRerollSelectionRequestedEvent
-            {
-                DiceId = diceId
-            });
+            _commandProcessor.ExecuteCommand(_toggleDiceRerollSelectionCommandFactory.Create(diceId));
         }
 
-        private static void HandleAutoMergeRequested(string diceId)
+        private void HandleMergeRequested(string diceId)
         {
-            Bus<DiceAutoMergeRequestedEvent>.Raise(new DiceAutoMergeRequestedEvent
-            {
-                DiceId = diceId
-            });
+            _commandProcessor.ExecuteCommand(_executeDiceMergeCommandFactory.Create(diceId));
         }
 
         private void HandleDiceHoverChanged(string diceId, bool isHovered)

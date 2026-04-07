@@ -1,4 +1,5 @@
-﻿using _Project.Application.Events.Core;
+﻿using _Project.Application.Commands;
+using _Project.Application.Events.Core;
 using _Project.Application.Events.EncounterState;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Dice.Entities;
@@ -13,16 +14,24 @@ namespace _Project.Presentation.Scripts.Features.Inventory.Views
     {
         private IDicePouchUseCase _dicePouchUseCase;
         private PlayerRunState _runState;
+        private CommandProcessor _commandProcessor;
+        private StartEncounterCommand _startEncounterCommand;
 
         private ScrollView _inventoryList;
         private Button _startButton;
         private VisualElement _container;
 
         [Inject]
-        public void Construct(IDicePouchUseCase dicePouchUseCase, PlayerRunState runState)
+        public void Construct(
+            IDicePouchUseCase dicePouchUseCase,
+            PlayerRunState runState,
+            CommandProcessor commandProcessor,
+            StartEncounterCommand startEncounterCommand)
         {
             _dicePouchUseCase = dicePouchUseCase;
             _runState = runState;
+            _commandProcessor = commandProcessor;
+            _startEncounterCommand = startEncounterCommand;
         }
 
         protected override void BindUIElements()
@@ -70,9 +79,9 @@ namespace _Project.Presentation.Scripts.Features.Inventory.Views
             _inventoryList.Add(diceToggle);
         }
 
-        private static void OnStartClicked()
+        private void OnStartClicked()
         {
-            Bus<EncounterStartRequestedEvent>.Raise(new EncounterStartRequestedEvent());
+            _commandProcessor.ExecuteCommand(_startEncounterCommand);
         }
 
         private void HideDialog(EncounterStartedEvent evt)

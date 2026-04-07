@@ -1,4 +1,5 @@
-﻿using _Project.Application.Interfaces;
+﻿using _Project.Application.Commands;
+using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
 using _Project.Infrastructure.Features.Combat.Damage;
 using _Project.Infrastructure.Features.DiceSession.Orchestration;
@@ -40,6 +41,12 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IDicePouchUseCase>().To<DicePouchService>().AsSingle();
             Container.Bind<IPointerTargetingService>().To<PointerTargetingService>().AsSingle();
             Container.Bind<DiceSelectionPresenter>().AsSingle();
+            Container.Bind<StartEncounterCommand>().AsTransient();
+            Container.Bind<DealDamageCommand>().AsTransient();
+            Container.Bind<RequestDiceRollCommand>().AsTransient();
+            Container.Bind<ResetDiceCommand>().AsTransient();
+            Container.BindFactory<string, ToggleDiceRerollSelectionCommand, ToggleDiceRerollSelectionCommand.Factory>().AsSingle();
+            Container.BindFactory<string, ExecuteDiceMergeCommand, ExecuteDiceMergeCommand.Factory>().AsSingle();
             Container.BindInterfacesTo<DiceSessionFlowCoordinator>().AsSingle();
 
             // UI Views

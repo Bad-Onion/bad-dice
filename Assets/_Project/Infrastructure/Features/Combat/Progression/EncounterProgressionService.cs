@@ -2,13 +2,18 @@
 using System.Linq;
 using _Project.Application.Events.Core;
 using _Project.Application.Events.EncounterState;
+using _Project.Application.Events.GameState;
+using _Project.Application.Interfaces;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Combat.Entities;
 using _Project.Domain.Features.Combat.Enums;
 using _Project.Domain.Features.Combat.ScriptableObjects.Definitions;
 using _Project.Domain.Features.Combat.ScriptableObjects.Settings;
 using _Project.Domain.Features.Combat.Session;
+using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
+using _Project.Domain.Features.Dice.Session;
+using _Project.Domain.Features.Run.Session;
 using UnityEngine;
 
 namespace _Project.Infrastructure.Features.Combat.Progression
@@ -18,18 +23,61 @@ namespace _Project.Infrastructure.Features.Combat.Progression
         private readonly CombatSessionState _combatSessionState;
         private readonly EnemyEncounterState _enemyEncounterState;
         private readonly GameConfiguration _gameConfiguration;
+        private readonly IRunRepository _runRepository;
+        private readonly PlayerRunState _runState;
+        private readonly DiceSessionState _diceSessionState;
 
         public EncounterProgressionService(
             CombatSessionState combatSessionState,
             EnemyEncounterState enemyEncounterState,
-            GameConfiguration gameConfiguration)
+            GameConfiguration gameConfiguration,
+            IRunRepository runRepository,
+            PlayerRunState runState,
+            DiceSessionState diceSessionState)
         {
             _combatSessionState = combatSessionState;
             _enemyEncounterState = enemyEncounterState;
             _gameConfiguration = gameConfiguration;
+            _runRepository = runRepository;
+            _runState = runState;
+            _diceSessionState = diceSessionState;
         }
 
         public bool IsInitialized => _combatSessionState.IsInitialized;
+
+        public void StartEncounter()
+        {
+            if (!_runState.DiceInventory.Any(diceData => diceData.IsEquipped)) return;
+
+            _diceSessionState.ActiveDice.Clear();
+            _diceSessionState.RerollsLeft = _runState.RerollsPerTurn;
+            _diceSessionState.CurrentTurn = 1;
+            _diceSessionState.MaxTurns = _runState.TurnsPerFight;
+            _diceSessionState.HasDealtThisTurn = false;
+            _diceSessionState.MergeableDiceIds.Clear();
+
+            var equippedDice = _runState.DiceInventory.Where(diceData => diceData.IsEquipped);
+            foreach (var ownedDice in equippedDice)
+            {
+                _diceSessionState.ActiveDice.Add(new DiceState
+                {
+                    Dice = ownedDice.Dice,
+                    Level = 1,
+                    CurrentFaceIndex = -1,
+                    IsSelectedForReroll = false
+                });
+            }
+
+            _runRepository.SaveRun(_runState, _combatSessionState);
+
+            Bus<TurnChangedEvent>.Raise(new TurnChangedEvent
+            {
+                CurrentTurn = _diceSessionState.CurrentTurn,
+                MaxTurns = _diceSessionState.MaxTurns
+            });
+
+            Bus<EncounterStartedEvent>.Raise(new EncounterStartedEvent());
+        }
 
         public void InitializeRunProgression()
         {
