@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1920
     height: 1037
   m_ShowMode: 4
-  m_Title: Project
+  m_Title: Game
   m_RootView: {fileID: 6}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -1273,24 +1273,24 @@ MonoBehaviour:
       m_Data: 50826
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 50478
-    - m_Data: 50480
-    - m_Data: 50482
-    - m_Data: 50484
-    - m_Data: 50486
-    - m_Data: 50488
-    - m_Data: 50490
-    - m_Data: 50492
-    - m_Data: 50494
-    - m_Data: 50496
-    - m_Data: 50498
-    - m_Data: 50500
-    - m_Data: 50502
-    - m_Data: 50504
     - m_Data: 50506
     - m_Data: 50508
     - m_Data: 50510
     - m_Data: 50512
+    - m_Data: 50514
+    - m_Data: 50516
+    - m_Data: 50518
+    - m_Data: 50520
+    - m_Data: 50522
+    - m_Data: 50524
+    - m_Data: 50526
+    - m_Data: 50528
+    - m_Data: 50530
+    - m_Data: 50532
+    - m_Data: 50534
+    - m_Data: 50536
+    - m_Data: 50538
+    - m_Data: 50540
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1323,24 +1323,24 @@ MonoBehaviour:
       m_Data: 0
     m_ExpandedIDs:
     - m_Data: 0
-    - m_Data: 50478
-    - m_Data: 50480
-    - m_Data: 50482
-    - m_Data: 50484
-    - m_Data: 50486
-    - m_Data: 50488
-    - m_Data: 50490
-    - m_Data: 50492
-    - m_Data: 50494
-    - m_Data: 50496
-    - m_Data: 50498
-    - m_Data: 50500
-    - m_Data: 50502
-    - m_Data: 50504
     - m_Data: 50506
     - m_Data: 50508
     - m_Data: 50510
     - m_Data: 50512
+    - m_Data: 50514
+    - m_Data: 50516
+    - m_Data: 50518
+    - m_Data: 50520
+    - m_Data: 50522
+    - m_Data: 50524
+    - m_Data: 50526
+    - m_Data: 50528
+    - m_Data: 50530
+    - m_Data: 50532
+    - m_Data: 50534
+    - m_Data: 50536
+    - m_Data: 50538
+    - m_Data: 50540
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2334,9 +2334,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 790
+    y: 789
     width: 1510
-    height: 244
+    height: 245
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0

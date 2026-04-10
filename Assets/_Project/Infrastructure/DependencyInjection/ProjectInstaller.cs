@@ -73,6 +73,8 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IRunRepository>().To<PlayerPrefsRunRepository>().AsSingle();
             Container.Bind<IRunStateBuilder>().To<RunStateBuilder>().AsSingle();
             Container.Bind<IRunInitializationUseCase>().To<RunGameInitializationService>().AsSingle();
+            Container.Bind<IEncounterPlanBuilder>().To<EncounterPlanBuilder>().AsSingle();
+            Container.Bind<IEncounterStartUseCase>().To<EncounterStartService>().AsSingle();
             Container.Bind<IEncounterProgressionUseCase>().To<EncounterProgressionService>().AsSingle();
             Container.Bind<IEnemyHealthUseCase>().To<EnemyHealthService>().AsSingle();
             Container.BindInterfacesTo<EncounterFlowCoordinator>().AsSingle();
