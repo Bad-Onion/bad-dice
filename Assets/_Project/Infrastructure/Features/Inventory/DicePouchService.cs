@@ -14,9 +14,9 @@ namespace _Project.Infrastructure.Features.Inventory
             _runState = runState;
         }
 
-        public void ToggleDiceEquip(string diceId)
+        public void ToggleDiceEquip(string dieId)
         {
-            var dice = GetDiceToEquip(diceId);
+            var dice = GetDiceToEquip(dieId);
 
             if (dice == null) return;
             if (!dice.IsEquipped && IsMaxDiceEquipped()) return;

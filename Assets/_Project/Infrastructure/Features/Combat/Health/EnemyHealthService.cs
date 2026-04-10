@@ -19,17 +19,39 @@ namespace _Project.Infrastructure.Features.Combat.Health
 
         public void ApplyDamage(int amount)
         {
-            if (!_enemyEncounterState.IsPrepared) return;
+            if (!TryGetDamageContext(amount, out EncounterPlanEntry currentEncounter, out int damageApplied))
+                return;
 
-            EncounterPlanEntry currentEncounter = _enemyEncounterState.CurrentEncounter;
-            if (currentEncounter == null || _enemyEncounterState.CurrentHealth <= 0) return;
+            ApplyDamageToCurrentEncounter(damageApplied);
+            RaiseEnemyDamagedEvent(currentEncounter, damageApplied);
+
+            if (_enemyEncounterState.CurrentHealth > 0) return;
+
+            MarkEnemyDefeated(currentEncounter);
+        }
+
+        private bool TryGetDamageContext(int amount, out EncounterPlanEntry currentEncounter, out int damageApplied)
+        {
+            currentEncounter = _enemyEncounterState.CurrentEncounter;
+            damageApplied = 0;
+
+            if (!_enemyEncounterState.IsPrepared || currentEncounter == null || _enemyEncounterState.CurrentHealth <= 0)
+                return false;
 
             int clampedDamage = Mathf.Max(0, amount);
-            if (clampedDamage <= 0) return;
+            if (clampedDamage <= 0) return false;
 
-            int damageApplied = Mathf.Min(clampedDamage, _enemyEncounterState.CurrentHealth);
+            damageApplied = Mathf.Min(clampedDamage, _enemyEncounterState.CurrentHealth);
+            return damageApplied > 0;
+        }
+
+        private void ApplyDamageToCurrentEncounter(int damageApplied)
+        {
             _enemyEncounterState.CurrentHealth -= damageApplied;
+        }
 
+        private void RaiseEnemyDamagedEvent(EncounterPlanEntry currentEncounter, int damageApplied)
+        {
             Bus<EnemyDamagedEvent>.Raise(new EnemyDamagedEvent
             {
                 EnemyName = currentEncounter.EnemyName,
@@ -37,9 +59,10 @@ namespace _Project.Infrastructure.Features.Combat.Health
                 RemainingHealth = _enemyEncounterState.CurrentHealth,
                 MaxHealth = currentEncounter.MaxHealth
             });
+        }
 
-            if (_enemyEncounterState.CurrentHealth > 0) return;
-
+        private void MarkEnemyDefeated(EncounterPlanEntry currentEncounter)
+        {
             _enemyEncounterState.IsDefeated = true;
 
             Bus<EnemyDefeatedEvent>.Raise(new EnemyDefeatedEvent

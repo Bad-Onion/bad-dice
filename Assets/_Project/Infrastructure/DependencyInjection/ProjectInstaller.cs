@@ -22,6 +22,9 @@ using _Project.Infrastructure.Shared.Adapters;
 
 namespace _Project.Infrastructure.DependencyInjection
 {
+    /// <summary>
+    /// The ProjectInstaller is responsible for setting up all dependency bindings for the project scope.
+    /// </summary>
     public class ProjectInstaller : MonoInstaller
     {
         [Header("Event Channels")]
@@ -60,6 +63,8 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<CombatSessionState>().AsSingle();
             Container.Bind<EnemyEncounterState>().AsSingle();
             Container.Bind<DiceSessionState>().AsSingle();
+            Container.Bind<DiceRollState>().AsSingle();
+            Container.Bind<DiceMergeState>().AsSingle();
 
             // Run State & Persistence (Cross-Scene)
             Container.BindInstance(diceRollConfiguration).AsSingle();
@@ -68,7 +73,11 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IRunRepository>().To<PlayerPrefsRunRepository>().AsSingle();
             Container.Bind<IRunStateBuilder>().To<RunStateBuilder>().AsSingle();
             Container.Bind<IRunInitializationUseCase>().To<RunGameInitializationService>().AsSingle();
+            Container.Bind<IEncounterPlanBuilder>().To<EncounterPlanBuilder>().AsSingle();
+            Container.Bind<IEncounterStartUseCase>().To<EncounterStartService>().AsSingle();
             Container.Bind<IEncounterProgressionUseCase>().To<EncounterProgressionService>().AsSingle();
+
+            // Game Services
             Container.Bind<IEnemyHealthUseCase>().To<EnemyHealthService>().AsSingle();
             Container.BindInterfacesTo<EncounterFlowCoordinator>().AsSingle();
 
@@ -79,6 +88,7 @@ namespace _Project.Infrastructure.DependencyInjection
 
             // Commands
             Container.Bind<CommandProcessor>().AsSingle();
+            Container.Bind<ICommandMiddleware>().To<CommandLoggingMiddleware>().AsSingle();
             Container.BindFactory<LevelData, System.Action, LoadLevelCommand, LoadLevelCommand.Factory>().AsSingle();
             Container.BindFactory<LevelData, System.Action, UnloadLevelCommand, UnloadLevelCommand.Factory>().AsSingle();
 

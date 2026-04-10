@@ -15,22 +15,29 @@ MonoBehaviour:
   visualPrefab: {fileID: 7710947953943999187, guid: f90bbb3782cfffd41a437b2e41a6024b, type: 3}
   physicsPrefab: {fileID: 6105901489569188174, guid: 14b66540260ea334bb42af5580a31799, type: 3}
   visualConfiguration:
-    baseModelPrefab: {fileID: 7434077839032862170, guid: fa0052dbbbf1a0245be80e86350a0890, type: 3}
-    baseMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-    diceMaterial: {fileID: 2100000, guid: 1a03f8c5e2e0b564fbd7768efbecff37, type: 2}
-    faceModels:
+    baseModel: {fileID: 919132149155446097, guid: 35e85277de30b78468bda0bc82d16a6c, type: 3}
+    baseMesh: {fileID: 0}
+    shaderMaterial: {fileID: 2100000, guid: 4884d6cbe20087643b6a5a47c8826f07, type: 2}
+    baseTexture: {fileID: 2800000, guid: 1c99585b6715b09489288beae7a8e285, type: 3}
+    faceTextures:
     - localDirection: 0
-      modelPrefab: {fileID: 8944686199829855051, guid: b23f5de8ccaedb74a860fac3eae2c273, type: 3}
+      faceTexture: {fileID: 2800000, guid: baf9a904edcc74e4d8c5d2ad68ef9ada, type: 3}
+      valueTexture: {fileID: 2800000, guid: 8ab440f4b75b4b846945c50fdf986b9b, type: 3}
     - localDirection: 4
-      modelPrefab: {fileID: 6195772185772791875, guid: 78cf23163fe832d4da9e153343bb68d5, type: 3}
+      faceTexture: {fileID: 2800000, guid: baf9a904edcc74e4d8c5d2ad68ef9ada, type: 3}
+      valueTexture: {fileID: 2800000, guid: d68883d3d56dbc84f837bd8ce8e3bcc6, type: 3}
     - localDirection: 3
-      modelPrefab: {fileID: 3506828153163077715, guid: 3213bf36f915f4a4ba272ed4ea34ef1b, type: 3}
+      faceTexture: {fileID: 2800000, guid: baf9a904edcc74e4d8c5d2ad68ef9ada, type: 3}
+      valueTexture: {fileID: 2800000, guid: ef82cc34aa236a6498589e8d7166072d, type: 3}
     - localDirection: 2
-      modelPrefab: {fileID: 1167162275342074345, guid: 7a9a70033cc0a404e95f554183ebeb63, type: 3}
+      faceTexture: {fileID: 2800000, guid: baf9a904edcc74e4d8c5d2ad68ef9ada, type: 3}
+      valueTexture: {fileID: 2800000, guid: b3b8be75289eb9f418d04618973fffc2, type: 3}
     - localDirection: 5
-      modelPrefab: {fileID: 5626752265960390618, guid: a5c234cfa7938e74a811ace2ce90e045, type: 3}
+      faceTexture: {fileID: 0}
+      valueTexture: {fileID: 2800000, guid: 7f05e4cdd06491b45825a7176ccba423, type: 3}
     - localDirection: 1
-      modelPrefab: {fileID: 6028764715146836537, guid: 077942b0af0f36140859f293fc96b242, type: 3}
+      faceTexture: {fileID: 0}
+      valueTexture: {fileID: 2800000, guid: 60120afcd31c1d14f9a86a82a73022a4, type: 3}
   faces:
   - value: 1
     localDirection: 0

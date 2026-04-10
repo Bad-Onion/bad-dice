@@ -28,16 +28,24 @@ namespace _Project.Infrastructure.Features.Run.Persistence
             PlayerPrefs.Save();
         }
 
-        public PlayerRunState LoadRun(CombatSessionState combatSessionState)
+        public PlayerRunState LoadRun()
         {
             if (!HasActiveRun()) return null;
 
             string json = PlayerPrefs.GetString(SaveKey);
             var saveData = JsonUtility.FromJson<PlayerRunSaveData>(json);
 
-            RunDataConverter.ApplyCombatProgression(saveData, combatSessionState);
-
             return RunDataConverter.ToRunState(saveData, _diceDatabase);
+        }
+
+        public void RestoreCombatProgression(CombatSessionState combatSessionState)
+        {
+            if (!HasActiveRun()) return;
+
+            string json = PlayerPrefs.GetString(SaveKey);
+            var saveData = JsonUtility.FromJson<PlayerRunSaveData>(json);
+
+            RunDataConverter.ApplyCombatProgression(saveData, combatSessionState);
         }
     }
 }

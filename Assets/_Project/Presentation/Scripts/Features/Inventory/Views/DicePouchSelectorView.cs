@@ -1,6 +1,7 @@
-﻿using _Project.Application.Events.Core;
-using _Project.Application.Events.EncounterState;
+﻿using _Project.Application.Commands;
+using _Project.Application.States.Encounter;
 using _Project.Application.UseCases;
+using _Project.Domain.Features.Combat.Session;
 using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.Run.Session;
 using _Project.Presentation.Scripts.Shared.AbstractViews;
@@ -13,16 +14,27 @@ namespace _Project.Presentation.Scripts.Features.Inventory.Views
     {
         private IDicePouchUseCase _dicePouchUseCase;
         private PlayerRunState _runState;
+        private CommandProcessor _commandProcessor;
+        private StartEncounterCommand _startEncounterCommand;
+        private IEncounterProgressionUseCase _encounterProgressionUseCase;
 
         private ScrollView _inventoryList;
         private Button _startButton;
         private VisualElement _container;
 
         [Inject]
-        public void Construct(IDicePouchUseCase dicePouchUseCase, PlayerRunState runState)
+        public void Construct(
+            IDicePouchUseCase dicePouchUseCase,
+            PlayerRunState runState,
+            CommandProcessor commandProcessor,
+            StartEncounterCommand startEncounterCommand,
+            IEncounterProgressionUseCase encounterProgressionUseCase)
         {
             _dicePouchUseCase = dicePouchUseCase;
             _runState = runState;
+            _commandProcessor = commandProcessor;
+            _startEncounterCommand = startEncounterCommand;
+            _encounterProgressionUseCase = encounterProgressionUseCase;
         }
 
         protected override void BindUIElements()
@@ -34,8 +46,7 @@ namespace _Project.Presentation.Scripts.Features.Inventory.Views
             _startButton = UiContainer.Q<Button>("start-fight-button");
 
             _startButton.clicked += OnStartClicked;
-
-            Bus<EncounterStartedEvent>.OnEvent += HideDialog;
+            _encounterProgressionUseCase.EncounterSnapshotUpdated += HandleEncounterSnapshotUpdated;
 
             PopulateInventory();
         }
@@ -43,7 +54,7 @@ namespace _Project.Presentation.Scripts.Features.Inventory.Views
         protected override void UnbindUIElements()
         {
             _startButton.clicked -= OnStartClicked;
-            Bus<EncounterStartedEvent>.OnEvent -= HideDialog;
+            _encounterProgressionUseCase.EncounterSnapshotUpdated -= HandleEncounterSnapshotUpdated;
         }
 
         private void PopulateInventory()
@@ -70,13 +81,14 @@ namespace _Project.Presentation.Scripts.Features.Inventory.Views
             _inventoryList.Add(diceToggle);
         }
 
-        private static void OnStartClicked()
+        private void OnStartClicked()
         {
-            Bus<EncounterStartRequestedEvent>.Raise(new EncounterStartRequestedEvent());
+            _commandProcessor.ExecuteCommand(_startEncounterCommand);
         }
 
-        private void HideDialog(EncounterStartedEvent evt)
+        private void HandleEncounterSnapshotUpdated(EncounterSnapshot snapshot)
         {
+            if (snapshot == null || snapshot.Phase != EncounterPhase.Active) return;
             _container.style.display = DisplayStyle.None;
         }
     }

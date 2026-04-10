@@ -26,7 +26,7 @@ namespace _Project.Infrastructure.Features.Combat.Damage
             _diceRollUseCase = diceRollUseCase;
         }
 
-        public void DealCurrentDiceDamage()
+        public void DealCurrentDamage()
         {
             if (_diceSessionState.HasDealtThisTurn) return;
             if (_diceSessionState.CurrentTurn > _diceSessionState.MaxTurns) return;
@@ -37,8 +37,13 @@ namespace _Project.Infrastructure.Features.Combat.Damage
 
             _diceSessionState.HasDealtThisTurn = true;
             _enemyHealthUseCase.ApplyDamage(totalDamage);
-            ResetDiceLevels();
 
+            ResetDiceLevels();
+            AdvanceTurnAndNotify();
+        }
+
+        private void AdvanceTurnAndNotify()
+        {
             bool hasMoreTurns = _diceSessionState.CurrentTurn < _diceSessionState.MaxTurns;
             if (!hasMoreTurns) return;
 

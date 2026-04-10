@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using _Project.Application.Events.Core;
 using _Project.Application.Events.DiceInput;
-using _Project.Application.Events.DiceSimulation;
-using _Project.Application.Events.DiceState;
 using _Project.Application.Interfaces;
+using _Project.Application.States.DiceSession;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Dice.Entities;
 using _Project.Domain.Features.Dice.ScriptableObjects.Configuration;
@@ -13,23 +12,31 @@ using _Project.Domain.Features.Dice.Session;
 using _Project.Domain.Features.Dice.Simulation;
 using _Project.Domain.Features.Run.Session;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace _Project.Infrastructure.Features.DiceSession.UseCases
 {
     public class DiceRollService : IDiceRollUseCase
     {
         private readonly DiceSessionState _diceSessionState;
+        private readonly DiceRollState _diceRollState;
         private readonly PlayerRunState _runState;
         private readonly DiceRollConfiguration _diceRollConfiguration;
         private readonly IDiceSimulationService _simulationService;
 
+        public event Action<DiceRollPhase> DiceRollPhaseChanged;
+        public event Action<DiceResetEvent> DiceReset;
+        public event Action<DiceRerollToggledEvent> DiceRerollToggled;
+
         public DiceRollService(
             DiceSessionState diceSessionState,
+            DiceRollState diceRollState,
             PlayerRunState runState,
             DiceRollConfiguration diceRollConfiguration,
             IDiceSimulationService simulationService)
         {
             _diceSessionState = diceSessionState;
+            _diceRollState = diceRollState;
             _runState = runState;
             _diceRollConfiguration = diceRollConfiguration;
             _simulationService = simulationService;
@@ -40,26 +47,31 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
             var diceToRoll = GetDiceToRoll();
             if (!CanRollDice(diceToRoll)) return;
 
-            _diceSessionState.IsRolling = true;
+            _diceRollState.IsRolling = true;
 
             if (!IsFirstRoll())
             {
                 _diceSessionState.RerollsLeft--;
             }
 
+            SetRollPhase(DiceRollPhase.ResolvingResult);
             PerformRoll(diceToRoll);
         }
 
         public void EndRoll()
         {
-            _diceSessionState.IsRolling = false;
-            Bus<DiceRollFinishedEvent>.Raise(new DiceRollFinishedEvent());
+            _diceRollState.IsRolling = false;
+            SetRollPhase(DiceRollPhase.Completed);
         }
 
         public void ResetDice()
         {
-            _diceSessionState.IsRolling = false;
+            _diceRollState.IsRolling = false;
+            _diceRollState.RollPhase = DiceRollPhase.Idle;
             _diceSessionState.RerollsLeft = _runState.RerollsPerTurn;
+            _diceRollState.CurrentTargetFaceIndices = Array.Empty<int>();
+            _diceRollState.CurrentSimulationResult = default;
+            _diceRollState.CurrentRolledDiceIds.Clear();
 
             foreach (var die in _diceSessionState.ActiveDice)
             {
@@ -67,29 +79,29 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
                 die.IsSelectedForReroll = false;
             }
 
-            Bus<DiceResetEvent>.Raise(new DiceResetEvent());
+            DiceReset?.Invoke(new DiceResetEvent());
         }
 
-        public void ToggleDiceRerollSelection(string diceId)
+        public void ToggleDiceRerollSelection(string dieId)
         {
-            if (_diceSessionState.IsRolling) return;
+            if (_diceRollState.IsRolling) return;
 
-            var die = GetDiceToReroll(diceId);
+            var die = GetDiceToReroll(dieId);
 
             if (die == null || !HasBeenRolled(die)) return;
 
             die.IsSelectedForReroll = !die.IsSelectedForReroll;
 
-            Bus<DiceRerollToggledEvent>.Raise(new DiceRerollToggledEvent
+            DiceRerollToggled?.Invoke(new DiceRerollToggledEvent
             {
-                DiceId = diceId,
+                DiceId = dieId,
                 IsSelected = die.IsSelectedForReroll
             });
         }
 
         private bool CanRollDice(List<DiceState> diceToRoll)
         {
-            if (_diceSessionState.IsRolling) return false;
+            if (_diceRollState.IsRolling) return false;
             if (!IsFirstRoll() && _diceSessionState.RerollsLeft <= 0) return false;
             if (diceToRoll.Count == 0) return false;
 
@@ -121,15 +133,17 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
                 definitions[i] = die.Dice.Definition;
             }
 
-            Bus<DiceResultDecidedEvent>.Raise(new DiceResultDecidedEvent { TargetFaceIndices = targetFaceIndices });
+            _diceRollState.CurrentTargetFaceIndices = targetFaceIndices;
+            _diceRollState.CurrentSimulationResult = SimulateRoll(definitions, targetFaceIndices);
+            _diceRollState.CurrentRolledDiceIds = diceToRoll.Select(diceState => diceState.Dice.Id).ToList();
 
-            DiceSimulationResult simulationResult = SimulateRoll(definitions, targetFaceIndices);
+            SetRollPhase(DiceRollPhase.PlayingAnimation);
+        }
 
-            Bus<DicePlaybackRequestedEvent>.Raise(new DicePlaybackRequestedEvent
-            {
-                SimulationResult = simulationResult,
-                RolledDiceIds = diceToRoll.Select(diceState => diceState.Dice.Id).ToList()
-            });
+        private void SetRollPhase(DiceRollPhase phase)
+        {
+            _diceRollState.RollPhase = phase;
+            DiceRollPhaseChanged?.Invoke(phase);
         }
 
         private static bool HasBeenRolled(DiceState die)
@@ -200,7 +214,7 @@ namespace _Project.Infrastructure.Features.DiceSession.UseCases
             return BuildArray(count, _ => Random.rotation);
         }
 
-        private static T[] BuildArray<T>(int count, System.Func<int, T> elementFactory)
+        private static T[] BuildArray<T>(int count, Func<int, T> elementFactory)
         {
             T[] elements = new T[count];
 

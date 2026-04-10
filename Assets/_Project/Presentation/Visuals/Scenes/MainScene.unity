@@ -211,7 +211,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cd29762455944de8f114e079f3e913b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Presentation.Scripts.Controllers.PauseInputListener
-  inputReader: {fileID: 11400000, guid: 5eafba7a585d9db4b8f2065dd68d9821, type: 2}
 --- !u!1 &173587046
 GameObject:
   m_ObjectHideFlags: 0

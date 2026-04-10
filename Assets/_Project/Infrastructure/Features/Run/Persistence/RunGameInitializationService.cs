@@ -32,7 +32,7 @@ namespace _Project.Infrastructure.Features.Run.Persistence
         public void EnsureRunInitialized()
         {
             // Don't remove this, it's useful for debugging and testing to reset the run state without having to clear PlayerPrefs manually
-            // PlayerPrefs.DeleteAll();
+            PlayerPrefs.DeleteAll();
 
             if (_repository.HasActiveRun())
             {
@@ -45,8 +45,9 @@ namespace _Project.Infrastructure.Features.Run.Persistence
 
         private void LoadRun()
         {
-            var loadedState = _repository.LoadRun(_combatSessionState);
+            var loadedState = _repository.LoadRun();
             _runStateBuilder.BuildFromExisting(_runState, loadedState, _gameConfiguration.runDefinitions);
+            _repository.RestoreCombatProgression(_combatSessionState);
         }
 
         private void InitializeRun()

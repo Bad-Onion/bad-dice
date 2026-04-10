@@ -1,54 +1,65 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using _Project.Application.Events.Core;
-using _Project.Application.Events.EncounterState;
+﻿using System;
+using _Project.Application.Interfaces;
+using _Project.Application.States.Encounter;
 using _Project.Application.UseCases;
 using _Project.Domain.Features.Combat.Entities;
 using _Project.Domain.Features.Combat.Enums;
-using _Project.Domain.Features.Combat.ScriptableObjects.Definitions;
-using _Project.Domain.Features.Combat.ScriptableObjects.Settings;
 using _Project.Domain.Features.Combat.Session;
 using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
-using UnityEngine;
 
 namespace _Project.Infrastructure.Features.Combat.Progression
 {
     public class EncounterProgressionService : IEncounterProgressionUseCase
     {
+        public event Action<EncounterSnapshot> EncounterSnapshotUpdated;
+
         private readonly CombatSessionState _combatSessionState;
         private readonly EnemyEncounterState _enemyEncounterState;
+        private readonly IEncounterPlanBuilder _encounterPlanBuilder;
+        private readonly IEncounterStartUseCase _encounterStartUseCase;
         private readonly GameConfiguration _gameConfiguration;
 
         public EncounterProgressionService(
             CombatSessionState combatSessionState,
             EnemyEncounterState enemyEncounterState,
+            IEncounterPlanBuilder encounterPlanBuilder,
+            IEncounterStartUseCase encounterStartUseCase,
             GameConfiguration gameConfiguration)
         {
             _combatSessionState = combatSessionState;
             _enemyEncounterState = enemyEncounterState;
+            _encounterPlanBuilder = encounterPlanBuilder;
+            _encounterStartUseCase = encounterStartUseCase;
             _gameConfiguration = gameConfiguration;
         }
 
         public bool IsInitialized => _combatSessionState.IsInitialized;
 
+        public void StartEncounter()
+        {
+            EncounterSnapshot encounterSnapshot = _encounterStartUseCase.StartEncounter();
+
+            if (encounterSnapshot == null) return;
+
+            EncounterSnapshotUpdated?.Invoke(encounterSnapshot);
+        }
+
         public void InitializeRunProgression()
         {
             if (_combatSessionState.IsInitialized) return;
 
-            EnemyDatabase enemyDatabase = _gameConfiguration.enemyDatabase;
-            EnemyProgressionConfiguration progressionConfiguration = _gameConfiguration.enemyProgressionConfiguration;
+            ResetRunProgressionState();
 
-            _combatSessionState.PlannedEncounters.Clear();
-            _combatSessionState.CurrentEncounterIndex = 0;
-
-            BuildEncounterPlan(enemyDatabase, progressionConfiguration);
-            _combatSessionState.IsInitialized = _combatSessionState.PlannedEncounters.Count > 0;
+            _combatSessionState.PlannedEncounters.AddRange(
+                _encounterPlanBuilder.BuildPlan(_gameConfiguration.enemyDatabase,
+                    _gameConfiguration.enemyProgressionConfiguration));
+            _combatSessionState.IsInitialized = HasPlannedEncounters();
         }
 
         public void PrepareCurrentEncounter()
         {
             if (!_combatSessionState.IsInitialized) return;
-            if (_combatSessionState.CurrentEncounterIndex < 0 || _combatSessionState.CurrentEncounterIndex >= _combatSessionState.PlannedEncounters.Count) return;
+            if (!IsCurrentEncounterIndexValid()) return;
 
             EncounterPlanEntry encounterPlanEntry = _combatSessionState.PlannedEncounters[_combatSessionState.CurrentEncounterIndex];
             _enemyEncounterState.CurrentEncounter = encounterPlanEntry;
@@ -56,17 +67,21 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             _enemyEncounterState.IsPrepared = true;
             _enemyEncounterState.IsDefeated = false;
 
-            Bus<EncounterPreparedEvent>.Raise(new EncounterPreparedEvent
+            _enemyEncounterState.Phase = EncounterPhase.Prepared;
+            _enemyEncounterState.Snapshot = new EncounterSnapshot
             {
+                Phase = EncounterPhase.Prepared,
                 EnemyId = encounterPlanEntry.EnemyId,
                 EnemyName = encounterPlanEntry.EnemyName,
                 CurrentHealth = _enemyEncounterState.CurrentHealth,
                 MaxHealth = encounterPlanEntry.MaxHealth,
                 CycleNumber = encounterPlanEntry.CycleNumber,
                 EncounterIndexInCycle = encounterPlanEntry.EncounterIndexInCycle,
-                IsBoss = encounterPlanEntry.EncounterType == EnemyEncounterType.Boss || encounterPlanEntry.EncounterType == EnemyEncounterType.FinalBoss,
-                IsFinalBoss = encounterPlanEntry.EncounterType == EnemyEncounterType.FinalBoss
-            });
+                IsBoss = IsBossEncounter(encounterPlanEntry.EncounterType),
+                IsFinalBoss = IsFinalBossEncounter(encounterPlanEntry.EncounterType)
+            };
+
+            EncounterSnapshotUpdated?.Invoke(_enemyEncounterState.Snapshot);
         }
 
         public bool TryAdvanceEncounter()
@@ -74,109 +89,39 @@ namespace _Project.Infrastructure.Features.Combat.Progression
             if (!_combatSessionState.IsInitialized) return false;
 
             int nextEncounterIndex = _combatSessionState.CurrentEncounterIndex + 1;
-            if (nextEncounterIndex >= _combatSessionState.PlannedEncounters.Count)
-            {
-                return false;
-            }
+
+            if (nextEncounterIndex >= _combatSessionState.PlannedEncounters.Count) return false;
 
             _combatSessionState.CurrentEncounterIndex = nextEncounterIndex;
             return true;
         }
 
-        private void BuildEncounterPlan(EnemyDatabase enemyDatabase, EnemyProgressionConfiguration progressionConfiguration)
+        private void ResetRunProgressionState()
         {
-            for (int cycleNumber = 1; cycleNumber <= progressionConfiguration.TotalCycles; cycleNumber++)
-            {
-                AddMinorEncounters(enemyDatabase.MinorEnemies, progressionConfiguration.MinorEncountersPerCycle, cycleNumber);
-                AddBossEncounter(enemyDatabase, progressionConfiguration.TotalCycles, cycleNumber, progressionConfiguration.MinorEncountersPerCycle + 1);
-            }
+            _combatSessionState.PlannedEncounters.Clear();
+            _combatSessionState.CurrentEncounterIndex = 0;
         }
 
-        private void AddMinorEncounters(IReadOnlyList<MinorEnemyDefinition> minorEnemies, int minorEncountersPerCycle, int cycleNumber)
+        private bool HasPlannedEncounters()
         {
-            if (minorEnemies == null || minorEnemies.Count == 0) return;
-
-            List<MinorEnemyDefinition> shuffledCyclePool = minorEnemies.OrderBy(_ => Random.value).ToList();
-
-            for (int encounterIndexInCycle = 1; encounterIndexInCycle <= minorEncountersPerCycle; encounterIndexInCycle++)
-            {
-                MinorEnemyDefinition selectedEnemy = shuffledCyclePool.Count > 0
-                    ? PopFirst(shuffledCyclePool)
-                    : minorEnemies[Random.Range(0, minorEnemies.Count)];
-
-                if (selectedEnemy == null) continue;
-
-                AddEncounterPlanEntry(
-                    selectedEnemy.EnemyId,
-                    selectedEnemy.EnemyName,
-                    selectedEnemy.MaxHealth,
-                    EnemyEncounterType.Minor,
-                    cycleNumber,
-                    encounterIndexInCycle);
-            }
+            return _combatSessionState.PlannedEncounters.Count > 0;
         }
 
-        private void AddBossEncounter(EnemyDatabase enemyDatabase, int totalCycles, int cycleNumber, int encounterIndexInCycle)
+        private bool IsCurrentEncounterIndexValid()
         {
-            BossEnemyDefinition selectedBoss = cycleNumber == totalCycles
-                ? enemyDatabase.FinalBoss
-                : GetRandomBoss(enemyDatabase);
-
-            if (selectedBoss == null) return;
-
-            AddEncounterPlanEntry(
-                selectedBoss.EnemyId,
-                selectedBoss.EnemyName,
-                selectedBoss.MaxHealth,
-                cycleNumber == totalCycles ? EnemyEncounterType.FinalBoss : EnemyEncounterType.Boss,
-                cycleNumber,
-                encounterIndexInCycle);
+            return _combatSessionState.CurrentEncounterIndex >= 0 &&
+                   _combatSessionState.CurrentEncounterIndex < _combatSessionState.PlannedEncounters.Count;
         }
 
-        private void AddEncounterPlanEntry(
-            string enemyId,
-            string enemyName,
-            int maxHealth,
-            EnemyEncounterType encounterType,
-            int cycleNumber,
-            int encounterIndexInCycle)
+        private static bool IsBossEncounter(EnemyEncounterType encounterType)
         {
-            _combatSessionState.PlannedEncounters.Add(new EncounterPlanEntry
-            {
-                EnemyId = enemyId,
-                EnemyName = enemyName,
-                MaxHealth = maxHealth,
-                EncounterType = encounterType,
-                CycleNumber = cycleNumber,
-                EncounterIndexInCycle = encounterIndexInCycle
-            });
+            return encounterType == EnemyEncounterType.Boss ||
+                   encounterType == EnemyEncounterType.FinalBoss;
         }
 
-        private static MinorEnemyDefinition PopFirst(List<MinorEnemyDefinition> entries)
+        private static bool IsFinalBossEncounter(EnemyEncounterType encounterType)
         {
-            MinorEnemyDefinition selectedEnemy = entries[0];
-            entries.RemoveAt(0);
-            return selectedEnemy;
-        }
-
-        private static BossEnemyDefinition GetRandomBoss(EnemyDatabase enemyDatabase)
-        {
-            if (enemyDatabase.Bosses == null || enemyDatabase.Bosses.Count == 0) return null;
-
-            List<BossEnemyDefinition> candidateBosses = enemyDatabase.Bosses
-                .Where(boss => boss != null && boss != enemyDatabase.FinalBoss)
-                .ToList();
-
-            if (candidateBosses.Count == 0)
-            {
-                candidateBosses = enemyDatabase.Bosses.Where(boss => boss != null).ToList();
-            }
-
-            if (candidateBosses.Count == 0) return null;
-
-            int randomIndex = Random.Range(0, candidateBosses.Count);
-            return candidateBosses[randomIndex];
+            return encounterType == EnemyEncounterType.FinalBoss;
         }
     }
 }
-
