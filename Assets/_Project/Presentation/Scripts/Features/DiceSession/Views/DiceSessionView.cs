@@ -1,11 +1,5 @@
-﻿using _Project.Application.Events.Core;
-using _Project.Application.Events.EncounterState;
-using _Project.Application.Events.GameState;
-using _Project.Application.Commands;
-using _Project.Application.UseCases;
-using _Project.Domain.Features.Combat.Session;
-using _Project.Domain.Features.Dice.Session;
-using _Project.Domain.Features.GameFlow.ScriptableObjects.Settings;
+﻿using _Project.Application.Interfaces;
+using _Project.Presentation.Scripts.Features.DiceSession.Presenters;
 using _Project.Presentation.Scripts.Shared.AbstractViews;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -13,7 +7,7 @@ using Zenject;
 
 namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 {
-    public partial class DiceSessionView : BaseView
+    public class DiceSessionView : BaseView, IDiceSessionView
     {
         private Button _rollButton;
         private Button _resetButton;
@@ -25,44 +19,13 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
         private Label _turnLabel;
         private VisualElement _levelContainer;
 
-        private DiceSessionState _diceSessionState;
-        private EnemyEncounterState _enemyEncounterState;
-        private GameConfiguration _gameConfiguration;
-        private CommandProcessor _commandProcessor;
-        private RequestDiceRollCommand _requestDiceRollCommand;
-        private ResetDiceCommand _resetDiceCommand;
-        private DealDamageCommand _dealDamageCommand;
-        private IDiceRollUseCase _diceRollUseCase;
-        private IDiceMergeUseCase _diceMergeUseCase;
-        private IDiceHoverUseCase _diceHoverUseCase;
-        private IEncounterProgressionUseCase _encounterProgressionUseCase;
+        private DiceSessionPresenterFacade _presenterFacade;
         private bool _isUiInitialized;
 
         [Inject]
-        public void Construct(
-            DiceSessionState diceSessionState,
-            EnemyEncounterState enemyEncounterState,
-            GameConfiguration gameConfiguration,
-            CommandProcessor commandProcessor,
-            RequestDiceRollCommand requestDiceRollCommand,
-            ResetDiceCommand resetDiceCommand,
-            DealDamageCommand dealDamageCommand,
-            IDiceRollUseCase diceRollUseCase,
-            IDiceMergeUseCase diceMergeUseCase,
-            IDiceHoverUseCase diceHoverUseCase,
-            IEncounterProgressionUseCase encounterProgressionUseCase)
+        public void Construct(DiceSessionPresenterFacade presenterFacade)
         {
-            _diceSessionState = diceSessionState;
-            _enemyEncounterState = enemyEncounterState;
-            _gameConfiguration = gameConfiguration;
-            _commandProcessor = commandProcessor;
-            _requestDiceRollCommand = requestDiceRollCommand;
-            _resetDiceCommand = resetDiceCommand;
-            _dealDamageCommand = dealDamageCommand;
-            _diceRollUseCase = diceRollUseCase;
-            _diceMergeUseCase = diceMergeUseCase;
-            _diceHoverUseCase = diceHoverUseCase;
-            _encounterProgressionUseCase = encounterProgressionUseCase;
+            _presenterFacade = presenterFacade;
         }
 
         protected override void BindUIElements()
@@ -71,9 +34,8 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             if (!TryCacheUiElements()) return;
 
             SubscribeUiActions();
-            SubscribeEvents();
-
-            RefreshEnemyPanelFromState();
+            _presenterFacade.Attach(this);
+            _presenterFacade.RefreshEnemyPanelFromState();
         }
 
         protected override void UnbindUIElements()
@@ -81,7 +43,7 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
             if (!_isUiInitialized) return;
 
             UnsubscribeUiActions();
-            UnsubscribeEvents();
+            _presenterFacade.Detach();
             _isUiInitialized = false;
         }
 
@@ -115,44 +77,66 @@ namespace _Project.Presentation.Scripts.Features.DiceSession.Views
 
         private void SubscribeUiActions()
         {
-            _rollButton.clicked += RaiseRollRequested;
-            _resetButton.clicked += RaiseResetRequested;
-            _dealButton.clicked += HandleDealClicked;
+            _rollButton.clicked += OnRollButtonClicked;
+            _resetButton.clicked += OnResetButtonClicked;
+            _dealButton.clicked += OnDealButtonClicked;
         }
 
         private void UnsubscribeUiActions()
         {
-            _rollButton.clicked -= RaiseRollRequested;
-            _resetButton.clicked -= RaiseResetRequested;
-            _dealButton.clicked -= HandleDealClicked;
+            _rollButton.clicked -= OnRollButtonClicked;
+            _resetButton.clicked -= OnResetButtonClicked;
+            _dealButton.clicked -= OnDealButtonClicked;
         }
 
-        private void SubscribeEvents()
+        private void OnRollButtonClicked()
         {
-            Bus<EnemyDamagedEvent>.OnEvent += OnEnemyDamaged;
-            Bus<EnemyDefeatedEvent>.OnEvent += OnEnemyDefeated;
-            Bus<RunCompletedEvent>.OnEvent += OnRunCompleted;
-            Bus<TurnChangedEvent>.OnEvent += OnTurnChanged;
-
-            _encounterProgressionUseCase.EncounterSnapshotUpdated += OnEncounterSnapshotUpdated;
-            _diceRollUseCase.DiceRollPhaseChanged += OnDiceRollPhaseChanged;
-            _diceRollUseCase.DiceReset += OnDiceReset;
-            _diceMergeUseCase.MergeStateChanged += OnMergeStateChanged;
-            _diceHoverUseCase.DiceHoverDetailsUpdated += OnDiceHoverDetailsUpdated;
+            _presenterFacade.RequestRoll();
         }
 
-        private void UnsubscribeEvents()
+        private void OnResetButtonClicked()
         {
-            Bus<EnemyDamagedEvent>.OnEvent -= OnEnemyDamaged;
-            Bus<EnemyDefeatedEvent>.OnEvent -= OnEnemyDefeated;
-            Bus<RunCompletedEvent>.OnEvent -= OnRunCompleted;
-            Bus<TurnChangedEvent>.OnEvent -= OnTurnChanged;
+            _presenterFacade.RequestReset();
+        }
 
-            _encounterProgressionUseCase.EncounterSnapshotUpdated -= OnEncounterSnapshotUpdated;
-            _diceRollUseCase.DiceRollPhaseChanged -= OnDiceRollPhaseChanged;
-            _diceRollUseCase.DiceReset -= OnDiceReset;
-            _diceMergeUseCase.MergeStateChanged -= OnMergeStateChanged;
-            _diceHoverUseCase.DiceHoverDetailsUpdated -= OnDiceHoverDetailsUpdated;
+        private void OnDealButtonClicked()
+        {
+            _presenterFacade.RequestDealDamage();
+        }
+
+        public void SetEnemyInfo(string enemyNameText)
+        {
+            _enemyNameLabel.text = enemyNameText;
+        }
+
+        public void SetEnemyHealth(string enemyHealthText)
+        {
+            _enemyHealthLabel.text = enemyHealthText;
+        }
+
+        public void SetCycleInfo(string cycleText)
+        {
+            _cycleLabel.text = cycleText;
+        }
+
+        public void SetTurnInfo(string turnText)
+        {
+            _turnLabel.text = turnText;
+        }
+
+        public void SetResultInfo(string resultText)
+        {
+            _resultLabel.text = resultText;
+        }
+
+        public void SetDealButtonInteractable(bool isInteractable)
+        {
+            _dealButton.SetEnabled(isInteractable);
+        }
+
+        public void SetDicePanelVisible(bool isVisible)
+        {
+            _levelContainer.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }
