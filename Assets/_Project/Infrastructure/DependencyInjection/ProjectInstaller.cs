@@ -76,6 +76,8 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<IEncounterPlanBuilder>().To<EncounterPlanBuilder>().AsSingle();
             Container.Bind<IEncounterStartUseCase>().To<EncounterStartService>().AsSingle();
             Container.Bind<IEncounterProgressionUseCase>().To<EncounterProgressionService>().AsSingle();
+
+            // Game Services
             Container.Bind<IEnemyHealthUseCase>().To<EnemyHealthService>().AsSingle();
             Container.BindInterfacesTo<EncounterFlowCoordinator>().AsSingle();
 

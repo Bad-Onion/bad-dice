@@ -30,18 +30,24 @@ namespace _Project.Infrastructure.DependencyInjection
             // Level References
             Container.BindInstance(levelCamera).AsSingle();
 
-            // Services
+            // Core Services
             Container.Bind<IDiceDamageService>().To<DiceDamageService>().AsSingle();
             Container.Bind<IDamageCalculationService>().To<DamageCalculationService>().AsSingle();
             Container.Bind<IDealDamageUseCase>().To<DealDamageService>().AsSingle();
             Container.Bind<IDiceSimulationService>().To<DiceSimulationService>().AsSingle();
             Container.Bind<IDiceRollUseCase>().To<DiceRollService>().AsSingle();
             Container.Bind<IDiceMergeUseCase>().To<DiceMergeService>().AsSingle();
-            Container.Bind<IDiceHoverInputSource>().To<DiceSelectionHandler>().FromComponentInHierarchy().AsSingle();
-            Container.Bind<IDicePlaybackCompletionInputSource>().To<DicePrefabEventHandler>().FromComponentInHierarchy().AsSingle();
-            Container.BindInterfacesAndSelfTo<DiceHoverService>().AsSingle();
             Container.Bind<IDicePouchUseCase>().To<DicePouchService>().AsSingle();
             Container.Bind<IPointerTargetingService>().To<PointerTargetingService>().AsSingle();
+
+            // Input Sources \(Scene Components\)
+            Container.Bind<IDiceHoverInputSource>().To<DiceSelectionHandler>().FromComponentInHierarchy().AsSingle();
+            Container.Bind<IDicePlaybackCompletionInputSource>().To<DicePrefabEventHandler>().FromComponentInHierarchy().AsSingle();
+
+            // Interaction Services
+            Container.BindInterfacesAndSelfTo<DiceHoverService>().AsSingle();
+
+            // Presenters
             Container.Bind<DiceSelectionPresenter>().AsSingle();
             Container.Bind<DiceSessionEncounterViewPresenter>().AsSingle();
             Container.Bind<DiceSessionRollStatePresenter>().AsSingle();
@@ -49,12 +55,18 @@ namespace _Project.Infrastructure.DependencyInjection
             Container.Bind<DiceSessionCommandPresenter>().AsSingle();
             Container.Bind<DiceSessionEventPresenter>().AsSingle();
             Container.BindInterfacesAndSelfTo<DiceSessionPresenterFacade>().AsSingle();
+
+            // Commands
             Container.Bind<StartEncounterCommand>().AsTransient();
             Container.Bind<DealDamageCommand>().AsTransient();
             Container.Bind<RequestDiceRollCommand>().AsTransient();
             Container.Bind<ResetDiceCommand>().AsTransient();
+
+            // Command Factories
             Container.BindFactory<string, ToggleDiceRerollSelectionCommand, ToggleDiceRerollSelectionCommand.Factory>().AsSingle();
             Container.BindFactory<string, ExecuteDiceMergeCommand, ExecuteDiceMergeCommand.Factory>().AsSingle();
+
+            // Coordinators
             Container.BindInterfacesTo<DiceSessionFlowCoordinator>().AsSingle();
 
             // UI Views
